@@ -1,3 +1,6 @@
-# Python-Abhängigkeiten nur für den manuellen Workflow assets.yml.
-# Wird in P2/P3 ergänzt (torch, transformers, safetensors, numpy …).
-pyyaml==6.0.2
+# Python-Abhängigkeiten für assets.yml (PyTorch CPU wird im Workflow separat installiert).
+transformers>=4.46
+tokenizers
+safetensors
+numpy
+huggingface_hub
