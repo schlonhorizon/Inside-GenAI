@@ -1,7 +1,7 @@
 # PLAN.md: „Inside GenAI“
 
 > Interaktives Lernkompendium: Wie macht ein LLM aus einem Prompt eine Antwort?
-> Stand: 2026-11-23 · Revision 4 (Design-Entscheidungen nach D0) · Status: D0 und P0 umgesetzt; nächster Schritt P1a (Engine-Spike)
+> Stand: 2026-11-23 · Revision 4 (Design-Entscheidungen nach D0) · Status: D0, P0 und P1a umgesetzt; nächster Schritt P1b (MVP), offene Entscheidungen aus `docs/spike.md`
 
 ## 1. Zusammenfassung
 
@@ -399,7 +399,7 @@ Ziel: am Arbeitslaptop in 30 Sekunden sehen, was geht.
 - Widgets leiten den **Stempel automatisch** aus `trace.source` ab. Damit ist Ehrlichkeit Teil der Architektur.
 
 ### 5.4 Korrektheit
-- **Golden-Tests:** `golden.py` (manueller Workflow) erzeugt Referenz-Logits und -Attention für 5 Prompts mit PyTorch. Vitest vergleicht die TS-Engine dagegen, und zwar **in `ci.yml` (jeder PR) und in `deploy.yml`**. Das Kriterium ist robust statt einer absoluten Logit-Schwelle: Top-10-Tokens identisch, relative Abweichung der Logits < 1e-2 und Korrelation der Logit-Vektoren > 0,999. Die endgültigen Toleranzen für fp32 und int8 legt der Spike (P1a) fest, und `docs/spike.md` dokumentiert sie.
+- **Golden-Tests:** `golden.py` (manueller Workflow) erzeugt Referenz-Logits und -Attention für 5 Prompts mit PyTorch. Vitest vergleicht die TS-Engine dagegen, und zwar **in `ci.yml` (jeder PR) und in `deploy.yml`**. Toleranzen (festgelegt im Spike, `docs/spike.md`): **exakter Pfad** (f32/fp16): Top-10 identisch, rel. L2 < 10⁻⁴, KL < 10⁻⁶, Greedy 16/16. **int8**: Top-1 identisch, Top-10-Überlappung ≥ 8/10, Korrelation ≥ 0,997, KL < 2·10⁻², max. Δp < 5 pp. Zusätzlich prüft `test/engine.test.ts` die Engine gegen eine NumPy-Referenz an einem Mini-Modell (ohne Download).
 - Unit-Tests für Ops, Sampler (Top-p-Grenzfälle, Seed-Reproduzierbarkeit) und BPE (gegen Referenz-Tokenisierungen).
 
 ### 5.5 Modellzahlen aus der Config (keine festen Zahlen im Text)
@@ -499,7 +499,9 @@ Hash-Routing mit allen 16 Kapitel-Routen (Platzhalter), MDX + KaTeX, Design-Toke
 - [ ] `#/diagnose` zeigt Download-Rate des 30-MB-Test-Shards, Cache-API-Status, WebGPU-Status und Rechen-Benchmark; der Report ist kopierbar.
 - [ ] Mathe-Toggle blendet Formeln seitenweit ein und aus; die Einstellung überlebt einen Reload.
 
-### P1a: Engine-Spike · **M**
+### P1a: Engine-Spike · **M** · ✅ abgeschlossen
+> Ergebnis: [`docs/spike.md`](docs/spike.md). fp32/fp16 exakt, int8 mit bis zu 3 pp Abweichung; Decode ≈ 165 ms/Token, Prefill muss in P2 per Batch schneller werden. Toleranzen für die Golden-Tests stehen dort.
+
 1. Prüfen, ob die Claude-Session huggingface.co erreicht. Falls nicht, läuft der Spike als GitHub-Actions-Job (Trigger: Push auf den Spike-Branch), und alles Modellbezogene läuft dauerhaft nur über Actions.
 2. Minimale TS-Engine (Llama-Architektur) lädt SmolLM2-135M (Base), Forward-Pass in Node.
 3. Vergleich der Top-5-Logits mit PyTorch-Referenz für 2 Prompts, in fp32 **und** int8.

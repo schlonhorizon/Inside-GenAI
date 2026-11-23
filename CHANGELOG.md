@@ -1,5 +1,12 @@
 # Changelog
 
+## P1a: Engine-Spike (2026-11-23)
+
+- Eigene Inferenz-Engine in TypeScript (`src/engine`): Llama-Architektur mit RMSNorm, RoPE, Grouped-Query-Attention, SwiGLU, KV-Cache; safetensors-Leser; int8-Quantisierung (pro Zeile und in Gruppen)
+- Test gegen eine unabhängige NumPy-Referenz an einem Mini-Modell (`test/engine.test.ts`)
+- Spike-Workflow `spike.yml`: Vergleich mit PyTorch am echten SmolLM2-135M (Base + Instruct), Zeitmessung, Leitbeispiel-Kandidaten
+- Ergebnis und festgelegte Toleranzen: `docs/spike.md` (fp32/fp16 exakt, int8 ≤ 3 pp Abweichung, Decode ≈ 165 ms/Token)
+
 ## P0: Fundament (2026-11-23)
 
 - Seitengerüst: Hash-Routing (`#/kapitel/<slug>`, `#/glossar`, `#/credits`, `#/diagnose`, `#/styleguide`), Kapitelnavigation mit Fortschrittsanzeige, Mobilmenü
