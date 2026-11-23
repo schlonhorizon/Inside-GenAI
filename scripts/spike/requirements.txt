@@ -1,0 +1,5 @@
+# Nur für den Spike-Workflow (spike.yml); PyTorch (CPU) wird dort separat installiert.
+transformers>=4.46
+safetensors
+numpy
+huggingface_hub

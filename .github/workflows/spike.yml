@@ -1,0 +1,68 @@
+name: Engine-Spike (P1a)
+
+# Vergleicht die eigene TS-Engine mit PyTorch/transformers am echten SmolLM2-135M,
+# misst Lade-/Prefill-/Decode-Zeiten und listet Leitbeispiel-Kandidaten auf.
+# Ergebnis: Job-Zusammenfassung + Artifact "spike-out" (spike-report.md, results.json).
+
+on:
+  push:
+    branches: ['claude/**']
+    paths:
+      - 'scripts/spike/**'
+      - 'src/engine/**'
+      - '.github/workflows/spike.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  spike:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Python-Abhängigkeiten (PyTorch CPU)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r scripts/spike/requirements.txt
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: spike-hf-smollm2-v1
+
+      - name: 1 · Referenz mit PyTorch
+        run: python scripts/spike/reference.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: 2 · Eigene Engine (fp32 + int8) mit Zeitmessung
+        run: node --experimental-strip-types --expose-gc --max-old-space-size=4096 scripts/spike/run-engine.ts spike-out
+
+      - name: Seitengröße ohne Modelle messen (für das Pages-Budget)
+        run: |
+          npm run build
+          echo "DIST_MB=$(du -sm dist | cut -f1)" >> "$GITHUB_ENV"
+
+      - name: 3 · Vergleich + Bericht
+        run: python scripts/spike/report.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spike-out
+          path: |
+            spike-out/*.json
+            spike-out/*.md
+          retention-days: 30

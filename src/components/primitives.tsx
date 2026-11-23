@@ -2,23 +2,34 @@ import type { ReactNode } from 'react';
 
 /* ── Ehrlichkeits-Stempel ─────────────────────────────────────────── */
 
-export type StampKind = 'real' | 'toy' | 'precomputed' | 'illustrative';
+export type StampKind = 'real' | 'real-q8' | 'toy' | 'precomputed' | 'illustrative';
 
 const STAMP_LABEL: Record<StampKind, string> = {
   real: 'Echt',
+  'real-q8': 'Echt · int8',
   toy: 'Echt · Toy',
   precomputed: 'Vorberechnet',
   illustrative: 'Illustrativ',
 };
 
 const STAMP_HINT: Record<StampKind, string> = {
-  real: 'Live im Browser mit dem echten Sprachmodell berechnet',
+  real: 'Live im Browser mit dem echten Sprachmodell berechnet (exakte fp16-Fassung)',
+  'real-q8': 'Live mit dem echten Sprachmodell berechnet, int8-Fassung: Wahrscheinlichkeiten weichen um wenige Prozentpunkte von der exakten Rechnung ab',
   toy: 'Live und exakt mit dem Spielzeugmodell berechnet',
   precomputed: 'Echte Werte, vorab berechnet',
   illustrative: 'Vereinfacht – zeigt das Prinzip, keine echten Werte',
 };
 
 export function Stamp({ kind }: { kind: StampKind }) {
+  if (kind === 'real-q8') {
+    // zweigeteilt: gefüllter Teil „Echt“ + umrandeter Teil „int8“ – Unterscheidung über die Form
+    return (
+      <span className="stamp stamp--split" title={STAMP_HINT[kind]} aria-label={STAMP_LABEL[kind]}>
+        <span className="stamp__a">Echt</span>
+        <span className="stamp__b">int8</span>
+      </span>
+    );
+  }
   return (
     <span className={`stamp stamp--${kind}`} title={STAMP_HINT[kind]}>
       {STAMP_LABEL[kind]}

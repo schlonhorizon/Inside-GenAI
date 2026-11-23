@@ -150,7 +150,8 @@ export default function StyleguidePage() {
         <div className="stamps">
           {(
             [
-              ['real', 'live im Browser mit dem echten Sprachmodell berechnet'],
+              ['real', 'live mit dem echten Sprachmodell berechnet, exakte fp16-Fassung'],
+              ['real-q8', 'live mit dem echten Sprachmodell berechnet, int8-Fassung (Abweichung wenige Prozentpunkte)'],
               ['toy', 'live und exakt mit dem Spielzeugmodell berechnet'],
               ['precomputed', 'echte Werte, vorab berechnet'],
               ['illustrative', 'vereinfacht: zeigt das Prinzip, keine echten Werte'],
