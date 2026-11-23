@@ -430,8 +430,8 @@ Grundsätzlich monochrom. Farbe tritt **nur** in diesen Rollen auf und bedeutet 
 | **Akzent** (Terrakotta) | `#B5562F` | `#E08A63` | **aktiv / ausgewählt / Datenfluss**: angeklicktes Token, gesampeltes Token, laufender Puls, Fokus-Ring, aktiver Regler | exklusiv; erscheint nie in einer anderen Rolle |
 | **Sequenziell** (Sepia-Tinte, 5 Stufen) | `#EFE6D6 → #D6C6AD → #B39A78 → #87704F → #574632` | `#3A3631 → #5E5446 → #8C7A60 → #BCA585 → #E6D5B8` | **Größe eines Werts**: Attention-Gewichte, Wahrscheinlichkeiten, Aktivierungen, Heatmaps, Balken | „mehr“ = mehr Kontrast zum Hintergrund; Balken der Verteilung in Sepia, das gewählte Token in Akzent |
 | **Divergierend** | Oliv `#5E7A3A` ↔ Mitte `#DCD5C8` ↔ Pflaume `#8A4F72` | Oliv `#9DB873` ↔ Mitte `#4A4640` ↔ Pflaume `#C48AAE` | **Richtung einer Änderung**: erhöht (+) / senkt (−) eine Wahrscheinlichkeit; Attribution, Ablations-Effekt, Logit-Differenz | immer redundant mit ▲/▼ bzw. ± |
-| **A/B-Vergleich** | A = Petrol `#3E6D85` · B = Ocker `#A0711F` | A = `#7FB0C8` · B = `#D9A94F` | Lauf A vs. Lauf B (Playground, Temperaturvergleich, Base vs. Instruct) | zusätzlich durchgezogen (A) vs. gestrichelt (B); farbfehlsichtig-sicheres Paar (Blau/Gelb-Achse) |
-| **Kategorial** (4 Töne) | Teal `#2F7A6E` · Indigo `#55599A` · Waldgrün `#3E6E4A` · Schiefer `#66707D` | `#6FC0B0` · `#A3A6E0` · `#86B992` · `#A9B2BE` | **nur** zur Unterscheidung von **Attention-Heads** und **Embedding-Clustern** | höchstens 4 gleichzeitig hervorgehoben; weitere Heads bzw. Cluster bleiben Tinte bzw. `--ink-faint`; enthält keinen Ton einer anderen Rolle |
+| **A/B-Vergleich** | A = Petrol `#3E6D85` · B = Ocker `#A38419` | A = `#7FB0C8` · B = `#E0B84A` | Lauf A vs. Lauf B (Playground, Temperaturvergleich, Base vs. Instruct) | zusätzlich durchgezogen (A) vs. gestrichelt (B); farbfehlsichtig-sicheres Paar (Blau/Gelb-Achse) |
+| **Kategorial** (3 Töne, D0) | Teal `#1A8574` · Lavendel `#8A7CC4` · Indigo `#3F467F` | `#62C4AC` · `#BDB3F2` · `#6A72C4` | **nur** zur Unterscheidung von **Attention-Heads** und **Embedding-Clustern** | höchstens 3 gleichzeitig hervorgehoben; weitere Heads bzw. Cluster bleiben Tinte bzw. `--ink-faint`; enthält keinen Ton einer anderen Rolle |
 | **Chip-Abgrenzung** (neutral) | `#F1ECE3` / `#E6DFD2` abwechselnd | `#34322E` / `#3D3A35` abwechselnd | Flächen benachbarter **Token-Chips**: reine Abgrenzung, **keine Bedeutung** | keine bunten Chips; ein ausgewählter Chip bekommt den Akzent-Rahmen |
 | **Quiz-Feedback** | Tinte + Form | Tinte + Form | richtig: ✓ mit durchgezogenem Rahmen · falsch: ✗ mit gestricheltem Rahmen, plus Erklärtext | bewusst **ohne eigene Farbe**, also keine Kollision mit Oliv oder Akzent |
 | **Special Tokens** | Tinte, gestrichelter Rahmen, keine Fläche | entsprechend | `<|im_start|>`, `<eos>` usw. | Form statt Farbe |
@@ -440,7 +440,7 @@ Die Ehrlichkeits-Stempel sind ebenfalls monochrom und unterscheiden sich nur üb
 
 **Prüfregeln für das Farbsystem:**
 1. **Eindeutigkeit:** Jeder Farbwert ist genau **einer** Rolle zugeordnet. Kein Hex-Wert erscheint in zwei Zeilen der Tabelle. Das sichert ein Test über `tokens.css` ab: Er schlägt fehl, wenn ein Wert doppelt vorkommt.
-2. **Unterscheidbarkeit:** Zwischen allen bunten Rollenfarben eines Themes gilt ein Mindestabstand von ΔE2000 ≥ 15. Die Design-Probe zeigt die ΔE-Matrix und eine Simulation für Protanopie/Deuteranopie/Tritanopie. Fällt ein Paar durch (Kandidaten mit Risiko: Waldgrün ↔ Oliv, Teal ↔ Petrol), wird der Ton verschoben oder die kategoriale Palette auf 3 Töne reduziert.
+2. **Unterscheidbarkeit:** Zwischen allen bunten Rollenfarben eines Themes gilt ein Mindestabstand von ΔE2000 ≥ 15. Die Design-Probe zeigt die ΔE-Matrix und eine Simulation für Protanopie/Deuteranopie/Tritanopie. Fällt ein Paar durch, wird der Ton verschoben oder die Palette reduziert. *D0-Ergebnis:* Mit 4 kategorialen Tönen fielen Waldgrün ↔ Oliv (ΔE ≈ 10) und Schiefer ↔ Petrol (ΔE ≈ 10) durch, daher sind es jetzt 3 Töne. Ocker B wurde aufgehellt, damit er sich bei Deuteranopie vom Terrakotta-Akzent abhebt.
 3. **Kontrast:** Text-Paare WCAG AA (≥ 4,5 : 1), grafische Elemente und Rollenfarben gegen `--bg` ≥ 3 : 1.
 4. **Keine Bedeutung allein über Farbe:** Jede Farbrolle hat eine redundante Kodierung (Form, Linienstil, Symbol oder Beschriftung).
 
@@ -585,7 +585,7 @@ Optional WebGPU-Matmul, Performance, Tablet-Layout, A11y, inhaltliches Review.
 | + | Design | warme Claude-angelehnte Palette, Serif-Headlines, Line Art (Abschnitt 6) |
 | + | CI | Python nur im manuellen `assets.yml`; Deploy und PR-Check Node-only; Golden-Tests in **beiden** |
 | + | Spike-Toleranz | robustes Kriterium (Top-10, relative Abweichung, Korrelation); endgültig im Spike |
-| + | Farbsystem | jede Farbe genau eine Rolle; Token-Chips neutral; kategorial nur Heads/Cluster (4 Töne); Quiz ohne Farbe |
+| + | Farbsystem | jede Farbe genau eine Rolle; Token-Chips neutral; kategorial nur Heads/Cluster (3 Töne nach D0-Prüfung); Quiz ohne Farbe |
 | + | Lizenzen | Projektcode MIT; `#/credits` mit allen Quellen; fastText-Derivat unter CC BY-SA 3.0 |
 | + | Modellzahlen | aus Config gelesen bzw. berechnet, nie hart im Text |
 
