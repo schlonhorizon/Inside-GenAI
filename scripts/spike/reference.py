@@ -62,7 +62,9 @@ def topk(logits, tok):
 for pid, mkey, kind, text in PROMPTS:
     tok, model = loaded[mkey]
     if kind == "chat":
-        ids = tok.apply_chat_template([{"role": "user", "content": text}], add_generation_prompt=True)
+        # erst als Text rendern, dann tokenisieren (Rückgabetyp von apply_chat_template variiert je Version)
+        rendered = tok.apply_chat_template([{"role": "user", "content": text}], tokenize=False, add_generation_prompt=True)
+        ids = tok(rendered, add_special_tokens=False)["input_ids"]
     else:
         ids = tok(text)["input_ids"]
     x = torch.tensor([ids])
