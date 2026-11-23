@@ -16,35 +16,47 @@ export const MONO_FONTS = {
   jetbrains: { label: 'JetBrains Mono', stack: "'JetBrains Mono', ui-monospace, monospace" },
 } as const;
 
+/** Entscheidung nach D0 (siehe docs/design-decisions.md). */
+export const DECIDED = { display: 'fraunces', body: 'inter', mono: 'jetbrains' } as const;
+
 type DisplayKey = keyof typeof DISPLAY_FONTS;
 type BodyKey = keyof typeof BODY_FONTS;
 type MonoKey = keyof typeof MONO_FONTS;
 
 /** Hält die aktuelle Schriftwahl und schreibt sie als CSS-Variablen auf <html>. */
 export function useFontChoice() {
-  const [display, setDisplay] = useState<DisplayKey>(() => readStored<DisplayKey>('igai.font.display', 'fraunces'));
-  const [body, setBody] = useState<BodyKey>(() => readStored<BodyKey>('igai.font.body', 'inter'));
-  const [mono, setMono] = useState<MonoKey>(() => readStored<MonoKey>('igai.font.mono', 'plexmono'));
-  const [soft, setSoft] = useState(() => Number(readStored('igai.font.soft', '50')));
-  const [wonk, setWonk] = useState(() => readStored('igai.font.wonk', '1') === '1');
+  const [display, setDisplay] = useState<DisplayKey>(() => readStored<DisplayKey>('igai.v2.font.display', 'fraunces'));
+  const [body, setBody] = useState<BodyKey>(() => readStored<BodyKey>('igai.v2.font.body', 'inter'));
+  const [mono, setMono] = useState<MonoKey>(() => readStored<MonoKey>('igai.v2.font.mono', 'jetbrains'));
+  const [soft, setSoft] = useState(() => Number(readStored('igai.v2.font.soft', '50')));
+  const [wonk, setWonk] = useState(() => readStored('igai.v2.font.wonk', '1') === '1');
 
   useEffect(() => {
     const r = document.documentElement.style;
     r.setProperty('--font-display', (DISPLAY_FONTS[display] ?? DISPLAY_FONTS.fraunces).stack);
     r.setProperty('--font-body', (BODY_FONTS[body] ?? BODY_FONTS.inter).stack);
-    r.setProperty('--font-mono', (MONO_FONTS[mono] ?? MONO_FONTS.plexmono).stack);
+    r.setProperty('--font-mono', (MONO_FONTS[mono] ?? MONO_FONTS.jetbrains).stack);
     r.setProperty('--display-variation', `'SOFT' ${soft}, 'WONK' ${wonk ? 1 : 0}`);
-    writeStored('igai.font.display', display);
-    writeStored('igai.font.body', body);
-    writeStored('igai.font.mono', mono);
-    writeStored('igai.font.soft', String(soft));
-    writeStored('igai.font.wonk', wonk ? '1' : '0');
+    writeStored('igai.v2.font.display', display);
+    writeStored('igai.v2.font.body', body);
+    writeStored('igai.v2.font.mono', mono);
+    writeStored('igai.v2.font.soft', String(soft));
+    writeStored('igai.v2.font.wonk', wonk ? '1' : '0');
   }, [display, body, mono, soft, wonk]);
 
   return { display, setDisplay, body, setBody, mono, setMono, soft, setSoft, wonk, setWonk };
 }
 
 type FontChoice = ReturnType<typeof useFontChoice>;
+
+function Pick({ selected, decided }: { selected: boolean; decided: boolean }) {
+  return (
+    <span className="font-card__pick mono">
+      {selected ? '● ausgewählt' : '○ auswählen'}
+      {decided && <span className="font-card__decided"> · entschieden</span>}
+    </span>
+  );
+}
 
 const HEAD = 'Wie aus einem Prompt eine Antwort wird';
 const SUB = 'Kapitel 5 · Attention: Worauf achtet ein Token?';
@@ -76,7 +88,7 @@ export function FontLab({ f }: { f: FontChoice }) {
               <span className="font-card__sub font-card__italic" style={{ fontFamily: font.stack, fontVariationSettings: variation }}>
                 <em>Next-Token-Prediction, Softmax &amp; Sampling</em>
               </span>
-              <span className="font-card__pick mono">{f.display === k ? '● ausgewählt' : '○ auswählen'}</span>
+              <Pick selected={f.display === k} decided={DECIDED.display === k} />
             </button>
           );
         })}
@@ -112,7 +124,7 @@ export function FontLab({ f }: { f: FontChoice }) {
               Vokabulars. Erst das Sampling macht daraus ein konkretes Wort – und genau dort greifen Temperatur, Top-k und
               Top-p. Zahlen im Text: 0,31 · 21,7 % · 1.024 Tokens.
             </span>
-            <span className="font-card__pick mono">{f.body === k ? '● ausgewählt' : '○ auswählen'}</span>
+            <Pick selected={f.body === k} decided={DECIDED.body === k} />
           </button>
         ))}
       </div>
@@ -126,7 +138,7 @@ export function FontLab({ f }: { f: FontChoice }) {
               <br />
               {'[T × d_model] · 0123456789 · Il1| O0'}
             </span>
-            <span className="font-card__pick mono">{f.mono === k ? '● ausgewählt' : '○ auswählen'}</span>
+            <Pick selected={f.mono === k} decided={DECIDED.mono === k} />
           </button>
         ))}
       </div>
