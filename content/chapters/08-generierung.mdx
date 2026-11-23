@@ -5,17 +5,75 @@ title: "Der Generierungs-Loop"
 short: "Token für Token – und wie Antworten abzweigen"
 minutes: 12
 phase: P1b
-ready: false
+ready: true
 goals:
   - "Autoregressive Generierung Schritt für Schritt nachvollziehen."
   - "Sehen, wie ein anderes Token an einer Stelle den ganzen Rest verändert."
   - "Den KV-Cache als Grund für die Geschwindigkeit kennen."
 ---
 
-<Placeholder phase="P1b">
-Play / Pause / Step, Token erzwingen, Antwort-Baum.
-</Placeholder>
+import { Generator, KvCacheFigure } from '../../src/chapters/generierung';
+import { MiniPlayground } from '../../src/chapters/shared/MiniPlayground';
 
-## Worum es geht
+## Schreiben wie eine sehr gute Autovervollständigung
 
-Ein Modell schreibt nie einen ganzen Satz auf einmal. Es sagt ein Token vorher, hängt es an den Text an und sagt dann das nächste vorher. Darum heißt das <Term id="autoregressiv">autoregressiv</Term>.
+Ein Modell schreibt einen Satz so, wie die Wortvorschläge auf dem Handy funktionieren, nur viel besser: Es schlägt ein
+Token vor, das Token wird angehängt, und danach wird für den *verlängerten* Text erneut vorgeschlagen. Weil jeder Schritt
+auf den eigenen früheren Entscheidungen aufbaut, heißt das <Term id="autoregressiv">autoregressiv</Term>.
+
+## Ausprobieren: der Antwort-Baum
+
+Lass das Spielzeugmodell schreiben, mit „Abspielen“ am Stück oder Schritt für Schritt. Klicke dann auf ein erzeugtes
+Token: Du siehst, welche Alternativen an dieser Stelle möglich waren. Wählst du eine davon, **erzwingst** du dieses Token,
+und ab dort entsteht ein neuer Ast.
+
+<Generator />
+
+Probiere es an der Stelle nach „ist“ aus: Erzwingst du „schön“ statt „paris“, nimmt der ganze Rest des Satzes einen
+anderen Weg. So entstehen bei großen Modellen völlig unterschiedliche Antworten auf dieselbe Frage. Ein einziges früh
+gezogenes Token stellt die Weichen.
+
+## Wann hört das Modell auf?
+
+Das Modell hört auf, sobald es das <Term id="eos-token">EOS-Token</Term> zieht, ein Special Token für „Text zu Ende“
+(im Baum als ⏎). Zusätzlich setzt man immer eine Höchstlänge, damit nichts endlos weiterläuft. Bei Chat-Modellen markiert
+ein eigenes Token das Ende der Antwort. Im Engine-Spike hat SmolLM2-Instruct danach sogar weitergeschrieben, wenn man es
+nicht stoppt; der Stopp ist also Aufgabe des Programms rund um das Modell.
+
+## Schneller durch Merken: der KV-Cache
+
+Für jedes neue Token müsste das Modell eigentlich den ganzen bisherigen Text neu durchrechnen. Ein Großteil davon ist
+aber jedes Mal gleich: Die Keys und Values der früheren Tokens (Kapitel 5) ändern sich nicht mehr. Deshalb speichert man
+sie im <Term id="kv-cache">KV-Cache</Term> und berechnet pro Schritt nur eine neue Zeile.
+
+<KvCacheFigure />
+
+Darum ist das Erzeugen eines neuen Tokens viel schneller als das erste Einlesen eines langen Prompts. Im Engine-Spike
+dauerte ein neues Token rund 100–170 ms; das Einlesen kostete pro Prompt-Token fast genauso viel und wird in P2 noch
+beschleunigt.
+
+<DeepDive>
+**Die Kettenregel der Wahrscheinlichkeit.** Ein ganzer Text $x_1, \dots, x_T$ hat für das Modell die Wahrscheinlichkeit
+
+$$
+p(x_1, \dots, x_T) = \prod_{t=1}^{T} p(x_t \mid x_{<t})
+$$
+
+Jeder Faktor ist eine einzelne Next-Token-Verteilung aus Kapitel 7. Diese Produkte stehen im Baum am Ende jedes Asts
+(Σ). Sie werden schnell sehr klein: Schon nach wenigen Tokens hat jede konkrete Fortsetzung nur noch eine geringe
+Gesamtwahrscheinlichkeit, auch wenn jeder einzelne Schritt plausibel war.
+
+**Kosten.** Ohne Cache kostet Schritt $t$ Rechenzeit proportional zu $t$ (alle Tokens neu), mit Cache nur ein Token neu
+plus Attention über die $t$ gespeicherten Keys. Der Cache braucht dafür Speicher: pro Token und Layer je einen Key- und
+einen Value-Vektor.
+</DeepDive>
+
+## Selbst schreiben lassen
+
+<MiniPlayground num="8.3" />
+
+<Takeaways>
+- Generieren heißt: **Verteilung berechnen, ein Token ziehen, anhängen, wiederholen.**
+- Frühe Entscheidungen bestimmen den Rest, und ein anderes Token öffnet einen **neuen Ast**.
+- Das Modell stoppt beim **EOS-Token** oder an einer Höchstlänge; der **KV-Cache** macht jeden weiteren Schritt schnell.
+</Takeaways>

@@ -36,6 +36,9 @@ function Sidebar({ route, onNavigate }: { route: Route; onNavigate: () => void }
         ))}
       </ol>
       <div className="sidebar__extra">
+        <a href={href.playground()} onClick={onNavigate} className={route.name === 'playground' ? 'is-current' : ''}>
+          Mini-Playground
+        </a>
         <a href={href.glossary()} onClick={onNavigate} className={route.name === 'glossary' ? 'is-current' : ''}>
           Glossar
         </a>

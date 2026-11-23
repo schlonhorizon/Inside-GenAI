@@ -5,17 +5,85 @@ title: "Tokenisierung"
 short: "Warum Modelle keine Buchstaben sehen"
 minutes: 12
 phase: P1b
-ready: false
+ready: true
 goals:
   - "Verstehen, dass ein Modell Token-IDs statt Buchstaben oder Wörter verarbeitet."
   - "Nachvollziehen, wie BPE aus Häufigkeiten ein Vokabular baut."
   - "Erklären können, warum Deutsch mehr Tokens braucht und warum Buchstabenzählen schwerfällt."
 ---
 
-<Placeholder phase="P1b">
-Eigenen Text tokenisieren (echte Tokenizer), Deutsch vs. Englisch, BPE Schritt für Schritt, „strawberry“.
-</Placeholder>
+import { TokenizerPlayground, LanguageCompare, BpeLive, LetterCount } from '../../src/chapters/tokenisierung';
 
-## Worum es geht
+## Ein Wörterbuch aus Bausteinen
 
-Ein Sprachmodell liest keinen Text, sondern Zahlen. Der <Term id="tokenizer">Tokenizer</Term> zerlegt den Text in Stücke, die <Term id="token">Tokens</Term>, und gibt jedem Stück eine ID. Welche Stücke es gibt, wurde vorher mit <Term id="bpe">BPE</Term> aus Häufigkeiten gelernt.
+Ein Sprachmodell rechnet nur mit Zahlen. Bevor es einen Text verarbeiten kann, muss der Text in Stücke zerlegt werden,
+die es kennt: <Term id="token">Tokens</Term>. Die Liste aller bekannten Stücke ist das <Term id="vokabular">Vokabular</Term>,
+und jedes Stück hat darin eine feste Nummer. Den Vorgang übernimmt der <Term id="tokenizer">Tokenizer</Term>.
+
+Tokens sind weder Buchstaben noch ganze Wörter, sondern etwas dazwischen. Häufige Wörter wie „the“ sind ein einziges
+Token. Seltene Wörter werden aus mehreren Stücken zusammengesetzt, ähnlich wie Lego aus Standardsteinen.
+
+## Probier es aus
+
+Tippe einen eigenen Text. Beide Tokenizer sind echte Dateien von echten Modellen: der von GPT-2 und der von SmolLM2, dem
+kleinen Modell, das ab Kapitel 5 live im Browser rechnet.
+
+<TokenizerPlayground />
+
+Was dir auffallen sollte:
+
+- Das **Leerzeichen gehört meist zum folgenden Wort** (`·Leit`). „Paris“ am Satzanfang und „ Paris“ mitten im Satz sind für das Modell zwei verschiedene Tokens.
+- Zusammengesetzte deutsche Wörter zerfallen in mehrere Stücke, und die Grenzen liegen nicht unbedingt dort, wo man sie im Deutschunterricht ziehen würde.
+- Zahlen behandelt SmolLM2 **Ziffer für Ziffer**, GPT-2 fasst sie zu Gruppen zusammen.
+- Bei Emojis oder Umlauten entstehen manchmal **Teil-Tokens** (gepunktet). Ein einzelnes Token ist dann nur ein Byte eines Zeichens.
+
+## Woher kommen die Stücke? Byte Pair Encoding
+
+Das Vokabular wird nicht von Hand festgelegt, sondern aus Daten gelernt. Das Standardverfahren heißt <Term id="bpe">BPE</Term>:
+Man beginnt mit einzelnen Zeichen und verschmilzt immer wieder das Paar, das im Trainingstext am häufigsten nebeneinander
+steht. Nach vielen tausend solcher Schritte entsteht ein Vokabular mit Zehntausenden Einträgen.
+
+<BpeLive />
+
+Im Beispiel entsteht in den ersten Schritten „ti“, dann „tie“ und „tief“, weil dieser Stamm in fünf Wörtern vorkommt.
+Danach folgen „ng“, „en“ und „lang“. Was häufig ist, wird zu einem Token, und was selten ist, bleibt in Stücken.
+
+## Deutsch kostet mehr
+
+Weil das Vokabular vor allem aus englischen Texten gelernt wurde, haben englische Wörter häufiger ein eigenes Token.
+Derselbe Inhalt braucht auf Deutsch deshalb meist mehr Tokens. Das hat praktische Folgen: Bei kommerziellen Modellen
+zahlt man pro Token, und das <Term id="kontextfenster">Kontextfenster</Term> wird in Tokens gemessen.
+
+<LanguageCompare />
+
+Claudes Tokenizer ist übrigens nicht öffentlich. Wie viele Tokens ein Text bei Claude kostet, lässt sich nur über die API
+zählen. Die Größenordnung ist ähnlich wie bei den Tokenizern hier (allgemeines LLM-Wissen, keine offizielle Angabe).
+
+## Warum Modelle schlecht Buchstaben zählen
+
+<LetterCount />
+
+Das Modell bekommt nie „s-t-r-a-w-b-e-r-r-y“ zu sehen, sondern eine bis drei Nummern. Mit führendem Leerzeichen ist
+„ strawberry“ in beiden Tokenizern sogar ein einziges Token. Wie viele „r“ darin stecken,
+kann es nur wissen, wenn es die Schreibweise dieser Stücke im Training irgendwo gelernt hat. Genauso schwer fallen
+Reime, rückwärts buchstabierte Wörter oder exakte Zeichenzahlen.
+
+<DeepDive>
+**Byte-Level-BPE.** GPT-2 und SmolLM2 zerlegen den Text zuerst in UTF-8-Bytes. Jedes der 256 möglichen Bytes ist ein
+Grundsymbol, also kann *jeder* Text tokenisiert werden, auch Emojis oder Chinesisch, ohne „unbekanntes Wort“.
+Darauf werden die gelernten Merges angewendet. Ein „ä“ besteht aus zwei Bytes (`C3 A4`); ist die Kombination selten,
+bleibt sie in zwei Teil-Tokens.
+
+**Vor-Zerlegung.** Bevor BPE greift, teilt ein regulärer Ausdruck den Text in grobe Stücke (Wörter samt führendem
+Leerzeichen, Zahlen, Satzzeichen). Merges finden nur innerhalb dieser Stücke statt. Deshalb gehört das Leerzeichen zum
+folgenden Wort. SmolLM2 trennt Ziffern zusätzlich einzeln ab.
+
+**Special Tokens.** Einige Einträge sind reserviert, etwa `<|endoftext|>` oder `<|im_start|>`. Diese
+<Term id="special-token">Special Tokens</Term> werden nie zerlegt und steuern zum Beispiel das Chat-Format (Kapitel 10).
+</DeepDive>
+
+<Takeaways>
+- Modelle verarbeiten **Token-IDs**, also Nummern für Wortstücke, keine Buchstaben.
+- Das Vokabular entsteht per **BPE** aus Häufigkeiten: Häufiges wird zu einem Token, Seltenes bleibt in Stücken.
+- Deutsch braucht meist **mehr Tokens** als Englisch, und Aufgaben auf Buchstabenebene sind für Modelle überraschend schwer.
+</Takeaways>

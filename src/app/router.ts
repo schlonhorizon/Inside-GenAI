@@ -8,7 +8,7 @@ import { useEffect, useSyncExternalStore } from 'react';
  *   #/kapitel/<slug>        Kapitel
  *   #/kapitel/<slug>/<anker> Kapitel, zu Abschnitt scrollen
  *   #/glossar[/<id>]        Glossar
- *   #/credits · #/diagnose · #/styleguide
+ *   #/playground · #/credits · #/diagnose · #/styleguide
  */
 
 export type Route =
@@ -18,6 +18,7 @@ export type Route =
   | { name: 'credits' }
   | { name: 'diagnose' }
   | { name: 'styleguide' }
+  | { name: 'playground' }
   | { name: 'notfound'; path: string };
 
 export function parseHash(hash: string): Route {
@@ -36,6 +37,8 @@ export function parseHash(hash: string): Route {
       return { name: 'diagnose' };
     case 'styleguide':
       return { name: 'styleguide' };
+    case 'playground':
+      return { name: 'playground' };
     default:
       return { name: 'notfound', path };
   }
@@ -48,6 +51,7 @@ export const href = {
   credits: () => '#/credits',
   diagnose: () => '#/diagnose',
   styleguide: () => '#/styleguide',
+  playground: () => '#/playground',
 };
 
 function subscribe(cb: () => void) {

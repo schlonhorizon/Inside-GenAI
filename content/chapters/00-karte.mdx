@@ -5,16 +5,38 @@ title: "Die große Karte"
 short: "Vom Prompt zur Antwort in 60 Sekunden"
 minutes: 5
 phase: P1b
-ready: false
+ready: true
 goals:
   - "Den ganzen Weg vom Prompt bis zum nächsten Token als ein Bild vor Augen haben."
   - "Wissen, welches Kapitel welchen Abschnitt der Pipeline erklärt."
 ---
 
-<Placeholder phase="P1b">
-Hier entsteht das interaktive Pipeline-Schema, das zugleich als Navigation dient.
-</Placeholder>
+import { MapFigure } from '../../src/chapters/karte';
 
-## Worum es geht
+## Ein Modell schreibt immer nur ein Stück weiter
 
-Bevor wir in die Einzelteile gehen, ein Überblick: Ein Prompt wird in <Term id="token">Tokens</Term> zerlegt, in Vektoren übersetzt, durch viele Schichten eines <Term id="transformer">Transformers</Term> geschickt und am Ende in eine Wahrscheinlichkeitsverteilung über das nächste Token verwandelt. Daraus wird ein Token gezogen, angehängt, und alles beginnt von vorn.
+Ein Sprachmodell beantwortet keine Frage am Stück. Es macht immer wieder dasselbe: Es liest den bisherigen Text und schätzt,
+wie es weitergehen könnte. Dann wählt es **ein einziges Stück** aus, hängt es an und beginnt von vorn. Die Karte zeigt
+diesen Weg. Jeder Block führt in das Kapitel, das ihn erklärt.
+
+<MapFigure />
+
+## Eine Runde am Leitbeispiel
+
+Durch das ganze Kompendium begleitet uns ein Prompt: **„The capital of France is“**. Eine Runde läuft so ab:
+
+1. Der <Term id="tokenizer">Tokenizer</Term> zerlegt den Text in <Term id="token">Tokens</Term>, hier fünf Stück: `The`, ` capital`, ` of`, ` France`, ` is`. Jedes hat eine Nummer.
+2. Jede Nummer wird zu einem <Term id="embedding">Embedding</Term>, einer langen Liste von Zahlen, die die Bedeutung trägt. Dazu kommt die Information, an welcher Stelle das Token steht.
+3. Im <Term id="transformer">Transformer</Term> sammelt jedes Token über <Term id="attention">Attention</Term> Informationen von den Tokens davor. Das passiert in vielen Schichten hintereinander.
+4. Am Ende stehen <Term id="logit">Logits</Term>: ein Wert für jedes mögliche nächste Token. Die <Term id="softmax">Softmax</Term> macht daraus Wahrscheinlichkeiten. Beim echten Modell SmolLM2 liegt „ the“ mit 26 % vorn, „ Paris“ kommt mit 9 % erst auf Platz 2.
+5. Beim <Term id="sampling">Sampling</Term> wird ein Token gezogen, angehängt, und die nächste Runde beginnt. Weil das Modell immer auf seinem eigenen bisherigen Text aufbaut, nennt man das <Term id="autoregressiv">autoregressiv</Term>.
+
+Unter der Pipeline steht, woher die Zahlen im Modell überhaupt kommen: aus dem **Training** (Kapitel 9) und dem
+**Fine-Tuning zum Assistenten** (Kapitel 10). Danach geht es um die Praxis: Kontextfenster, Lernen aus Beispielen,
+Grenzen sowie Werkzeuge und Retrieval (Kapitel 11–14).
+
+<Takeaways>
+- Ein Sprachmodell erzeugt Text **Token für Token**, nie die ganze Antwort auf einmal.
+- Pro Schritt entsteht eine **Wahrscheinlichkeitsverteilung**, und erst das Sampling wählt daraus ein Token.
+- Die Kapitel folgen dem Datenfluss: von den Tokens über Attention bis zur Verteilung, dann Training und Praxis.
+</Takeaways>

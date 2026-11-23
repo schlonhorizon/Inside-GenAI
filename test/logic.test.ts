@@ -16,6 +16,7 @@ describe('Router', () => {
     ['#/diagnose', { name: 'diagnose' }],
     ['#/credits', { name: 'credits' }],
     ['#/styleguide', { name: 'styleguide' }],
+    ['#/playground', { name: 'playground' }],
     ['#/gibtsnicht', { name: 'notfound', path: '/gibtsnicht' }],
   ])('%s', (hash, expected) => {
     expect(parseHash(hash)).toEqual(expected);

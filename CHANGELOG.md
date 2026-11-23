@@ -1,5 +1,15 @@
 # Changelog
 
+## P1b: MVP (2026-11-23)
+
+- **Kapitel 0 (Karte):** klickbare Pipeline mit Fortschrittsmarken und Datenfluss-Puls
+- **Kapitel 2 (Tokenisierung):** echte Tokenizer von GPT-2 und SmolLM2 im Browser (eigene BPE-Implementierung, identisch zur Python-Referenz), Deutsch vs. Englisch, BPE live, „strawberry“
+- **Kapitel 7 (Next-Token & Sampling):** echte Verteilung des Leitbeispiels (fp16, vorberechnet) und interaktive Verteilung am Spielzeugmodell mit Temperatur, Top-k, Top-p, Min-p, Seed, Würfeln und 1000× würfeln
+- **Kapitel 8 (Generierungs-Loop):** Schritt-Modus, Token erzwingen, Antwort-Baum mit Ast-Wahrscheinlichkeiten, KV-Cache-Grafik
+- **Mini-Playground** (`#/playground`) mit Wortliste und Autovervollständigung
+- **Spielzeugmodelle:** zwei winzige Llama-Modelle (mit RoPE / ohne Positionssignal), trainiert per `assets.yml`, gegen PyTorch getestet
+- Interaktionsprüfung in der CI (Stempel, Regler, Seed, Erzwingen, Navigation ohne Netz)
+
 ## P1a: Engine-Spike (2026-11-23)
 
 - Eigene Inferenz-Engine in TypeScript (`src/engine`): Llama-Architektur mit RMSNorm, RoPE, Grouped-Query-Attention, SwiGLU, KV-Cache; safetensors-Leser; int8-Quantisierung (pro Zeile und in Gruppen)

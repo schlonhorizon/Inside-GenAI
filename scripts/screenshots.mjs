@@ -27,6 +27,7 @@ const slugs = readdirSync(join(root, 'content/chapters'))
 const routes = [
   ['00-start', '#/'],
   ...slugs.map((s, i) => [`kapitel-${String(i).padStart(2, '0')}-${s}`, `#/kapitel/${s}`]),
+  ['playground', '#/playground'],
   ['glossar', '#/glossar'],
   ['credits', '#/credits'],
   ['diagnose', '#/diagnose'],

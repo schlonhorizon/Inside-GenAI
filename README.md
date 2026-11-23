@@ -5,7 +5,7 @@
 Ein interaktives Lernkompendium, das Schritt für Schritt zeigt, wie Sprachmodelle (LLMs) aus einem Prompt eine Antwort machen: Tokenisierung, Embeddings, Attention, Sampling, Training, Assistant-Tuning und mehr. Die Seite ist rein statisch und läuft komplett im Browser.
 
 - **Plan & Konzept:** [PLAN.md](PLAN.md)
-- **Aktueller Stand:** P0 (Fundament): Seitengerüst mit allen 16 Kapiteln als Platzhalter, Glossar, Diagnose-Seite, Styleguide. Änderungen siehe [CHANGELOG.md](CHANGELOG.md)
+- **Aktueller Stand:** P1b (MVP): Kapitel 0, 2, 7 und 8 sind fertig, dazu der Mini-Playground mit Spielzeugmodell. Änderungen siehe [CHANGELOG.md](CHANGELOG.md)
 
 ## Texte bearbeiten
 
