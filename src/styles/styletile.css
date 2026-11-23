@@ -566,6 +566,10 @@
   font-size: 12px;
   color: var(--ink-muted);
 }
+.font-card__decided {
+  color: var(--ink);
+  font-weight: 500;
+}
 .font-card[aria-pressed='true'] .font-card__pick {
   color: var(--accent);
 }

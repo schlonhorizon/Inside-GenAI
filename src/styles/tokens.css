@@ -49,13 +49,13 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --bg: #262523;
-  --surface: #2f2e2b;
-  --surface-raised: #383633;
-  --border: #45423d;
-  --ink: #eeeae2;
-  --ink-muted: #ada79c;
-  --ink-faint: #77716a;
+  --bg: #252523;
+  --surface: #2e2d2b;
+  --surface-raised: #373634;
+  --border: #44423f;
+  --ink: #edeae4;
+  --ink-muted: #aba79f;
+  --ink-faint: #76726d;
 
   --accent: #e08a63;
 
@@ -66,7 +66,7 @@
   --seq-5: #e6d5b8;
 
   --div-pos: #9db873;
-  --div-mid: #4a4640;
+  --div-mid: #484642;
   --div-neg: #c48aae;
 
   --ab-a: #7fb0c8;
@@ -76,15 +76,15 @@
   --cat-2: #bdb3f2;
   --cat-3: #6a72c4;
 
-  --chip-a: #34322e;
-  --chip-b: #3d3a35;
+  --chip-a: #33322f;
+  --chip-b: #3c3a37;
 }
 
 :root {
   /* Typografie (in der Probe umschaltbar) */
   --font-display: 'Fraunces Variable', Georgia, serif;
   --font-body: 'Inter Variable', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --display-variation: 'SOFT' 50, 'WONK' 1;
 
   /* Linien */

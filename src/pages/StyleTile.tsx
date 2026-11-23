@@ -79,7 +79,7 @@ export function StyleTile() {
       </div>
 
       <header className="hero">
-        <span className="meta">Design-Probe · Style Tile · Stand 2026-11</span>
+        <span className="meta">Design-Probe · Style Tile · Schriften &amp; Farben festgelegt</span>
         <h1>Wie aus einem Prompt eine Antwort wird</h1>
         <p className="hero__lead">
           Diese Seite ist keine Lerneinheit, sondern ein Musterblatt. Sie zeigt alle Grundbausteine der künftigen Seite:
@@ -114,7 +114,7 @@ export function StyleTile() {
       <Section
         num="02"
         title="Schrift"
-        intro="Serif für Headlines, Sans für Fließtext, Mono für Tokens, IDs und Zahlen. Alle Schriften sind Open Source (SIL OFL) und lokal eingebunden."
+        intro="Entschieden: Fraunces für Headlines, Inter für Fließtext, JetBrains Mono für Tokens, IDs und Zahlen. Die übrigen Kandidaten bleiben bis P0 zum Gegenprüfen sichtbar. Alle Schriften sind Open Source (SIL OFL) und lokal eingebunden."
       >
         <FontLab f={fonts} />
       </Section>
