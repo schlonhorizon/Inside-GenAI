@@ -1,0 +1,1620 @@
+{
+ "strings": [
+  "The capital of France is",
+  "The central bank raised interest rates because",
+  "Once upon a time, there was a",
+  "Die Hauptstadt von Frankreich ist Paris.",
+  "Die Zentralbank erhöht den Leitzins, weil die Inflation steigt.",
+  "Unbegreiflichkeit",
+  "Donaudampfschifffahrtsgesellschaftskapitän",
+  "Größe, Übermaß, Äpfel und Öl – süß!",
+  "strawberry",
+  "How many r's are in strawberry?",
+  "Incomprehensibility",
+  "Hello world",
+  " Hello world",
+  "Hello  world   with   spaces",
+  "Zeile eins\nZeile zwei\n\n\tTab",
+  "1234567890 und 3.14159 sowie 1,5 %",
+  "Der Kurs fiel um 12,7 % auf 1.024,50 €.",
+  "it's, they're, I'll, we've, she'd",
+  "emoji: 🙂🚀 ok",
+  "日本語のテキスト",
+  "naïve café résumé",
+  "C++ und Python: print('hi')",
+  "URL: https://example.com/a?b=c",
+  "<|im_start|>user\nWhat is the capital of France?<|im_end|>",
+  "<|endoftext|>",
+  "",
+  "   ",
+  "a",
+  "Tokenisierung zerlegt Text in Tokens.",
+  "Large language models predict the next token."
+ ],
+ "tokenizers": {
+  "gpt2": [
+   {
+    "ids": [
+     464,
+     3139,
+     286,
+     4881,
+     318
+    ],
+    "tokens": [
+     "The",
+     "Ġcapital",
+     "Ġof",
+     "ĠFrance",
+     "Ġis"
+    ],
+    "decoded": "The capital of France is"
+   },
+   {
+    "ids": [
+     464,
+     4318,
+     3331,
+     4376,
+     1393,
+     3965,
+     780
+    ],
+    "tokens": [
+     "The",
+     "Ġcentral",
+     "Ġbank",
+     "Ġraised",
+     "Ġinterest",
+     "Ġrates",
+     "Ġbecause"
+    ],
+    "decoded": "The central bank raised interest rates because"
+   },
+   {
+    "ids": [
+     7454,
+     2402,
+     257,
+     640,
+     11,
+     612,
+     373,
+     257
+    ],
+    "tokens": [
+     "Once",
+     "Ġupon",
+     "Ġa",
+     "Ġtime",
+     ",",
+     "Ġthere",
+     "Ġwas",
+     "Ġa"
+    ],
+    "decoded": "Once upon a time, there was a"
+   },
+   {
+    "ids": [
+     32423,
+     49696,
+     457,
+     38863,
+     18042,
+     5278,
+     260,
+     488,
+     318,
+     83,
+     6342,
+     13
+    ],
+    "tokens": [
+     "Die",
+     "ĠHau",
+     "pt",
+     "stadt",
+     "Ġvon",
+     "ĠFrank",
+     "re",
+     "ich",
+     "Ġis",
+     "t",
+     "ĠParis",
+     "."
+    ],
+    "decoded": "Die Hauptstadt von Frankreich ist Paris."
+   },
+   {
+    "ids": [
+     32423,
+     1168,
+     298,
+     1373,
+     17796,
+     1931,
+     71,
+     9101,
+     4352,
+     2853,
+     1004,
+     4224,
+     1040,
+     11,
+     356,
+     346,
+     4656,
+     554,
+     33521,
+     2876,
+     328,
+     83,
+     13
+    ],
+    "tokens": [
+     "Die",
+     "ĠZ",
+     "ent",
+     "ral",
+     "bank",
+     "Ġer",
+     "h",
+     "Ã¶",
+     "ht",
+     "Ġden",
+     "ĠLe",
+     "itz",
+     "ins",
+     ",",
+     "Ġwe",
+     "il",
+     "Ġdie",
+     "ĠIn",
+     "flation",
+     "Ġste",
+     "ig",
+     "t",
+     "."
+    ],
+    "decoded": "Die Zentralbank erhöht den Leitzins, weil die Inflation steigt."
+   },
+   {
+    "ids": [
+     3118,
+     1350,
+     16694,
+     361,
+     33467,
+     365,
+     270
+    ],
+    "tokens": [
+     "Un",
+     "be",
+     "gre",
+     "if",
+     "lich",
+     "ke",
+     "it"
+    ],
+    "decoded": "Unbegreiflichkeit"
+   },
+   {
+    "ids": [
+     3987,
+     3885,
+     696,
+     9501,
+     354,
+     361,
+     487,
+     993,
+     81,
+     912,
+     3212,
+     19187,
+     11693,
+     701,
+     8135,
+     499,
+     270,
+     11033,
+     77
+    ],
+    "tokens": [
+     "Don",
+     "aud",
+     "amp",
+     "fs",
+     "ch",
+     "if",
+     "ff",
+     "ah",
+     "r",
+     "ts",
+     "ges",
+     "ells",
+     "cha",
+     "ft",
+     "sk",
+     "ap",
+     "it",
+     "Ã¤",
+     "n"
+    ],
+    "decoded": "Donaudampfschifffahrtsgesellschaftskapitän"
+   },
+   {
+    "ids": [
+     8642,
+     9101,
+     39683,
+     68,
+     11,
+     49363,
+     527,
+     2611,
+     39683,
+     11,
+     6184,
+     226,
+     79,
+     69,
+     417,
+     3318,
+     43307,
+     75,
+     784,
+     264,
+     9116,
+     39683,
+     0
+    ],
+    "tokens": [
+     "Gr",
+     "Ã¶",
+     "ÃŁ",
+     "e",
+     ",",
+     "ĠÃľ",
+     "ber",
+     "ma",
+     "ÃŁ",
+     ",",
+     "ĠÃ",
+     "Ħ",
+     "p",
+     "f",
+     "el",
+     "Ġund",
+     "ĠÃĸ",
+     "l",
+     "ĠâĢĵ",
+     "Ġs",
+     "Ã¼",
+     "ÃŁ",
+     "!"
+    ],
+    "decoded": "Größe, Übermaß, Äpfel und Öl – süß!"
+   },
+   {
+    "ids": [
+     301,
+     1831,
+     8396
+    ],
+    "tokens": [
+     "st",
+     "raw",
+     "berry"
+    ],
+    "decoded": "strawberry"
+   },
+   {
+    "ids": [
+     2437,
+     867,
+     374,
+     338,
+     389,
+     287,
+     41236,
+     30
+    ],
+    "tokens": [
+     "How",
+     "Ġmany",
+     "Ġr",
+     "'s",
+     "Ġare",
+     "Ġin",
+     "Ġstrawberry",
+     "?"
+    ],
+    "decoded": "How many r's are in strawberry?"
+   },
+   {
+    "ids": [
+     818,
+     785,
+     3866,
+     5135,
+     2247
+    ],
+    "tokens": [
+     "In",
+     "com",
+     "pre",
+     "hens",
+     "ibility"
+    ],
+    "decoded": "Incomprehensibility"
+   },
+   {
+    "ids": [
+     15496,
+     995
+    ],
+    "tokens": [
+     "Hello",
+     "Ġworld"
+    ],
+    "decoded": "Hello world"
+   },
+   {
+    "ids": [
+     18435,
+     995
+    ],
+    "tokens": [
+     "ĠHello",
+     "Ġworld"
+    ],
+    "decoded": " Hello world"
+   },
+   {
+    "ids": [
+     15496,
+     220,
+     995,
+     220,
+     220,
+     351,
+     220,
+     220,
+     9029
+    ],
+    "tokens": [
+     "Hello",
+     "Ġ",
+     "Ġworld",
+     "Ġ",
+     "Ġ",
+     "Ġwith",
+     "Ġ",
+     "Ġ",
+     "Ġspaces"
+    ],
+    "decoded": "Hello  world   with   spaces"
+   },
+   {
+    "ids": [
+     36056,
+     576,
+     304,
+     1040,
+     198,
+     36056,
+     576,
+     1976,
+     42990,
+     628,
+     197,
+     33349
+    ],
+    "tokens": [
+     "Ze",
+     "ile",
+     "Ġe",
+     "ins",
+     "Ċ",
+     "Ze",
+     "ile",
+     "Ġz",
+     "wei",
+     "ĊĊ",
+     "ĉ",
+     "Tab"
+    ],
+    "decoded": "Zeile eins\nZeile zwei\n\n\tTab"
+   },
+   {
+    "ids": [
+     10163,
+     2231,
+     30924,
+     3829,
+     3318,
+     513,
+     13,
+     1415,
+     19707,
+     45125,
+     494,
+     352,
+     11,
+     20,
+     4064
+    ],
+    "tokens": [
+     "123",
+     "45",
+     "678",
+     "90",
+     "Ġund",
+     "Ġ3",
+     ".",
+     "14",
+     "159",
+     "Ġsow",
+     "ie",
+     "Ġ1",
+     ",",
+     "5",
+     "Ġ%"
+    ],
+    "decoded": "1234567890 und 3.14159 sowie 1,5 %"
+   },
+   {
+    "ids": [
+     28532,
+     509,
+     1834,
+     277,
+     8207,
+     23781,
+     1105,
+     11,
+     22,
+     4064,
+     257,
+     3046,
+     352,
+     13,
+     40839,
+     11,
+     1120,
+     10432,
+     13
+    ],
+    "tokens": [
+     "Der",
+     "ĠK",
+     "urs",
+     "Ġf",
+     "iel",
+     "Ġum",
+     "Ġ12",
+     ",",
+     "7",
+     "Ġ%",
+     "Ġa",
+     "uf",
+     "Ġ1",
+     ".",
+     "024",
+     ",",
+     "50",
+     "ĠâĤ¬",
+     "."
+    ],
+    "decoded": "Der Kurs fiel um 12,7 % auf 1.024,50 €."
+   },
+   {
+    "ids": [
+     270,
+     338,
+     11,
+     484,
+     821,
+     11,
+     314,
+     1183,
+     11,
+     356,
+     1053,
+     11,
+     673,
+     1549
+    ],
+    "tokens": [
+     "it",
+     "'s",
+     ",",
+     "Ġthey",
+     "'re",
+     ",",
+     "ĠI",
+     "'ll",
+     ",",
+     "Ġwe",
+     "'ve",
+     ",",
+     "Ġshe",
+     "'d"
+    ],
+    "decoded": "it's, they're, I'll, we've, she'd"
+   },
+   {
+    "ids": [
+     368,
+     31370,
+     25,
+     32485,
+     8582,
+     248,
+     222,
+     12876
+    ],
+    "tokens": [
+     "em",
+     "oji",
+     ":",
+     "ĠðŁĻĤ",
+     "ðŁ",
+     "ļ",
+     "Ģ",
+     "Ġok"
+    ],
+    "decoded": "emoji: 🙂🚀 ok"
+   },
+   {
+    "ids": [
+     33768,
+     98,
+     17312,
+     105,
+     45739,
+     252,
+     5641,
+     24336,
+     25084,
+     43302
+    ],
+    "tokens": [
+     "æĹ",
+     "¥",
+     "æľ",
+     "¬",
+     "èª",
+     "ŀ",
+     "ãģ®",
+     "ãĥĨ",
+     "ãĤŃ",
+     "ãĤ¹ãĥĪ"
+    ],
+    "decoded": "日本語のテキスト"
+   },
+   {
+    "ids": [
+     2616,
+     38776,
+     40304,
+     40560,
+     16345,
+     2634
+    ],
+    "tokens": [
+     "na",
+     "Ã¯ve",
+     "ĠcafÃ©",
+     "ĠrÃ©",
+     "sum",
+     "Ã©"
+    ],
+    "decoded": "naïve café résumé"
+   },
+   {
+    "ids": [
+     34,
+     4880,
+     3318,
+     11361,
+     25,
+     3601,
+     10786,
+     5303,
+     11537
+    ],
+    "tokens": [
+     "C",
+     "++",
+     "Ġund",
+     "ĠPython",
+     ":",
+     "Ġprint",
+     "('",
+     "hi",
+     "')"
+    ],
+    "decoded": "C++ und Python: print('hi')"
+   },
+   {
+    "ids": [
+     21886,
+     25,
+     3740,
+     1378,
+     20688,
+     13,
+     785,
+     14,
+     64,
+     30,
+     65,
+     28,
+     66
+    ],
+    "tokens": [
+     "URL",
+     ":",
+     "Ġhttps",
+     "://",
+     "example",
+     ".",
+     "com",
+     "/",
+     "a",
+     "?",
+     "b",
+     "=",
+     "c"
+    ],
+    "decoded": "URL: https://example.com/a?b=c"
+   },
+   {
+    "ids": [
+     27,
+     91,
+     320,
+     62,
+     9688,
+     91,
+     29,
+     7220,
+     198,
+     2061,
+     318,
+     262,
+     3139,
+     286,
+     4881,
+     30,
+     27,
+     91,
+     320,
+     62,
+     437,
+     91,
+     29
+    ],
+    "tokens": [
+     "<",
+     "|",
+     "im",
+     "_",
+     "start",
+     "|",
+     ">",
+     "user",
+     "Ċ",
+     "What",
+     "Ġis",
+     "Ġthe",
+     "Ġcapital",
+     "Ġof",
+     "ĠFrance",
+     "?",
+     "<",
+     "|",
+     "im",
+     "_",
+     "end",
+     "|",
+     ">"
+    ],
+    "decoded": "<|im_start|>user\nWhat is the capital of France?<|im_end|>"
+   },
+   {
+    "ids": [
+     50256
+    ],
+    "tokens": [
+     "<|endoftext|>"
+    ],
+    "decoded": "<|endoftext|>"
+   },
+   {
+    "ids": [],
+    "tokens": [],
+    "decoded": ""
+   },
+   {
+    "ids": [
+     220,
+     220,
+     220
+    ],
+    "tokens": [
+     "Ġ",
+     "Ġ",
+     "Ġ"
+    ],
+    "decoded": "   "
+   },
+   {
+    "ids": [
+     64
+    ],
+    "tokens": [
+     "a"
+    ],
+    "decoded": "a"
+   },
+   {
+    "ids": [
+     30642,
+     271,
+     959,
+     2150,
+     1976,
+     263,
+     1455,
+     83,
+     8255,
+     287,
+     47365,
+     13
+    ],
+    "tokens": [
+     "Token",
+     "is",
+     "ier",
+     "ung",
+     "Ġz",
+     "er",
+     "leg",
+     "t",
+     "ĠText",
+     "Ġin",
+     "ĠTokens",
+     "."
+    ],
+    "decoded": "Tokenisierung zerlegt Text in Tokens."
+   },
+   {
+    "ids": [
+     21968,
+     3303,
+     4981,
+     4331,
+     262,
+     1306,
+     11241,
+     13
+    ],
+    "tokens": [
+     "Large",
+     "Ġlanguage",
+     "Ġmodels",
+     "Ġpredict",
+     "Ġthe",
+     "Ġnext",
+     "Ġtoken",
+     "."
+    ],
+    "decoded": "Large language models predict the next token."
+   }
+  ],
+  "smollm2": [
+   {
+    "ids": [
+     504,
+     3575,
+     282,
+     4649,
+     314
+    ],
+    "tokens": [
+     "The",
+     "Ġcapital",
+     "Ġof",
+     "ĠFrance",
+     "Ġis"
+    ],
+    "decoded": "The capital of France is"
+   },
+   {
+    "ids": [
+     504,
+     3466,
+     5461,
+     5489,
+     1384,
+     3400,
+     975
+    ],
+    "tokens": [
+     "The",
+     "Ġcentral",
+     "Ġbank",
+     "Ġraised",
+     "Ġinterest",
+     "Ġrates",
+     "Ġbecause"
+    ],
+    "decoded": "The central bank raised interest rates because"
+   },
+   {
+    "ids": [
+     6403,
+     1980,
+     253,
+     655,
+     28,
+     665,
+     436,
+     253
+    ],
+    "tokens": [
+     "Once",
+     "Ġupon",
+     "Ġa",
+     "Ġtime",
+     ",",
+     "Ġthere",
+     "Ġwas",
+     "Ġa"
+    ],
+    "decoded": "Once upon a time, there was a"
+   },
+   {
+    "ids": [
+     42703,
+     407,
+     603,
+     437,
+     36192,
+     12673,
+     7014,
+     257,
+     485,
+     43424,
+     7042,
+     30
+    ],
+    "tokens": [
+     "Die",
+     "ĠH",
+     "au",
+     "pt",
+     "stadt",
+     "Ġvon",
+     "ĠFrank",
+     "re",
+     "ich",
+     "Ġist",
+     "ĠParis",
+     "."
+    ],
+    "decoded": "Die Hauptstadt von Frankreich ist Paris."
+   },
+   {
+    "ids": [
+     42703,
+     1777,
+     293,
+     1240,
+     19501,
+     2812,
+     88,
+     7466,
+     4082,
+     4017,
+     2250,
+     7711,
+     927,
+     28,
+     392,
+     301,
+     5437,
+     46827,
+     2818,
+     324,
+     100,
+     30
+    ],
+    "tokens": [
+     "Die",
+     "ĠZ",
+     "ent",
+     "ral",
+     "bank",
+     "Ġer",
+     "h",
+     "Ã¶",
+     "ht",
+     "Ġden",
+     "ĠLe",
+     "itz",
+     "ins",
+     ",",
+     "Ġwe",
+     "il",
+     "Ġdie",
+     "ĠInflation",
+     "Ġste",
+     "ig",
+     "t",
+     "."
+    ],
+    "decoded": "Die Zentralbank erhöht den Leitzins, weil die Inflation steigt."
+   },
+   {
+    "ids": [
+     3706,
+     43182,
+     257,
+     342,
+     31984,
+     396,
+     269
+    ],
+    "tokens": [
+     "Un",
+     "beg",
+     "re",
+     "if",
+     "lich",
+     "ke",
+     "it"
+    ],
+    "decoded": "Unbegreiflichkeit"
+   },
+   {
+    "ids": [
+     8084,
+     6155,
+     1613,
+     9269,
+     322,
+     342,
+     484,
+     1287,
+     98,
+     849,
+     2519,
+     7947,
+     322,
+     32321,
+     91,
+     512,
+     269,
+     9023,
+     94
+    ],
+    "tokens": [
+     "Don",
+     "aud",
+     "amp",
+     "fs",
+     "ch",
+     "if",
+     "ff",
+     "ah",
+     "r",
+     "ts",
+     "ges",
+     "ells",
+     "ch",
+     "afts",
+     "k",
+     "ap",
+     "it",
+     "Ã¤",
+     "n"
+    ],
+    "decoded": "Donaudampfschifffahrtsgesellschaftskapitän"
+   },
+   {
+    "ids": [
+     27302,
+     7466,
+     34878,
+     85,
+     28,
+     5549,
+     246,
+     593,
+     2432,
+     34878,
+     28,
+     5549,
+     222,
+     96,
+     34520,
+     3423,
+     45788,
+     92,
+     816,
+     262,
+     7170,
+     34878,
+     17
+    ],
+    "tokens": [
+     "Gr",
+     "Ã¶",
+     "ÃŁ",
+     "e",
+     ",",
+     "ĠÃ",
+     "ľ",
+     "ber",
+     "ma",
+     "ÃŁ",
+     ",",
+     "ĠÃ",
+     "Ħ",
+     "p",
+     "fel",
+     "Ġund",
+     "ĠÃĸ",
+     "l",
+     "ĠâĢĵ",
+     "Ġs",
+     "Ã¼",
+     "ÃŁ",
+     "!"
+    ],
+    "decoded": "Größe, Übermaß, Äpfel und Öl – süß!"
+   },
+   {
+    "ids": [
+     302,
+     1709,
+     9500
+    ],
+    "tokens": [
+     "st",
+     "raw",
+     "berry"
+    ],
+    "decoded": "strawberry"
+   },
+   {
+    "ids": [
+     2020,
+     800,
+     412,
+     506,
+     359,
+     281,
+     35199,
+     47
+    ],
+    "tokens": [
+     "How",
+     "Ġmany",
+     "Ġr",
+     "'s",
+     "Ġare",
+     "Ġin",
+     "Ġstrawberry",
+     "?"
+    ],
+    "decoded": "How many r's are in strawberry?"
+   },
+   {
+    "ids": [
+     788,
+     824,
+     14163,
+     1968
+    ],
+    "tokens": [
+     "In",
+     "com",
+     "prehens",
+     "ibility"
+    ],
+    "decoded": "Incomprehensibility"
+   },
+   {
+    "ids": [
+     19556,
+     905
+    ],
+    "tokens": [
+     "Hello",
+     "Ġworld"
+    ],
+    "decoded": "Hello world"
+   },
+   {
+    "ids": [
+     38699,
+     905
+    ],
+    "tokens": [
+     "ĠHello",
+     "Ġworld"
+    ],
+    "decoded": " Hello world"
+   },
+   {
+    "ids": [
+     19556,
+     216,
+     905,
+     256,
+     351,
+     256,
+     5600
+    ],
+    "tokens": [
+     "Hello",
+     "Ġ",
+     "Ġworld",
+     "ĠĠ",
+     "Ġwith",
+     "ĠĠ",
+     "Ġspaces"
+    ],
+    "decoded": "Hello  world   with   spaces"
+   },
+   {
+    "ids": [
+     74,
+     85,
+     552,
+     297,
+     927,
+     198,
+     74,
+     85,
+     552,
+     1892,
+     42205,
+     1116,
+     197,
+     30064
+    ],
+    "tokens": [
+     "Z",
+     "e",
+     "ile",
+     "Ġe",
+     "ins",
+     "Ċ",
+     "Z",
+     "e",
+     "ile",
+     "Ġz",
+     "wei",
+     "ĊĊ",
+     "ĉ",
+     "Tab"
+    ],
+    "decoded": "Zeile eins\nZeile zwei\n\n\tTab"
+   },
+   {
+    "ids": [
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     32,
+     3423,
+     216,
+     35,
+     30,
+     33,
+     36,
+     33,
+     37,
+     41,
+     29679,
+     519,
+     216,
+     33,
+     28,
+     37,
+     2471
+    ],
+    "tokens": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "0",
+     "Ġund",
+     "Ġ",
+     "3",
+     ".",
+     "1",
+     "4",
+     "1",
+     "5",
+     "9",
+     "Ġsow",
+     "ie",
+     "Ġ",
+     "1",
+     ",",
+     "5",
+     "Ġ%"
+    ],
+    "decoded": "1234567890 und 3.14159 sowie 1,5 %"
+   },
+   {
+    "ids": [
+     30913,
+     659,
+     2786,
+     275,
+     956,
+     26969,
+     216,
+     33,
+     34,
+     28,
+     39,
+     2471,
+     253,
+     15094,
+     216,
+     33,
+     30,
+     32,
+     34,
+     36,
+     28,
+     37,
+     32,
+     24927,
+     30
+    ],
+    "tokens": [
+     "Der",
+     "ĠK",
+     "urs",
+     "Ġf",
+     "iel",
+     "Ġum",
+     "Ġ",
+     "1",
+     "2",
+     ",",
+     "7",
+     "Ġ%",
+     "Ġa",
+     "uf",
+     "Ġ",
+     "1",
+     ".",
+     "0",
+     "2",
+     "4",
+     ",",
+     "5",
+     "0",
+     "ĠâĤ¬",
+     "."
+    ],
+    "decoded": "Der Kurs fiel um 12,7 % auf 1.024,50 €."
+   },
+   {
+    "ids": [
+     269,
+     506,
+     28,
+     502,
+     2316,
+     28,
+     339,
+     3060,
+     28,
+     392,
+     3543,
+     28,
+     1041,
+     6737
+    ],
+    "tokens": [
+     "it",
+     "'s",
+     ",",
+     "Ġthey",
+     "'re",
+     ",",
+     "ĠI",
+     "'ll",
+     ",",
+     "Ġwe",
+     "'ve",
+     ",",
+     "Ġshe",
+     "'d"
+    ],
+    "decoded": "it's, they're, I'll, we've, she'd"
+   },
+   {
+    "ids": [
+     391,
+     33777,
+     42,
+     47526,
+     10813,
+     244,
+     218,
+     10907
+    ],
+    "tokens": [
+     "em",
+     "oji",
+     ":",
+     "ĠðŁĻĤ",
+     "ðŁ",
+     "ļ",
+     "Ģ",
+     "Ġok"
+    ],
+    "decoded": "emoji: 🙂🚀 ok"
+   },
+   {
+    "ids": [
+     23274,
+     115,
+     40993,
+     179,
+     120,
+     248,
+     26453,
+     11100,
+     224,
+     10391,
+     251,
+     10391,
+     134,
+     11100,
+     226
+    ],
+    "tokens": [
+     "æĹ",
+     "¥",
+     "æľ¬",
+     "è",
+     "ª",
+     "ŀ",
+     "ãģ®",
+     "ãĥ",
+     "Ĩ",
+     "ãĤ",
+     "Ń",
+     "ãĤ",
+     "¹",
+     "ãĥ",
+     "Ī"
+    ],
+    "decoded": "日本語のテキスト"
+   },
+   {
+    "ids": [
+     3546,
+     46494,
+     37366,
+     412,
+     2756,
+     5422,
+     2756
+    ],
+    "tokens": [
+     "na",
+     "Ã¯ve",
+     "ĠcafÃ©",
+     "Ġr",
+     "Ã©",
+     "sum",
+     "Ã©"
+    ],
+    "decoded": "naïve café résumé"
+   },
+   {
+    "ids": [
+     51,
+     11444,
+     3423,
+     5905,
+     42,
+     1628,
+     1305,
+     6004,
+     1465
+    ],
+    "tokens": [
+     "C",
+     "++",
+     "Ġund",
+     "ĠPython",
+     ":",
+     "Ġprint",
+     "('",
+     "hi",
+     "')"
+    ],
+    "decoded": "C++ und Python: print('hi')"
+   },
+   {
+    "ids": [
+     14492,
+     42,
+     5141,
+     1742,
+     7434,
+     30,
+     824,
+     31,
+     81,
+     47,
+     82,
+     45,
+     83
+    ],
+    "tokens": [
+     "URL",
+     ":",
+     "Ġhttps",
+     "://",
+     "example",
+     ".",
+     "com",
+     "/",
+     "a",
+     "?",
+     "b",
+     "=",
+     "c"
+    ],
+    "decoded": "URL: https://example.com/a?b=c"
+   },
+   {
+    "ids": [
+     1,
+     4093,
+     198,
+     1780,
+     314,
+     260,
+     3575,
+     282,
+     4649,
+     47,
+     2
+    ],
+    "tokens": [
+     "<|im_start|>",
+     "user",
+     "Ċ",
+     "What",
+     "Ġis",
+     "Ġthe",
+     "Ġcapital",
+     "Ġof",
+     "ĠFrance",
+     "?",
+     "<|im_end|>"
+    ],
+    "decoded": "<|im_start|>user\nWhat is the capital of France?<|im_end|>"
+   },
+   {
+    "ids": [
+     0
+    ],
+    "tokens": [
+     "<|endoftext|>"
+    ],
+    "decoded": "<|endoftext|>"
+   },
+   {
+    "ids": [],
+    "tokens": [],
+    "decoded": ""
+   },
+   {
+    "ids": [
+     333
+    ],
+    "tokens": [
+     "ĠĠĠ"
+    ],
+    "decoded": "   "
+   },
+   {
+    "ids": [
+     81
+    ],
+    "tokens": [
+     "a"
+    ],
+    "decoded": "a"
+   },
+   {
+    "ids": [
+     20855,
+     271,
+     1153,
+     2280,
+     1892,
+     259,
+     4793,
+     100,
+     9378,
+     281,
+     1626,
+     11603,
+     30
+    ],
+    "tokens": [
+     "Token",
+     "is",
+     "ier",
+     "ung",
+     "Ġz",
+     "er",
+     "leg",
+     "t",
+     "ĠText",
+     "Ġin",
+     "ĠTo",
+     "kens",
+     "."
+    ],
+    "decoded": "Tokenisierung zerlegt Text in Tokens."
+   },
+   {
+    "ids": [
+     28596,
+     1789,
+     2859,
+     3142,
+     260,
+     1867,
+     9624,
+     30
+    ],
+    "tokens": [
+     "Large",
+     "Ġlanguage",
+     "Ġmodels",
+     "Ġpredict",
+     "Ġthe",
+     "Ġnext",
+     "Ġtoken",
+     "."
+    ],
+    "decoded": "Large language models predict the next token."
+   }
+  ]
+ }
+}
