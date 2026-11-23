@@ -1,50 +1,91 @@
-name: Assets erzeugen (manuell)
+name: Assets erzeugen
 
-# Erzeugt kleine, vorberechnete Datendateien mit Python/PyTorch (Golden-Referenzwerte,
-# Embedding-Teilmenge, Toy-Modell) und öffnet damit einen Pull Request.
-# Läuft NUR manuell (Actions → "Assets erzeugen" → Run workflow), damit der normale
-# Deploy schlank und Python-frei bleibt (PLAN.md 4.3).
+# Erzeugt kleine, vorberechnete Datendateien mit Python/PyTorch (Tokenizer-Dateien und
+# Referenz-Tokenisierungen, Toy-Modelle, später Golden-Referenzwerte und Embeddings).
 #
-# Voraussetzung: Settings → Actions → General → "Allow GitHub Actions to create and
-# approve pull requests" ist aktiviert.
+# • Push auf einen claude/**-Branch, der scripts/py/** ändert: Der Job committet die
+#   Ergebnisse direkt auf denselben Branch. Sein eigener Commit ändert nur public/** und
+#   test/fixtures/** und löst den Workflow daher nicht erneut aus (Pfadfilter); Pushes mit
+#   GITHUB_TOKEN starten ohnehin keine weiteren Workflows.
+# • Manuell (Actions → "Assets erzeugen" → Run workflow): Ergebnis als Pull Request.
+#   Dafür muss in Settings → Actions → General "Allow GitHub Actions to create and approve
+#   pull requests" aktiviert sein.
+# Der normale Deploy bleibt schlank und Python-frei (PLAN.md 4.3).
 
 on:
+  push:
+    branches: ['claude/**']
+    paths:
+      - 'scripts/py/**'
+      - '.github/workflows/assets.yml'
   workflow_dispatch:
     inputs:
       targets:
-        description: 'Welche Assets? (golden, embeddings, toy – kommagetrennt)'
+        description: 'Welche Assets? (tokenizers, toy, golden, embeddings – kommagetrennt)'
         required: false
-        default: 'golden,embeddings,toy'
+        default: 'tokenizers,toy'
 
 permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: assets-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-assets:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TARGETS: ${{ inputs.targets || 'tokenizers,toy' }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-          cache-dependency-path: scripts/py/requirements.txt
 
-      - run: pip install -r scripts/py/requirements.txt
+      - name: Python-Abhängigkeiten (PyTorch CPU)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r scripts/py/requirements.txt
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: assets-hf-v1
 
       - name: Assets erzeugen
-        run: python scripts/py/build_assets.py --targets "${{ inputs.targets }}"
+        run: python scripts/py/build_assets.py --targets "$TARGETS"
 
-      - name: Pull Request mit den neuen Dateien öffnen
+      - name: Auf den Branch committen (claude/**)
+        if: startsWith(github.ref, 'refs/heads/claude/')
+        run: |
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/tokenizers public/data public/licenses test/fixtures
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen an den Assets."
+            exit 0
+          fi
+          git commit -m "Assets aktualisiert ($TARGETS) – automatisch von assets.yml"
+          git pull --rebase origin "$BRANCH"
+          git push origin "HEAD:$BRANCH"
+
+      - name: Pull Request mit den neuen Dateien öffnen (manueller Lauf)
+        if: ${{ !startsWith(github.ref, 'refs/heads/claude/') }}
         uses: peter-evans/create-pull-request@v7
         with:
           branch: assets/update-${{ github.run_id }}
-          title: 'Assets aktualisiert (${{ inputs.targets }})'
-          commit-message: 'Update generated assets (${{ inputs.targets }})'
+          title: 'Assets aktualisiert (${{ env.TARGETS }})'
+          commit-message: 'Update generated assets (${{ env.TARGETS }})'
           body: |
             Automatisch erzeugt von `assets.yml` (Lauf ${{ github.run_id }}).
-            Ziele: `${{ inputs.targets }}`
+            Ziele: `${{ env.TARGETS }}`
           add-paths: |
+            public/tokenizers/**
             public/data/**
+            public/licenses/**
+            test/fixtures/**

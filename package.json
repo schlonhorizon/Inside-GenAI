@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "typecheck": "npm run generate && tsc -p .",
     "test": "npm run generate && vitest run",
-    "screenshots": "node scripts/screenshots.mjs"
+    "screenshots": "node scripts/screenshots.mjs",
+    "check:ui": "node scripts/check-interactions.mjs"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",

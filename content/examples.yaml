@@ -1,0 +1,66 @@
+# Beispiele und Daten für die Kapitel – hier anpassbar, ohne Code zu ändern.
+
+# Leitbeispiel (roter Faden). Werte: Top-10 nach dem letzten Prompt-Token, exakter fp16-Lauf
+# der eigenen Engine im Engine-Spike (identisch mit der PyTorch-fp32-Referenz, Abweichung 0,00 pp).
+leitbeispiel:
+  prompt: "The capital of France is"
+  model: "HuggingFaceTB/SmolLM2-135M"
+  modelLabel: "SmolLM2-135M (Base)"
+  revision: "93efa2f097d58c2a74874c7e644dbc9b0cee75a2"
+  precision: "fp16 (exakt)"
+  source: "docs/spike.md · docs/spike-raw.md (Engine-Spike, 2026-11-23)"
+  greedy: "the capital of the country. The capital of France is the capital of"
+  instructAnswer: "The capital of France is Paris."
+  top:
+    - { token: " the", p: 0.262 }
+    - { token: " Paris", p: 0.094 }
+    - { token: " located", p: 0.073 }
+    - { token: " called", p: 0.044 }
+    - { token: " a", p: 0.039 }
+    - { token: " situated", p: 0.036 }
+    - { token: " in", p: 0.016 }
+    - { token: " ", p: 0.012 }
+    - { token: " known", p: 0.010 }
+    - { token: " not", p: 0.009 }
+
+# Prompts für das Spielzeugmodell (nur Wörter aus seinem Vokabular)
+toyPrompts:
+  - "die hauptstadt von frankreich ist"
+  - "die bank erhöht den zins weil"
+  - "die bank senkt den zins weil die"
+  - "wenn der zins steigt ,"
+  - "es war einmal"
+  - "die aktie"
+
+# Vokabular des Spielzeugmodells, gruppiert für die Wortliste im Playground.
+# Wörter, die hier fehlen, landen automatisch unter „Weitere“.
+toyVocabGroups:
+  - name: "Funktionswörter"
+    words: [die, der, den, dem, ein, eine, von, ist, und, weil, wenn, es, war, einmal, im, in, auf, sehr, heute]
+  - name: "Länder & Städte"
+    words: [hauptstadt, frankreich, deutschland, italien, spanien, österreich, paris, berlin, rom, madrid, wien, stadt, alte]
+  - name: "Wirtschaft"
+    words: [bank, zentralbank, zins, inflation, preise, wirtschaft, aktie, kurse, erhöht, senkt, steigt, steigen, sinkt, sinken, fällt, fallen, stark, schwach, leicht]
+  - name: "Geschichten"
+    words: [hund, katze, fuchs, maus, kleiner, kleine, kluge, klug, alter, garten, sofa, spielt, schläft, bellt, läuft, laut, schnell, schön, groß]
+  - name: "Satzzeichen"
+    words: [".", ","]
+
+# Kapitel 2: Satzpaare Deutsch / Englisch
+languagePairs:
+  - de: "Die Zentralbank erhöht den Leitzins, weil die Inflation steigt."
+    en: "The central bank raises its key interest rate because inflation is rising."
+  - de: "Die Hauptstadt von Frankreich ist Paris."
+    en: "The capital of France is Paris."
+  - de: "Unbegreiflichkeit"
+    en: "Incomprehensibility"
+  - de: "Ein Sprachmodell sagt das nächste Token vorher."
+    en: "A language model predicts the next token."
+
+# Kapitel 2: Mini-Korpus für „BPE live“
+bpeCorpus: "tief tiefer am tiefsten tiefe tiefen lang länger am längsten lange langen"
+
+# Kapitel 2: Wörter für die Buchstabenzähl-Demo
+letterCount:
+  word: "strawberry"
+  letter: "r"

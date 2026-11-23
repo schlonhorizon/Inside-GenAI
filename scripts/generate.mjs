@@ -5,7 +5,7 @@
  *   - npm-licenses.json  Lizenzen der direkten npm-Abhängigkeiten (für #/credits)
  *
  * Modell-Configs werden gesucht unter .cache/models/<id>/config.json (ab P2 vom
- * Deploy-Workflow befüllt) bzw. public/data/<id>.config.json (Toy-Modell, ab P1b).
+ * Deploy-Workflow befüllt) bzw. public/data/toy/config.json (Toy-Modell).
  * Fehlt eine Config, wird das Modell als "available: false" eingetragen.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -20,7 +20,7 @@ mkdirSync(out, { recursive: true });
 const MODELS = [
   { id: 'smollm2', label: 'SmolLM2-135M', configs: ['.cache/models/smollm2-135m/config.json'] },
   { id: 'smollm2-instruct', label: 'SmolLM2-135M-Instruct', configs: ['.cache/models/smollm2-135m-instruct/config.json'] },
-  { id: 'toy', label: 'Spielzeugmodell', configs: ['public/data/toy.config.json'] },
+  { id: 'toy', label: 'Spielzeugmodell', configs: ['public/data/toy/config.json'] },
 ];
 
 const facts = {};

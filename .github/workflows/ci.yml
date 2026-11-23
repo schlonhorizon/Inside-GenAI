@@ -36,11 +36,12 @@ jobs:
       - name: Playwright-Browser installieren
         run: npx playwright install --with-deps chromium
 
-      - name: Screenshots + Smoke-Test (alle Routen, Hell und Dunkel)
+      - name: Screenshots, Smoke-Test und Interaktionsprüfung
         run: |
           npx vite preview --port 4173 --strictPort &
           npx --yes wait-on@8 -t 30000 http://localhost:4173/
           npm run screenshots -- http://localhost:4173/ screenshots
+          npm run check:ui -- http://localhost:4173/
 
       - name: Screenshots als Artifact anhängen
         if: always()

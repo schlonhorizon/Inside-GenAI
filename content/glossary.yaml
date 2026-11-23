@@ -182,3 +182,41 @@
   alt: Retrieval-Augmented Generation
   short: Passende Textstellen werden aus einer Dokumentensammlung gesucht und vor der Antwort in den Prompt eingefügt.
   chapter: reasoning-tools
+
+- id: seed
+  term: Seed
+  alt: Startwert
+  short: Startwert des Zufallsgenerators – gleicher Seed und gleiche Einstellungen ergeben exakt dieselbe Folge gezogener Tokens.
+  chapter: next-token
+
+- id: greedy
+  term: Greedy Decoding
+  alt: gierige Auswahl
+  short: Immer das wahrscheinlichste Token nehmen – entspricht Temperatur 0 und ist vollständig vorhersagbar.
+  chapter: next-token
+  see: [temperatur, sampling]
+
+- id: vokabular
+  term: Vokabular
+  alt: vocabulary
+  short: Die feste Liste aller Tokens, die ein Modell kennt; jedes Token hat darin eine Nummer (ID).
+  chapter: tokenisierung
+  see: [token, tokenizer]
+
+- id: special-token
+  term: Special Token
+  short: Reserviertes Token mit Steuerbedeutung, etwa für Anfang oder Ende eines Textes oder den Beginn einer Chat-Nachricht.
+  chapter: tokenisierung
+  see: [eos-token]
+
+- id: eos-token
+  term: EOS-Token
+  alt: End of Sequence
+  short: Special Token, das „Text zu Ende“ bedeutet; zieht das Modell es, hört die Generierung auf.
+  chapter: generierung
+
+- id: kv-cache
+  term: KV-Cache
+  short: Zwischenspeicher für Keys und Values früherer Tokens, damit pro neuem Token nur eine neue Zeile berechnet werden muss.
+  chapter: generierung
+  see: [qkv, autoregressiv]

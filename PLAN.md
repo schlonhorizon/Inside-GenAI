@@ -1,7 +1,7 @@
 # PLAN.md: „Inside GenAI“
 
 > Interaktives Lernkompendium: Wie macht ein LLM aus einem Prompt eine Antwort?
-> Stand: 2026-11-23 · Revision 5 (Entscheidungen nach dem Engine-Spike) · Status: D0, P0 und P1a umgesetzt; nächster Schritt P1b (MVP)
+> Stand: 2026-11-23 · Revision 5 (Entscheidungen nach dem Engine-Spike) · Status: D0, P0, P1a und P1b umgesetzt; nächster Schritt P2 (echtes Modell)
 
 ## 1. Zusammenfassung
 
@@ -519,14 +519,20 @@ Hash-Routing mit allen 16 Kapitel-Routen (Platzhalter), MDX + KaTeX, Design-Toke
 - [ ] Kandidaten-Prompts mit Verteilungen im Bericht → **Entscheidung durch dich: Leitbeispiel**.
 - [ ] Klarer Go/No-Go-Vorschlag für P2.
 
-### P1b: MVP · **L**
+### P1b: MVP · **L** · ✅ umgesetzt
 Toy-Modell (Training + Engine-Kern + Sampler), echte Tokenizer, **Kapitel 0, 2, 7, 8** + **Mini-Playground** (Prompt, Sampling-Regler, Generierung; `#/playground`).
 **DoD:**
-- [ ] Kap. 2: Eigener Text wird mit GPT-2- und SmolLM2-Tokenizer tokenisiert; die IDs stimmen mit den Referenz-Tokenisierungen der Tests überein.
-- [ ] Kap. 7: Temperatur/Top-k/Top-p/Seed ändern die Verteilung ohne spürbare Verzögerung; gleicher Seed → gleiches Sample (Test).
-- [ ] Kap. 8: Step-Modus und Token-Erzwingen erzeugen einen sichtbaren Antwort-Baum.
-- [ ] Mini-Playground generiert mit dem Toy-Modell, alle Regler wirken.
-- [ ] Alles funktioniert offline nach dem ersten Laden (kein echtes Modell nötig), alle Abbildungen tragen den richtigen Stempel.
+- [x] Kap. 2: Eigener Text wird mit GPT-2- und SmolLM2-Tokenizer tokenisiert; die IDs stimmen mit den Referenz-Tokenisierungen der Tests überein (30 Teststrings, Python `tokenizers` als Referenz).
+- [x] Kap. 7: Temperatur/Top-k/Top-p/Seed ändern die Verteilung ohne spürbare Verzögerung; gleicher Seed → gleiches Sample (Test).
+- [x] Kap. 8: Step-Modus und Token-Erzwingen erzeugen einen sichtbaren Antwort-Baum.
+- [x] Mini-Playground generiert mit dem Toy-Modell, alle Regler wirken (inkl. Wortliste und Autovervollständigung).
+- [x] Nach dem ersten Laden funktioniert die Navigation zwischen allen MVP-Routen ohne Netz, solange der Tab offen ist (Vorladen im Leerlauf; ein Neuladen offline ist ohne Service Worker nicht möglich, siehe P6). Kein echtes Modell nötig.
+- [x] Alle Abbildungen tragen den richtigen Stempel (automatisch geprüft in `scripts/check-interactions.mjs`).
+
+> **Abweichungen:**
+> - Ohne Web Worker: Das Toy-Modell rechnet im Mikrosekundenbereich; der Worker kommt mit dem echten Modell in P2.
+> - `assets.yml` committet auf `claude/**`-Branches direkt (das PR-Setting ist nicht nötig).
+> - Die Toy-Variante ohne Positionssignal (`public/data/toy-nopos/`) ist schon mittrainiert und wird in Kapitel 4 (P3) genutzt.
 
 ### P2: Echtes Modell + Grundlagen fürs Innenleben · **L**
 `prepare-models.ts` + Cache im Deploy, int8-Loader + Cache API, Modell-Lade-UI + Fallback-Banner, Golden-Tests; Kap. 2/7/8 + Mini-Playground auf echtes Modell heben; **Kapitel 1 (Neuronale Netze), 5 (Attention), 6 (Block)**.
@@ -573,7 +579,7 @@ Instruct-Modell, **Kapitel 10, 11, 12, 13, 14**.
 - [ ] Jeder Fachbegriff ist beim ersten Auftreten pro Kapitel als `<Term>` verlinkt (Lint-Check im CI).
 
 ### P6: Politur · **M**
-Optional WebGPU-Matmul, Performance, Tablet-Layout, A11y, inhaltliches Review.
+Optional WebGPU-Matmul, optional **Service Worker** (Neuladen offline, Caching der Modell-Shards), Performance, Tablet-Layout, A11y, inhaltliches Review.
 **DoD:**
 - [ ] Alle Kapitel auf 1024 px Breite (Tablet quer) ohne horizontales Scrollen bedienbar.
 - [ ] Alle Widgets per Tastatur bedienbar; Diagramme haben Textalternativen.

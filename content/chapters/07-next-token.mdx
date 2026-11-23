@@ -5,27 +5,75 @@ title: "Next-Token-Prediction & Sampling"
 short: "Eine Verteilung statt einer Antwort"
 minutes: 15
 phase: P1b
-ready: false
+ready: true
 goals:
   - "Verstehen, dass das Modell eine Wahrscheinlichkeitsverteilung ausgibt."
   - "Logits, Softmax und Temperatur zusammenbringen."
   - "Top-k, Top-p und Seed als Stellschrauben des Samplings einsetzen."
 ---
 
-<Placeholder phase="P1b">
-Live-Balkendiagramm mit Reglern für Temperatur, Top-k, Top-p und Seed; Würfeln; Mini-Playground.
-</Placeholder>
+import { LeitbeispielBars, ToyDistribution } from '../../src/chapters/next-token';
 
-## Worum es geht
+## Ein gezinkter Würfel
 
-Am Ende jedes Durchlaufs steht keine Antwort, sondern für jedes Token im Vokabular ein Wert: die <Term id="logit">Logits</Term>. Die <Term id="softmax">Softmax</Term> macht daraus Wahrscheinlichkeiten, und erst beim <Term id="sampling">Sampling</Term> wird ein konkretes Token gezogen – beeinflusst von <Term id="temperatur">Temperatur</Term>, <Term id="top-k">Top-k</Term> und <Term id="top-p">Top-p</Term>.
+Am Ende jedes Durchlaufs steht keine Antwort, sondern ein gezinkter Würfel: Jede mögliche Fortsetzung hat eine eigene
+Chance. Das Modell liefert dafür zunächst für jedes Token im Vokabular einen Rohwert, die <Term id="logit">Logits</Term>.
+Die <Term id="softmax">Softmax</Term> verwandelt sie in Wahrscheinlichkeiten, die zusammen 100 % ergeben. Erst beim
+<Term id="sampling">Sampling</Term> wird gewürfelt und ein Token ausgewählt.
+
+## Das Leitbeispiel
+
+So sieht der Würfel beim echten Modell SmolLM2 für unser Leitbeispiel aus:
+
+<LeitbeispielBars />
+
+Das Modell ist keine Faktendatenbank. Es hat gelernt, wie Texte im Internet typischerweise weitergehen. Nach „The capital
+of France is“ folgt dort oft „the …“ („the city of …“, „the largest …“), deshalb liegt „ the“ vorn. „ Paris“ ist
+wahrscheinlich, aber nicht sicher. Wie oft dabei etwas Falsches herauskommt, hängt davon ab, *wie* gewürfelt wird.
+
+## Selbst am Würfel drehen
+
+Hier rechnet das Spielzeugmodell live: ein winziger Transformer mit <Fact m="toy" k="params" /> Parametern, der auf
+einfachen deutschen Sätzen trainiert wurde und <Fact m="toy" k="vocab" /> Wörter kennt. Sein Gegenstück zum Leitbeispiel
+ist „die hauptstadt von frankreich ist“.
+
+<ToyDistribution />
+
+Die Stellschrauben im Einzelnen:
+
+- **<Term id="temperatur">Temperatur</Term>** formt den Würfel. Niedrig (< 1) macht die Favoriten noch stärker, hoch (> 1) gleicht die Chancen an. Bei **0** gewinnt immer das wahrscheinlichste Token; das heißt <Term id="greedy">Greedy Decoding</Term>.
+- **<Term id="top-k">Top-k</Term>** lässt nur die *k* wahrscheinlichsten Tokens im Rennen. Alles andere wird abgeschnitten.
+- **<Term id="top-p">Top-p</Term>** lässt nur die kleinste Gruppe der Favoriten im Rennen, die zusammen mindestens *p* ausmacht. Bei einer klaren Verteilung sind das wenige Tokens, bei einer unsicheren viele.
+- **Min-p** behält nur Tokens, die mindestens einen Bruchteil der Chance des Favoriten haben.
+- **<Term id="seed">Seed</Term>** legt den Zufall fest. Gleicher Seed und gleiche Einstellungen ergeben immer dasselbe Ergebnis.
+
+Mit „1000× würfeln“ siehst du, dass die gezogenen Häufigkeiten der Verteilung sehr nahe kommen. Genau deshalb antwortet
+dasselbe Modell auf denselben Prompt manchmal unterschiedlich: Es wird neu gewürfelt.
 
 <DeepDive>
-Softmax mit Temperatur $T$ über die Logits $z_i$:
+**Softmax mit Temperatur.** Aus den Logits $z_i$ entstehen die Wahrscheinlichkeiten
 
 $$
-p_i = \frac{e^{z_i / T}}{\sum_j e^{z_j / T}}
+p_i = \frac{e^{z_i/T}}{\sum_j e^{z_j/T}}
 $$
 
-Kleines $T$ schärft die Verteilung (Richtung „immer das wahrscheinlichste Token“), großes $T$ macht sie flacher.
+Für $T \to 0$ geht die ganze Masse auf das größte $z_i$ (greedy), für $T \to \infty$ wird die Verteilung gleichmäßig.
+
+**Filter.** Top-k behält die Menge $V_k$ der $k$ größten $p_i$. Top-p behält die kleinste Menge $V_p$ der größten
+Wahrscheinlichkeiten mit $\sum_{i \in V_p} p_i \ge p$. Danach wird neu normiert: $\tilde p_i = p_i / \sum_{j \in V} p_j$
+für behaltene $i$, sonst $0$. Diese Seite wendet die Schritte in derselben Reihenfolge an wie die verbreitete Bibliothek
+`transformers`: Temperatur → Top-k → Top-p → Min-p.
+
+**Ziehen.** Eine gleichverteilte Zufallszahl $u \in [0, 1)$ wird gegen die aufsummierten $\tilde p_i$ gelegt. Das erste
+Token, bei dem die Summe $u$ überschreitet, ist gezogen. Der Zufallsgenerator ist mit dem Seed initialisiert und deshalb
+reproduzierbar.
 </DeepDive>
+
+Den nächsten Schritt, also das gezogene Token anhängen und weiterwürfeln, zeigt [Kapitel 8](#/kapitel/generierung).
+Frei ausprobieren kannst du alles im [Mini-Playground](#/playground).
+
+<Takeaways>
+- Das Modell gibt pro Schritt eine **Verteilung** über alle Tokens aus, keine feste Antwort.
+- **Temperatur, Top-k, Top-p** formen und beschneiden diese Verteilung, bevor gewürfelt wird.
+- Mit festem **Seed** ist das Ergebnis reproduzierbar; ohne ihn kann derselbe Prompt anders ausgehen.
+</Takeaways>

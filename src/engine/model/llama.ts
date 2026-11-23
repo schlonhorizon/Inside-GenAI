@@ -20,6 +20,8 @@ export interface LlamaConfig {
   ropeTheta: number;
   maxPos: number;
   tied: boolean;
+  /** false = kein Positionssignal (Toy-Variante für Kapitel 4) */
+  rope: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,6 +38,7 @@ export function configFromHf(c: any): LlamaConfig {
     ropeTheta: c.rope_theta ?? 10000,
     maxPos: c.max_position_embeddings ?? 2048,
     tied: c.tie_word_embeddings ?? false,
+    rope: c.rope !== false,
   };
 }
 
@@ -221,8 +224,10 @@ export class LlamaModel {
       linear(L.q, this.xn, this.q);
       linear(L.k, this.xn, this.k);
       linear(L.v, this.xn, this.v);
-      for (let h = 0; h < heads; h++) applyRope(this.q, h * headDim, pos, this.rope);
-      for (let h = 0; h < kvHeads; h++) applyRope(this.k, h * headDim, pos, this.rope);
+      if (cfg.rope) {
+        for (let h = 0; h < heads; h++) applyRope(this.q, h * headDim, pos, this.rope);
+        for (let h = 0; h < kvHeads; h++) applyRope(this.k, h * headDim, pos, this.rope);
+      }
       const kc = this.kCache[li];
       const vc = this.vCache[li];
       kc.set(this.k, pos * kvDim);

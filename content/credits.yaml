@@ -8,6 +8,21 @@
       license: MIT
       licenseFile: inside-genai-MIT.txt
 
+- group: Modelle & Tokenizer
+  items:
+    - name: GPT-2-Tokenizer
+      what: Tokenisierung in Kapitel 2 (Datei tokenizer.json, Revision 607a30d)
+      by: OpenAI
+      license: MIT (Modified MIT License)
+      url: https://huggingface.co/openai-community/gpt2
+      licenseFile: gpt2-LICENSE.txt
+    - name: SmolLM2-135M-Tokenizer
+      what: Tokenisierung in Kapitel 2 (Datei tokenizer.json, Revision 93efa2f); ab P2 auch das Modell
+      by: Hugging Face (HuggingFaceTB)
+      license: Apache-2.0
+      url: https://huggingface.co/HuggingFaceTB/SmolLM2-135M
+      licenseFile: smollm2-Apache-2.0.txt
+
 - group: Schriften
   items:
     - name: Fraunces
@@ -58,6 +73,5 @@
       licenseFile: mdx-js-MIT.txt
 
 # Ab P2/P3 (noch nicht eingebunden):
-#   SmolLM2-135M / -Instruct – Apache-2.0 (Lizenz + Hinweis auf int8-Quantisierung)
-#   GPT-2-Tokenizer – MIT (OpenAI)
+#   SmolLM2-135M / -Instruct (Gewichte) – Apache-2.0 (Hinweis auf int8-Quantisierung ergänzen)
 #   fastText-Wortvektoren (Deutsch) – CC BY-SA 3.0, Grave et al. 2018; abgeleitete Datei unter derselben Lizenz

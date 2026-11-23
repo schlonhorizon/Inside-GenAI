@@ -1,0 +1,16 @@
+{
+  "gpt2": {
+    "repo": "openai-community/gpt2",
+    "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+    "license": "MIT",
+    "file": "gpt2.json",
+    "bytes": 1355256
+  },
+  "smollm2": {
+    "repo": "HuggingFaceTB/SmolLM2-135M",
+    "revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2",
+    "license": "Apache-2.0",
+    "file": "smollm2.json",
+    "bytes": 2104556
+  }
+}
