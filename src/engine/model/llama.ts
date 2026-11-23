@@ -59,54 +59,80 @@ export interface LlamaWeights {
 }
 
 /**
- * Gewichtsformat:
- *   f32       volle Genauigkeit
- *   f16       fp16-Genauigkeit (so würde es ausgeliefert), im Speicher als f32
- *   q8        int8, ein Skalierungsfaktor pro Zeile
- *   q8g64     int8, ein Skalierungsfaktor je 64 Werte (q8g32: je 32)
- *   q8g64-hp  wie q8g64, aber Embedding/Ausgabeschicht in fp16-Genauigkeit
+ * Gewichtsformat je Teil des Modells:
+ *   f32      volle Genauigkeit
+ *   f16      fp16-Genauigkeit (so würde es ausgeliefert), im Speicher als f32
+ *   q8       int8, ein Skalierungsfaktor pro Zeile
+ *   q8g<N>   int8, ein Skalierungsfaktor je N Werte einer Zeile (z. B. q8g64)
+ *
+ * Teile: attn (q/k/v/o), mlp (gate/up), down (MLP-down), emb (Embedding = LM-Head).
+ * Als String: "q8g64" (alle Teile) oder "attn:q8,mlp:q8,down:f16,emb:f16";
+ * Zusatz "+s16" rundet die int8-Skalen auf fp16 (wie bei der Auslieferung).
  */
-export type Precision = 'f32' | 'f16' | 'q8' | 'q8g64' | 'q8g32' | 'q8g64-hp';
+export type Fmt = 'f32' | 'f16' | 'q8' | `q8g${number}`;
+export interface WeightFormat {
+  attn: Fmt;
+  mlp: Fmt;
+  down: Fmt;
+  emb: Fmt;
+  scales16: boolean;
+}
+export type Precision = string;
+
+const PARTS = ['attn', 'mlp', 'down', 'emb'] as const;
+
+export function parseFormat(spec: string | WeightFormat): WeightFormat {
+  if (typeof spec !== 'string') return spec;
+  const [body, ...flags] = spec.split('+');
+  const scales16 = flags.includes('s16');
+  const check = (f: string): Fmt => {
+    if (f === 'f32' || f === 'f16' || f === 'q8' || /^q8g\d+$/.test(f)) return f as Fmt;
+    throw new Error(`Unbekanntes Format: ${f}`);
+  };
+  if (!body.includes(':')) {
+    const f = check(body);
+    return { attn: f, mlp: f, down: f, emb: f, scales16 };
+  }
+  const out: WeightFormat = { attn: 'f32', mlp: 'f32', down: 'f32', emb: 'f32', scales16 };
+  for (const part of body.split(',')) {
+    const [k, v] = part.split(':');
+    if (!(PARTS as readonly string[]).includes(k)) throw new Error(`Unbekannter Teil: ${k}`);
+    out[k as (typeof PARTS)[number]] = check(v);
+  }
+  return out;
+}
+
+function makeLinear(w: Float32Array, rows: number, cols: number, fmt: Fmt, scales16: boolean): Linear {
+  if (fmt === 'f32') return linearF32(w, rows, cols);
+  if (fmt === 'f16') return linearF32(toF16Precision(w), rows, cols);
+  if (fmt === 'q8') return quantizeRows(w, rows, cols, scales16);
+  return quantizeGroups(w, rows, cols, Number(fmt.slice(3)), scales16);
+}
 
 /** Lädt Gewichte aus einer HF-safetensors-Datei im gewünschten Format. */
-export function loadLlamaWeights(st: SafeTensors, cfg: LlamaConfig, precision: Precision): LlamaWeights {
-  const quant = (w: Float32Array, rows: number, cols: number): Linear => {
-    switch (precision) {
-      case 'f32':
-        return linearF32(w, rows, cols);
-      case 'f16':
-        return linearF32(toF16Precision(w), rows, cols);
-      case 'q8':
-        return quantizeRows(w, rows, cols);
-      case 'q8g32':
-        return quantizeGroups(w, rows, cols, 32);
-      default:
-        return quantizeGroups(w, rows, cols, 64);
-    }
-  };
-  const lin = (name: string, rows: number, cols: number): Linear => quant(st.get(name).data, rows, cols);
+export function loadLlamaWeights(st: SafeTensors, cfg: LlamaConfig, precision: Precision | WeightFormat): LlamaWeights {
+  const f = parseFormat(precision);
+  const lin = (name: string, rows: number, cols: number, part: (typeof PARTS)[number]): Linear =>
+    makeLinear(st.get(name).data, rows, cols, f[part], f.scales16);
   const vec = (name: string) => st.get(name).data;
   const { dModel: d, heads, kvHeads, headDim, dFF, vocab } = cfg;
-  const embed =
-    precision === 'q8g64-hp'
-      ? linearF32(toF16Precision(st.get('model.embed_tokens.weight').data), vocab, d)
-      : lin('model.embed_tokens.weight', vocab, d);
+  const embed = lin('model.embed_tokens.weight', vocab, d, 'emb');
   const layers: Layer[] = [];
   for (let i = 0; i < cfg.layers; i++) {
     const p = `model.layers.${i}.`;
     layers.push({
       inNorm: vec(p + 'input_layernorm.weight'),
-      q: lin(p + 'self_attn.q_proj.weight', heads * headDim, d),
-      k: lin(p + 'self_attn.k_proj.weight', kvHeads * headDim, d),
-      v: lin(p + 'self_attn.v_proj.weight', kvHeads * headDim, d),
-      o: lin(p + 'self_attn.o_proj.weight', d, heads * headDim),
+      q: lin(p + 'self_attn.q_proj.weight', heads * headDim, d, 'attn'),
+      k: lin(p + 'self_attn.k_proj.weight', kvHeads * headDim, d, 'attn'),
+      v: lin(p + 'self_attn.v_proj.weight', kvHeads * headDim, d, 'attn'),
+      o: lin(p + 'self_attn.o_proj.weight', d, heads * headDim, 'attn'),
       postNorm: vec(p + 'post_attention_layernorm.weight'),
-      gate: lin(p + 'mlp.gate_proj.weight', dFF, d),
-      up: lin(p + 'mlp.up_proj.weight', dFF, d),
-      down: lin(p + 'mlp.down_proj.weight', d, dFF),
+      gate: lin(p + 'mlp.gate_proj.weight', dFF, d, 'mlp'),
+      up: lin(p + 'mlp.up_proj.weight', dFF, d, 'mlp'),
+      down: lin(p + 'mlp.down_proj.weight', d, dFF, 'down'),
     });
   }
-  const lmHead = cfg.tied || !st.header['lm_head.weight'] ? embed : lin('lm_head.weight', vocab, d);
+  const lmHead = cfg.tied || !st.header['lm_head.weight'] ? embed : lin('lm_head.weight', vocab, d, 'emb');
   return { embed, lmHead, layers, finalNorm: vec('model.norm.weight') };
 }
 

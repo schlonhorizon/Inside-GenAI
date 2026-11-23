@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseSafeTensors } from '../src/engine/model/safetensors';
-import { configFromHf, LlamaModel, loadLlamaWeights } from '../src/engine/model/llama';
+import { configFromHf, LlamaModel, loadLlamaWeights, parseFormat } from '../src/engine/model/llama';
+import { quantizeGroups, quantizeRows } from '../src/engine/model/quantize';
+import { linearRow, type Linear } from '../src/engine/core/ops';
 
 /**
  * Engine gegen eine unabhängige NumPy-Referenz (scripts/spike/make_tiny_fixture.py):
@@ -46,16 +48,34 @@ describe('Llama-Engine (Mini-Modell)', () => {
     });
   });
 
-  it.each(['q8g64', 'q8g32', 'q8g64-hp'] as const)('%s: genauer oder gleich gut wie int8 pro Zeile', (precision) => {
-    const row = new LlamaModel(cfg, loadLlamaWeights(st, cfg, 'q8'), 32);
-    const grp = new LlamaModel(cfg, loadLlamaWeights(st, cfg, precision), 32);
-    let errRow = 0;
-    let errGrp = 0;
+  it('Gruppen-int8 rekonstruiert jedes Gewicht genauer als int8 pro Zeile', () => {
+    for (const name of st.names().filter((n) => st.header[n].shape.length === 2)) {
+      const { shape, data } = st.get(name);
+      const [rows, cols] = shape;
+      const err = (l: Linear) => {
+        const out = new Float32Array(cols);
+        let e = 0;
+        for (let r = 0; r < rows; r++) {
+          linearRow(l, r, out);
+          for (let c = 0; c < cols; c++) e += (out[c] - data[r * cols + c]) ** 2;
+        }
+        return e;
+      };
+      expect(err(quantizeGroups(data, rows, cols, 16)), name).toBeLessThan(err(quantizeRows(data, rows, cols)));
+    }
+  });
+
+  it.each(['q8g16', 'q8g16+s16', 'attn:q8,mlp:q8,down:q8,emb:f16', 'f16'])('%s: Logits nah an der Referenz', (precision) => {
+    const model = new LlamaModel(cfg, loadLlamaWeights(st, cfg, precision), 32);
     ref.tokens.forEach((t, i) => {
-      errRow += relL2(row.step(t)!, ref.logits[i]);
-      errGrp += relL2(grp.step(t)!, ref.logits[i]);
+      expect(relL2(model.step(t)!, ref.logits[i]), `Position ${i}`).toBeLessThan(0.05);
     });
-    expect(errGrp).toBeLessThanOrEqual(errRow * 1.05);
+  });
+
+  it('Formatangaben werden korrekt gelesen', () => {
+    expect(parseFormat('q8g64+s16')).toEqual({ attn: 'q8g64', mlp: 'q8g64', down: 'q8g64', emb: 'q8g64', scales16: true });
+    expect(parseFormat('attn:q8,emb:f16')).toMatchObject({ attn: 'q8', mlp: 'f32', down: 'f32', emb: 'f16', scales16: false });
+    expect(() => parseFormat('q4')).toThrow();
   });
 
   it('prefill + reset liefern dasselbe wie Einzelschritte', () => {

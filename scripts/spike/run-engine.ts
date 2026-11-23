@@ -41,8 +41,19 @@ for (const [mkey, minfo] of Object.entries(ref.models)) {
   if (minfo.safetensors.length !== 1) throw new Error(`Erwartet genau eine safetensors-Datei, gefunden: ${minfo.safetensors}`);
   const file = readFileSync(join(minfo.path, minfo.safetensors[0]));
   const buf = file.buffer.slice(file.byteOffset, file.byteOffset + file.byteLength);
-  const precisions: Precision[] = ['f32', 'f16', 'q8', 'q8g64-hp'];
-  const perfFor = new Set<Precision>(['f32', 'q8']);
+  // Hauptvarianten (Skalen als fp16 = wie ausgeliefert) + Vergleich Skalenformat
+  const main: Precision[] = ['f16', 'q8', 'q8+s16', 'q8g128+s16', 'q8g64+s16', 'q8g32+s16', 'q8g16+s16'];
+  // Ablation: nur ein Teil int8 (Rest fp16) bzw. alles int8 außer einem Teil (= gemischte Variante)
+  const parts = ['attn', 'mlp', 'down', 'emb'] as const;
+  const ablation: Precision[] = [];
+  for (const q of ['q8', 'q8g32']) {
+    for (const p of parts) {
+      ablation.push(parts.map((x) => `${x}:${x === p ? q : 'f16'}`).join(',') + '+s16');
+      ablation.push(parts.map((x) => `${x}:${x === p ? 'f16' : q}`).join(',') + '+s16');
+    }
+  }
+  const precisions: Precision[] = [...main, ...ablation];
+  const perfFor = new Set<Precision>(['f16', 'q8+s16', 'q8g64+s16', 'q8g32+s16']);
 
   for (const precision of precisions) {
     globalThis.gc?.();

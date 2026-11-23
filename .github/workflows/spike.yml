@@ -19,7 +19,7 @@ permissions:
 jobs:
   spike:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -49,6 +49,11 @@ jobs:
 
       - name: 2 · Eigene Engine (fp32 + int8) mit Zeitmessung
         run: node --experimental-strip-types --expose-gc --max-old-space-size=4096 scripts/spike/run-engine.ts spike-out
+
+      - name: Seitengröße ohne Modelle messen (für das Pages-Budget)
+        run: |
+          npm run build
+          echo "DIST_MB=$(du -sm dist | cut -f1)" >> "$GITHUB_ENV"
 
       - name: 3 · Vergleich + Bericht
         run: python scripts/spike/report.py

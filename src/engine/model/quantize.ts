@@ -4,14 +4,14 @@ import type { Linear } from '../core/ops.ts';
  * Symmetrische int8-Quantisierung pro Zeile: q = round(w / s), s = max|w_row| / 127.
  * Jede Zeile (= ein Ausgangsneuron) bekommt ihren eigenen Skalierungsfaktor.
  */
-export function quantizeRows(w: Float32Array, rows: number, cols: number): Linear {
+export function quantizeRows(w: Float32Array, rows: number, cols: number, scales16 = false): Linear {
   const q = new Int8Array(rows * cols);
   const scale = new Float32Array(rows);
   for (let r = 0; r < rows; r++) {
     const off = r * cols;
     let max = 0;
     for (let c = 0; c < cols; c++) max = Math.max(max, Math.abs(w[off + c]));
-    const s = max / 127 || 1;
+    const s = scales16 ? roundToF16(max / 127 || 1) : max / 127 || 1;
     scale[r] = s;
     for (let c = 0; c < cols; c++) q[off + c] = Math.max(-127, Math.min(127, Math.round(w[off + c] / s)));
   }
@@ -22,8 +22,8 @@ export function quantizeRows(w: Float32Array, rows: number, cols: number): Linea
  * int8 in Gruppen: Jede Zeile wird in Blöcke zu `group` Werten geteilt, jeder Block hat
  * seinen eigenen Skalierungsfaktor. Ausreißer verderben so nur ihren Block, nicht die ganze Zeile.
  */
-export function quantizeGroups(w: Float32Array, rows: number, cols: number, group: number): Linear {
-  if (cols % group !== 0) return quantizeRows(w, rows, cols);
+export function quantizeGroups(w: Float32Array, rows: number, cols: number, group: number, scales16 = false): Linear {
+  if (cols % group !== 0) return quantizeRows(w, rows, cols, scales16);
   const groups = cols / group;
   const q = new Int8Array(rows * cols);
   const scale = new Float32Array(rows * groups);
@@ -32,7 +32,7 @@ export function quantizeGroups(w: Float32Array, rows: number, cols: number, grou
       const off = r * cols + g * group;
       let max = 0;
       for (let c = 0; c < group; c++) max = Math.max(max, Math.abs(w[off + c]));
-      const s = max / 127 || 1;
+      const s = scales16 ? roundToF16(max / 127 || 1) : max / 127 || 1;
       scale[r * groups + g] = s;
       for (let c = 0; c < group; c++) q[off + c] = Math.max(-127, Math.min(127, Math.round(w[off + c] / s)));
     }
