@@ -134,6 +134,19 @@
   background: var(--ink);
   color: var(--bg);
 }
+.stamp--split {
+  display: inline-flex;
+  padding: 0;
+  overflow: hidden;
+}
+.stamp--split .stamp__a {
+  background: var(--ink);
+  color: var(--bg);
+  padding: 2px 6px 2px 8px;
+}
+.stamp--split .stamp__b {
+  padding: 2px 8px 2px 6px;
+}
 .stamp--toy {
   border-style: solid;
 }
@@ -806,6 +819,7 @@
   display: grid;
   gap: 8px;
   justify-items: start;
+  align-content: start;
 }
 
 /* ── Footer ──────────────────────────────────────────────────────── */
