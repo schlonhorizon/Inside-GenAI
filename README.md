@@ -1,5 +1,7 @@
 # Inside GenAI
 
+[PAGE](https://schlonhorizon.github.io/Inside-GenAI/)
+
 Ein interaktives Lernkompendium, das Schritt für Schritt zeigt, wie Sprachmodelle (LLMs) aus einem Prompt eine Antwort machen: Tokenisierung, Embeddings, Attention, Sampling, Training, Assistant-Tuning und mehr. Die Seite ist rein statisch und läuft komplett im Browser.
 
 - **Plan & Konzept:** [PLAN.md](PLAN.md)
