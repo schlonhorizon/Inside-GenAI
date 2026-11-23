@@ -1,7 +1,7 @@
 # PLAN.md: „Inside GenAI“
 
 > Interaktives Lernkompendium: Wie macht ein LLM aus einem Prompt eine Antwort?
-> Stand: 2026-11-23 · Revision 4 (Design-Entscheidungen nach D0) · Status: D0, P0 und P1a umgesetzt; nächster Schritt P1b (MVP), offene Entscheidungen aus `docs/spike.md`
+> Stand: 2026-11-23 · Revision 5 (Entscheidungen nach dem Engine-Spike) · Status: D0, P0 und P1a umgesetzt; nächster Schritt P1b (MVP)
 
 ## 1. Zusammenfassung
 
@@ -24,7 +24,7 @@ Der Weg folgt der Datenflussrichtung, danach kommt der Blick zurück auf das Tra
 
 Die Kapitelnummern sind nur Anzeige. Routen nutzen stabile Slugs (`#/kapitel/attention`), daher bleiben Links bei späterem Umsortieren gültig.
 
-**Roter Faden:** Ein Leitbeispiel taucht in jedem Kapitel wieder auf. Kandidaten für das echte Modell sind `"The central bank raised interest rates because"`, `"The capital of France is"` und 1–2 weitere; für das Toy-Modell z. B. `"die bank erhöht den zins weil"`. **Das Leitbeispiel wird erst nach dem Engine-Spike festgelegt** (P1a). Dort wird geprüft, welcher Prompt beim echten Modell eine aussagekräftige Verteilung liefert.
+**Roter Faden (entschieden nach dem Spike):** `"The capital of France is"`. Das Base-Modell setzt am wahrscheinlichsten mit „ the“ fort (26 %), „ Paris“ kommt erst auf Platz 2 (9 %); das Instruct-Modell antwortet „Paris“. So zeigt das Beispiel durchgehend, dass ein LLM eine Verteilung ist und keine Faktendatenbank. Ergänzend: `"The central bank raised interest rates because"` als Finanz- und Halluzinationsbeispiel (Kap. 13) und `"Once upon a time, there was a"` für Sampling (Kap. 7). Für das Toy-Modell z. B. `"die bank erhöht den zins weil"`.
 
 ### 2.2 Struktur: Kapitel-Unterseiten mit linearem Pfad *(entschieden)*
 Jedes Kapitel ist eine eigene Hash-Route und intern eine kurze **Scroll-Story**. Die Karte (Kapitel 0) dient als Hub; Prev/Next, eine Fortschrittsleiste und ein „Weiter“-Block am Kapitelende erzeugen das Gefühl eines durchgehenden Pfads. Vorteile: Code-Splitting pro Kapitel, keine Konflikte zwischen Scroll-Animationen und Widgets, stabile Deep-Links, messbarer Fortschritt.
@@ -39,7 +39,8 @@ Dazu kommen pro Kapitel: **„Was du jetzt weißt“** (3 Bullets), ein **Quiz**
 ### 2.4 Ehrlichkeits-Stempel (verbindlich für jede Abbildung)
 | Stempel | Bedeutung |
 |---|---|
-| `ECHT` | live im Browser mit dem echten LLM berechnet (SmolLM2) |
+| `ECHT` | live im Browser mit dem echten LLM berechnet, exakte fp16-Fassung (nur Base-Modell) |
+| `ECHT · INT8` | live mit dem echten LLM berechnet, int8-Fassung (Standard): Wahrscheinlichkeiten weichen um bis zu ≈ 1,3 pp ab. Zweigeteilter Stempel (links gefüllt „Echt“, rechts umrandet „int8“), Unterscheidung nur über die Form |
 | `ECHT · TOY` | live und exakt mit dem Spielzeug-Transformer bzw. Mini-Netz berechnet |
 | `VORBERECHNET` | echte Werte, aber vorab berechnet (z. B. Embedding-Projektion, Referenz-Logits) |
 | `ILLUSTRATIV` | vereinfacht bzw. geskriptet, zeigt das Prinzip und keine echten Werte |
@@ -270,7 +271,10 @@ Drei vollwertige Abschnitte:
 ### 4.1 Echtes Modell im Browser *(entschieden)*
 - **Eigene TS-Engine** (Llama-Architektur: RMSNorm, RoPE, GQA, SwiGLU) mit Hooks an jeder Stelle (`onAttention`, `onResidual`, `onLogits`, `patchHead`). Das Toy-Modell nutzt denselben Code.
 - **SmolLM2-135M Base + Instruct** (Apache-2.0): 30 Layer, d=576, 9 Heads (3 KV-Heads), Vokabular 49.152. Diese Werte dienen nur als Planungsgrundlage. Im Seitentext werden sie aus `config.json` der gepinnten Revision gelesen (siehe 5.5).
-- **int8** mit Skalierung pro Zeile, **~140 MB pro Modell** in Shards à ≤ 32 MB, Laden **nur auf Klick** mit Größenangabe und Fortschritt, danach in der **Cache Storage API**.
+- **Gewichtsformat (entschieden nach dem Spike, `docs/spike.md`):**
+  - **Standard: „int8-Fassung“**, das heißt Attention-Projektionen in fp16, MLP und Embedding/LM-Head in int8 mit Gruppen zu 32 und fp16-Skalen. Das sind ≈ 160 MB pro Modell bei max. ≈ 1,3 pp Abweichung der Wahrscheinlichkeiten.
+  - **Optional: „Exakte Fassung“ in fp16** (≈ 260 MB), **nur für das Base-Modell**, weil das Pages-Budget mit beiden fp16-Fassungen bei 868 MB läge (Grenze 800 MB); mit fp16 nur für Base sind es ≈ 611 MB.
+  - Shards à ≤ 32 MB, Laden **nur auf Klick** mit Größenangabe und Fortschritt, danach in der **Cache Storage API**.
 - Erwartung (wird im Spike P1a gemessen): ~0,1–0,5 s/Token mit KV-Cache, Prefill von 64 Tokens einige Sekunden. Prompt-Limit im UI 128–256 Tokens. WebGPU-Turbo ist optional für P6 bzw. früher, falls der Spike es nahelegt.
 - Pages setzt keine COOP/COEP-Header, also kein `SharedArrayBuffer`. Die reine JS-Engine braucht das nicht.
 - **Prompts am echten Modell auf Englisch**, Toy-Modell und UI auf Deutsch, mit Erklärung warum (Trainingsdaten).
@@ -526,8 +530,16 @@ Toy-Modell (Training + Engine-Kern + Sampler), echte Tokenizer, **Kapitel 0, 2, 
 
 ### P2: Echtes Modell + Grundlagen fürs Innenleben · **L**
 `prepare-models.ts` + Cache im Deploy, int8-Loader + Cache API, Modell-Lade-UI + Fallback-Banner, Golden-Tests; Kap. 2/7/8 + Mini-Playground auf echtes Modell heben; **Kapitel 1 (Neuronale Netze), 5 (Attention), 6 (Block)**.
+**Aus dem Spike (`docs/spike.md`):**
+- Shards: int8-Fassung für Base und Instruct, fp16 nur für Base; gepinnte Revisionen.
+- Batch-Prefill.
+- Stopp-Tokens.
+- Golden-Tests mit ≈ 20 Prompts und den festgelegten Toleranzen.
+- Knopf „Exakte Fassung laden“ (nur Base); Stempel automatisch je nach Fassung.
 **DoD:**
 - [ ] Deploy **und** PR-Check nutzen bei unveränderter Revision die gecachten Shards (sichtbar im Log, kein Download).
+- [ ] Gesamtgröße der Seite < 800 MB (Prüfschritt im Deploy-Workflow bricht sonst ab).
+- [ ] Prefill von 64 Tokens mindestens doppelt so schnell wie im Spike (Batch-Prefill).
 - [ ] Golden-Tests laufen in `ci.yml` und `deploy.yml` grün; ein Test-PR mit absichtlich falscher Engine-Änderung wird **schon im PR-Check** rot.
 - [ ] Alle Modellzahlen im Seitentext kommen aus `model-facts.json`; der Lint-Check findet keine hart codierten Werte.
 - [ ] `#/credits` enthält SmolLM2 (Apache-2.0, Lizenz + Hinweis mitgeliefert) und den GPT-2-Tokenizer (MIT).
@@ -579,7 +591,7 @@ Optional WebGPU-Matmul, Performance, Tablet-Layout, A11y, inhaltliches Review.
 | 4 | Modell-Hosting | im CI vom HF Hub → gecacht → same-origin über Pages |
 | 5 | Prompt-Sprache echtes Modell | Englisch (UI und Toy Deutsch) |
 | 6 | Struktur | Kapitel-Unterseiten mit Scroll-Story |
-| 7 | Leitbeispiel | Finanz-Prompt bevorzugt, **endgültig nach Spike** |
+| 7 | Leitbeispiel | **`The capital of France is`** (nach dem Spike); Finanz-Prompt für Kap. 13, Märchen-Prompt für Sampling |
 | 8 | Inhaltsformat | MDX |
 | 9 | Live-Training | Bigram + Mini-MLP |
 | 10 | Download-Verhalten | echtes Modell nur auf Klick |
@@ -591,6 +603,7 @@ Optional WebGPU-Matmul, Performance, Tablet-Layout, A11y, inhaltliches Review.
 | + | Farbsystem | jede Farbe genau eine Rolle; Token-Chips neutral; kategorial nur Heads/Cluster mit **3 Tönen** (Teal, Lavendel, Indigo); **Ocker B aufgehellt** (`#A38419` / `#E0B84A`); Quiz ohne Farbe |
 | + | Lizenzen | Projektcode MIT; `#/credits` mit allen Quellen; fastText-Derivat unter CC BY-SA 3.0 |
 | + | Modellzahlen | aus Config gelesen bzw. berechnet, nie hart im Text |
+| + | Gewichtsformat (nach Spike) | int8-Fassung (Attention fp16, Rest Gruppen-int8 zu 32) als Standard, Stempel „ECHT · int8“; fp16 optional, nur Base |
 | + | Schriften (nach D0) | Fraunces / Inter / JetBrains Mono |
 | + | Dark Mode (nach D0) | Neutraltöne minimal kälter: Buntheit um etwa 25–40 % reduziert, Helligkeit unverändert |
 

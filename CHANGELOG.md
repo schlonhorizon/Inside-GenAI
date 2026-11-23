@@ -5,7 +5,10 @@
 - Eigene Inferenz-Engine in TypeScript (`src/engine`): Llama-Architektur mit RMSNorm, RoPE, Grouped-Query-Attention, SwiGLU, KV-Cache; safetensors-Leser; int8-Quantisierung (pro Zeile und in Gruppen)
 - Test gegen eine unabhängige NumPy-Referenz an einem Mini-Modell (`test/engine.test.ts`)
 - Spike-Workflow `spike.yml`: Vergleich mit PyTorch am echten SmolLM2-135M (Base + Instruct), Zeitmessung, Leitbeispiel-Kandidaten
-- Ergebnis und festgelegte Toleranzen: `docs/spike.md` (fp32/fp16 exakt, int8 ≤ 3 pp Abweichung, Decode ≈ 165 ms/Token)
+- Nachtrag: Vergleich von int8 pro Zeile und in Gruppen (128/64/32/16), fp16-Skalen, Ablation je Modellteil, Pages-Budget
+- Ergebnis (`docs/spike.md`): fp16 exakt; Hauptquelle des int8-Fehlers sind die Attention-Projektionen → Standard wird die „int8-Fassung“ (Attention fp16, Rest Gruppen-int8 zu 32): ≈ 160 MB, max. 1,3 pp Abweichung; fp16-Fassung nur für das Base-Modell (Pages-Budget 611 MB)
+- Leitbeispiel festgelegt: „The capital of France is“
+- Neuer Stempel „Echt · int8“ (zweigeteilt, Unterscheidung über die Form)
 
 ## P0: Fundament (2026-11-23)
 
