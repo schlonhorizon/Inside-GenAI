@@ -1,0 +1,21 @@
+---
+number: 2
+slug: tokenisierung
+title: "Tokenisierung"
+short: "Warum Modelle keine Buchstaben sehen"
+minutes: 12
+phase: P1b
+ready: false
+goals:
+  - "Verstehen, dass ein Modell Token-IDs statt Buchstaben oder Wörter verarbeitet."
+  - "Nachvollziehen, wie BPE aus Häufigkeiten ein Vokabular baut."
+  - "Erklären können, warum Deutsch mehr Tokens braucht und warum Buchstabenzählen schwerfällt."
+---
+
+<Placeholder phase="P1b">
+Eigenen Text tokenisieren (echte Tokenizer), Deutsch vs. Englisch, BPE Schritt für Schritt, „strawberry“.
+</Placeholder>
+
+## Worum es geht
+
+Ein Sprachmodell liest keinen Text, sondern Zahlen. Der <Term id="tokenizer">Tokenizer</Term> zerlegt den Text in Stücke, die <Term id="token">Tokens</Term>, und gibt jedem Stück eine ID. Welche Stücke es gibt, wurde vorher mit <Term id="bpe">BPE</Term> aus Häufigkeiten gelernt.

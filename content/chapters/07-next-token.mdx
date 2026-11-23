@@ -1,0 +1,31 @@
+---
+number: 7
+slug: next-token
+title: "Next-Token-Prediction & Sampling"
+short: "Eine Verteilung statt einer Antwort"
+minutes: 15
+phase: P1b
+ready: false
+goals:
+  - "Verstehen, dass das Modell eine Wahrscheinlichkeitsverteilung ausgibt."
+  - "Logits, Softmax und Temperatur zusammenbringen."
+  - "Top-k, Top-p und Seed als Stellschrauben des Samplings einsetzen."
+---
+
+<Placeholder phase="P1b">
+Live-Balkendiagramm mit Reglern für Temperatur, Top-k, Top-p und Seed; Würfeln; Mini-Playground.
+</Placeholder>
+
+## Worum es geht
+
+Am Ende jedes Durchlaufs steht keine Antwort, sondern für jedes Token im Vokabular ein Wert: die <Term id="logit">Logits</Term>. Die <Term id="softmax">Softmax</Term> macht daraus Wahrscheinlichkeiten, und erst beim <Term id="sampling">Sampling</Term> wird ein konkretes Token gezogen – beeinflusst von <Term id="temperatur">Temperatur</Term>, <Term id="top-k">Top-k</Term> und <Term id="top-p">Top-p</Term>.
+
+<DeepDive>
+Softmax mit Temperatur $T$ über die Logits $z_i$:
+
+$$
+p_i = \frac{e^{z_i / T}}{\sum_j e^{z_j / T}}
+$$
+
+Kleines $T$ schärft die Verteilung (Richtung „immer das wahrscheinlichste Token“), großes $T$ macht sie flacher.
+</DeepDive>

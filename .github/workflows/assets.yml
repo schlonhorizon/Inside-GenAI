@@ -1,0 +1,50 @@
+name: Assets erzeugen (manuell)
+
+# Erzeugt kleine, vorberechnete Datendateien mit Python/PyTorch (Golden-Referenzwerte,
+# Embedding-Teilmenge, Toy-Modell) und öffnet damit einen Pull Request.
+# Läuft NUR manuell (Actions → "Assets erzeugen" → Run workflow), damit der normale
+# Deploy schlank und Python-frei bleibt (PLAN.md 4.3).
+#
+# Voraussetzung: Settings → Actions → General → "Allow GitHub Actions to create and
+# approve pull requests" ist aktiviert.
+
+on:
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: 'Welche Assets? (golden, embeddings, toy – kommagetrennt)'
+        required: false
+        default: 'golden,embeddings,toy'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/py/requirements.txt
+
+      - run: pip install -r scripts/py/requirements.txt
+
+      - name: Assets erzeugen
+        run: python scripts/py/build_assets.py --targets "${{ inputs.targets }}"
+
+      - name: Pull Request mit den neuen Dateien öffnen
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: assets/update-${{ github.run_id }}
+          title: 'Assets aktualisiert (${{ inputs.targets }})'
+          commit-message: 'Update generated assets (${{ inputs.targets }})'
+          body: |
+            Automatisch erzeugt von `assets.yml` (Lauf ${{ github.run_id }}).
+            Ziele: `${{ inputs.targets }}`
+          add-paths: |
+            public/data/**

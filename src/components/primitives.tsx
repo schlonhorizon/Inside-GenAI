@@ -83,6 +83,19 @@ export function Segmented<T extends string>({
   );
 }
 
+/* ── Schalter ─────────────────────────────────────────────────────── */
+
+export function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button type="button" role="switch" aria-checked={checked} className="toggle" onClick={() => onChange(!checked)}>
+      <span className="meta">{label}</span>
+      <span className="toggle__track" aria-hidden="true">
+        <span className="toggle__thumb" />
+      </span>
+    </button>
+  );
+}
+
 /* ── Regler (Lineal-Optik) ────────────────────────────────────────── */
 
 export function Slider({

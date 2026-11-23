@@ -1,0 +1,21 @@
+---
+number: 6
+slug: transformer-block
+title: "Der Transformer-Block"
+short: "Residual Stream, MLP und viele Layer"
+minutes: 15
+phase: P2
+ready: false
+goals:
+  - "Den Aufbau eines Blocks lesen: Norm, Attention, MLP und Additionen."
+  - "Den Residual Stream als „Förderband“ verstehen."
+  - "Mit der Logit Lens sehen, wie die Vorhersage Layer für Layer entsteht."
+---
+
+<Placeholder phase="P2">
+Block-Schaltplan, Logit Lens pro Layer, Beitrag von Attention und MLP.
+</Placeholder>
+
+## Worum es geht
+
+Ein <Term id="transformer">Transformer</Term> stapelt viele gleich aufgebaute Blöcke. Jeder Block liest vom <Term id="residual-stream">Residual Stream</Term>, rechnet etwas aus und addiert das Ergebnis wieder darauf.

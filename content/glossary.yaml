@@ -1,0 +1,184 @@
+# Glossar – hier Begriffe ergänzen oder ändern.
+# id: wird im Text als <Term id="…"> verwendet (nur Kleinbuchstaben, Ziffern, Bindestriche)
+# term: Anzeige · alt: englischer Begriff bzw. Übersetzung · short: ein Satz (Hover-Karte)
+# long: optionale ausführlichere Erklärung (Glossar-Seite) · chapter: Slug des erklärenden Kapitels
+
+- id: token
+  term: Token
+  short: Die kleinste Einheit, mit der ein Sprachmodell rechnet – ein Wort, Wortteil, Satzzeichen oder Leerzeichen, jeweils mit einer festen Nummer (ID).
+  long: Ein Modell sieht nie Buchstaben, sondern nur Folgen von Token-IDs. Wie ein Text zerlegt wird, legt der Tokenizer fest.
+  chapter: tokenisierung
+
+- id: tokenizer
+  term: Tokenizer
+  short: Das Programm, das Text in Tokens zerlegt und jedem Token seine ID zuordnet – und umgekehrt.
+  chapter: tokenisierung
+  see: [token, bpe]
+
+- id: bpe
+  term: BPE
+  alt: Byte Pair Encoding
+  short: Verfahren, das ein Token-Vokabular lernt, indem es immer wieder das häufigste benachbarte Zeichenpaar zu einem neuen Token verschmilzt.
+  chapter: tokenisierung
+
+- id: embedding
+  term: Embedding
+  alt: Einbettung
+  short: Der Vektor, der einem Token zugeordnet ist; Tokens mit ähnlicher Bedeutung haben ähnliche Vektoren.
+  chapter: embeddings
+
+- id: vektor
+  term: Vektor
+  alt: vector
+  short: Eine Liste von Zahlen, die man als Punkt oder Pfeil in einem (oft sehr hochdimensionalen) Raum auffassen kann.
+  chapter: grundlagen
+
+- id: positionskodierung
+  term: Positionskodierung
+  alt: positional encoding
+  short: Zusatzinformation, die dem Modell mitteilt, an welcher Stelle im Text ein Token steht.
+  chapter: position
+
+- id: attention
+  term: Attention
+  alt: Aufmerksamkeit
+  short: Mechanismus, mit dem jedes Token gewichtet Information von früheren Tokens einsammelt.
+  chapter: attention
+  see: [qkv, head]
+
+- id: qkv
+  term: Query, Key, Value
+  short: Drei Vektoren pro Token – die Frage (Query), das Etikett (Key) und der Inhalt (Value), aus denen Attention berechnet wird.
+  chapter: attention
+
+- id: head
+  term: Attention-Head
+  short: Eine von mehreren parallelen Attention-Rechnungen in einem Layer; verschiedene Heads lernen verschiedene Muster.
+  chapter: attention
+
+- id: transformer
+  term: Transformer
+  short: Die Architektur heutiger Sprachmodelle – viele gestapelte Blöcke aus Attention und MLP mit einem durchgehenden Residual Stream.
+  chapter: transformer-block
+
+- id: residual-stream
+  term: Residual Stream
+  short: Der Vektor pro Token, der durch alle Layer läuft und zu dem jede Schicht ihr Ergebnis addiert.
+  chapter: transformer-block
+
+- id: neuron
+  term: Neuron
+  short: Rechenbaustein, der seine Eingänge gewichtet aufsummiert und das Ergebnis durch eine Aktivierungsfunktion schickt.
+  chapter: grundlagen
+
+- id: gewicht
+  term: Gewicht
+  alt: weight
+  short: Eine einzelne lernbare Zahl im Netz, mit der ein Eingang multipliziert wird.
+  chapter: grundlagen
+  see: [parameter]
+
+- id: parameter
+  term: Parameter
+  short: Alle lernbaren Zahlen eines Modells (Gewichte und Biases); ihre Anzahl beschreibt die Größe des Modells.
+  chapter: grundlagen
+
+- id: logit
+  term: Logit
+  short: Rohwert, den das Modell für jedes mögliche nächste Token ausgibt; erst die Softmax macht daraus Wahrscheinlichkeiten.
+  chapter: next-token
+
+- id: softmax
+  term: Softmax
+  short: Funktion, die beliebige Zahlen in Wahrscheinlichkeiten verwandelt, die positiv sind und sich zu 1 addieren.
+  chapter: next-token
+
+- id: sampling
+  term: Sampling
+  short: Das Ziehen eines konkreten Tokens aus der Wahrscheinlichkeitsverteilung des Modells.
+  chapter: next-token
+
+- id: temperatur
+  term: Temperatur
+  alt: temperature
+  short: Regler, der die Verteilung schärft (niedrig, eher vorhersehbar) oder abflacht (hoch, eher überraschend).
+  chapter: next-token
+
+- id: top-k
+  term: Top-k
+  short: Sampling nur aus den k wahrscheinlichsten Tokens.
+  chapter: next-token
+
+- id: top-p
+  term: Top-p
+  alt: nucleus sampling
+  short: Sampling nur aus der kleinsten Gruppe der wahrscheinlichsten Tokens, die zusammen mindestens die Wahrscheinlichkeit p haben.
+  chapter: next-token
+
+- id: autoregressiv
+  term: autoregressiv
+  short: Erzeugung Schritt für Schritt, wobei jedes neue Token auf allen bisherigen aufbaut.
+  chapter: generierung
+
+- id: loss
+  term: Loss
+  alt: Verlust
+  short: Zahl, die misst, wie falsch die Vorhersagen des Modells sind; Training versucht, sie zu verkleinern.
+  chapter: training
+
+- id: gradient-descent
+  term: Gradientenabstieg
+  alt: gradient descent
+  short: Lernverfahren, das alle Gewichte schrittweise in die Richtung verschiebt, in der der Loss am stärksten sinkt.
+  chapter: training
+
+- id: pretraining
+  term: Pretraining
+  alt: Vortraining
+  short: Die erste, aufwendigste Trainingsphase, in der ein Modell auf riesigen Textmengen das nächste Token vorherzusagen lernt.
+  chapter: training
+
+- id: sft
+  term: SFT
+  alt: Supervised Fine-Tuning
+  short: Nachtraining auf Beispiel-Dialogen, damit das Modell wie ein Assistent antwortet.
+  chapter: assistant
+
+- id: rlhf
+  term: RLHF
+  alt: Reinforcement Learning from Human Feedback
+  short: Training mit menschlichen Präferenzen – das Modell lernt, Antworten zu bevorzugen, die Menschen besser bewerten.
+  chapter: assistant
+
+- id: system-prompt
+  term: System-Prompt
+  short: Text am Anfang des Kontexts, der Rolle, Regeln oder Stil für die folgende Konversation festlegt.
+  chapter: assistant
+
+- id: kontextfenster
+  term: Kontextfenster
+  alt: context window
+  short: Die maximale Anzahl an Tokens, die ein Modell auf einmal verarbeiten kann.
+  chapter: kontext
+
+- id: in-context-learning
+  term: In-Context Learning
+  short: Die Fähigkeit, eine Aufgabe aus Beispielen im Prompt zu lernen, ohne dass sich Gewichte ändern.
+  chapter: in-context
+
+- id: halluzination
+  term: Halluzination
+  short: Eine flüssig formulierte, aber falsche oder erfundene Aussage eines Modells.
+  chapter: grenzen
+
+- id: tool-use
+  term: Tool Use
+  alt: Werkzeugnutzung
+  short: Das Modell schreibt einen strukturierten Aufruf, ein Programm führt ihn aus, und das Ergebnis kommt zurück in den Kontext.
+  chapter: reasoning-tools
+
+- id: rag
+  term: RAG
+  alt: Retrieval-Augmented Generation
+  short: Passende Textstellen werden aus einer Dokumentensammlung gesucht und vor der Antwort in den Prompt eingefügt.
+  chapter: reasoning-tools

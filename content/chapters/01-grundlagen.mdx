@@ -1,0 +1,31 @@
+---
+number: 1
+slug: grundlagen
+title: "Grundlagen: Was ist ein neuronales Netz?"
+short: "Gewichtete Summen, Matrizen und Parameter"
+minutes: 15
+phase: P2
+ready: false
+goals:
+  - "Ein Neuron als gewichtete Summe plus Aktivierungsfunktion verstehen."
+  - "Eine Matrixmultiplikation als „viele Neuronen gleichzeitig“ lesen können."
+  - "Wissen, was mit „Parametern“ gemeint ist und wie das Skalarprodukt Ähnlichkeit misst."
+---
+
+<Placeholder phase="P2">
+Interaktives Neuron, Schicht als Matrix, Mini-Netz und Skalarprodukt.
+</Placeholder>
+
+## Worum es geht
+
+Ein <Term id="neuron">Neuron</Term> macht etwas sehr Einfaches: Es multipliziert jeden Eingang mit einem <Term id="gewicht">Gewicht</Term>, addiert alles auf und schickt die Summe durch eine kleine Funktion. Ein ganzes Sprachmodell besteht aus sehr vielen solcher Rechnungen, beim echten Modell in diesem Kompendium sind es <Fact m="smollm2" k="params" /> <Term id="parameter">Parameter</Term>.
+
+<DeepDive>
+Ein Neuron mit Eingängen $x$, Gewichten $w$, Bias $b$ und Aktivierungsfunktion $f$:
+
+$$
+y = f\left(\sum_i w_i x_i + b\right) = f(\mathbf{w}^\top \mathbf{x} + b)
+$$
+
+Eine ganze Schicht schreibt man als Matrix: $\mathbf{h} = f(W\mathbf{x} + \mathbf{b})$ – jede Zeile von $W$ gehört zu einem Neuron.
+</DeepDive>

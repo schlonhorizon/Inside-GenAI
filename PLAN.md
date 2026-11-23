@@ -1,7 +1,7 @@
 # PLAN.md: „Inside GenAI“
 
 > Interaktives Lernkompendium: Wie macht ein LLM aus einem Prompt eine Antwort?
-> Stand: 2026-11-23 · Revision 4 (Design-Entscheidungen nach D0) · Status: D0 abgeschlossen, Schriften und Farben festgelegt; nächster Schritt P0
+> Stand: 2026-11-23 · Revision 4 (Design-Entscheidungen nach D0) · Status: D0 und P0 umgesetzt; nächster Schritt P1a (Engine-Spike)
 
 ## 1. Zusammenfassung
 
@@ -255,7 +255,7 @@ Drei vollwertige Abschnitte:
 |---|---|---|
 | Build | **Vite** | schnell, statischer Output, `base`-Pfad für Pages |
 | UI | **React + TypeScript** | „Kapitel = Komponente“, großes Ökosystem |
-| Routing | **Hash-Routing** (React Router `createHashRouter`) | Pages hat kein SPA-Fallback; Reload und Deep-Links funktionieren |
+| Routing | **Hash-Routing**, eigener Mini-Router (`src/app/router.ts`, ~60 Zeilen) | Pages hat kein SPA-Fallback; Reload und Deep-Links funktionieren. *Umgesetzt in P0 ohne React Router:* Für die wenigen festen Routen reicht ein eigener Router, und eine Abhängigkeit fällt weg. |
 | Inhalte | **MDX** + `remark-math`/`rehype-katex` | Texte als Markdown, im GitHub-Webeditor bearbeitbar, Widgets einbettbar |
 | Formeln | **KaTeX** (lokal) | schnell, Build-Zeit-Rendering, kein CDN |
 | State | **Zustand** (+ `persist`) | schlank; Einstellungen, Fortschritt, Modellstatus |
@@ -348,8 +348,8 @@ Ziel: am Arbeitslaptop in 30 Sekunden sehen, was geht.
 │  ├─ sources.yaml           Quellen + Datum für alle Claude/ChatGPT-Aussagen
 │  └─ examples.yaml          Leitbeispiel, Kandidaten-Prompts, Trainingstexte, RAG-Dokumente, ICL-Aufgaben
 ├─ docs/                     spike.md, design-decisions.md
-├─ licenses/                 Apache-2.0 (SmolLM2) + NOTICE, MIT (GPT-2-Tokenizer, KaTeX …), OFL (Schriften),
-│                            CC-BY-SA-3.0 (fastText-abgeleitete Embeddings); Quelle für #/credits
+├─ public/licenses/          Lizenztexte aller Drittkomponenten (ausgeliefert, verlinkt auf #/credits);
+│                            Einträge in content/credits.yaml (umgesetzt in P0)
 ├─ LICENSE                   MIT (Projektcode)
 ├─ public/
 │  ├─ tokenizers/            gpt2.json, smollm2.json
@@ -488,7 +488,7 @@ Minimales Vite-Gerüst + `deploy.yml` (wird in P0 weiterverwendet, nicht weggewo
 - [ ] Mit Reduced Motion laufen keine Animationen.
 → **Entscheidung durch dich:** Schriften, Feinjustierung der Farben, danach Festschreibung in `docs/design-decisions.md`.
 
-### P0: Fundament · **M**
+### P0: Fundament · **M** · ✅ umgesetzt (DoD-Punkt „MDX-Änderung im Webeditor geht live“ wird nach dem Merge geprüft)
 Hash-Routing mit allen 16 Kapitel-Routen (Platzhalter), MDX + KaTeX, Design-Tokens final, Basiskomponenten (ChapterHeader, Figure, Callout, Stamp, Slider, Toggle), Settings/Progress-Stores, Glossar-Mechanik, Mathe-Toggle, `<Fact>`-Mechanik für Modellzahlen (5.5), **`#/diagnose`**, **`#/credits`**, `ci.yml` mit Playwright-Screenshots, Gerüst für `assets.yml`.
 **DoD:**
 - [ ] `#/credits` listet alle bis dahin eingebundenen Drittkomponenten mit Lizenz (Schriften/OFL, KaTeX, React usw.); ein Test prüft, dass jede Datei in `licenses/` auf der Seite verlinkt ist.

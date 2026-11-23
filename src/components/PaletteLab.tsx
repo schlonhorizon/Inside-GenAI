@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { contrastRatio, deltaE2000, simulateCvd, type CvdType } from '../lib/color';
 import { ALL_TOKENS, CHROMATIC_TOKENS, ROLE_GROUPS, TEXT_PAIRS } from '../lib/palette';
-import { readTokens, type Theme } from '../lib/theme';
+import { readTokens } from '../lib/theme';
+import type { Theme } from '../state/settings';
 
 const DE_MIN = 15;
 const CVD_LABEL: Record<CvdType, string> = {

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { useReducedMotionPref } from '../state/settings';
+import { motion } from 'motion/react';
 import katex from 'katex';
 import { Slider } from './primitives';
 
@@ -24,7 +25,7 @@ function softmax(z: number[], T: number) {
 }
 
 export function DistributionDemo() {
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionPref();
   const [T, setT] = useState(0.8);
   const [topP, setTopP] = useState(0.9);
   const [sampled, setSampled] = useState<number | null>(null);

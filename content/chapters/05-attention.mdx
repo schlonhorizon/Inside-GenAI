@@ -1,0 +1,29 @@
+---
+number: 5
+slug: attention
+title: "Attention"
+short: "Worauf achtet ein Token?"
+minutes: 18
+phase: P2
+ready: false
+goals:
+  - "Query, Key und Value intuitiv und als Rechnung verstehen."
+  - "Die kausale Maske erklären können."
+  - "Wissen, dass verschiedene Heads verschiedene Muster lernen."
+---
+
+<Placeholder phase="P2">
+Rechenweg am Spielzeugmodell, Attention-Viewer am echten Modell, Head-Galerie, Head ausschalten.
+</Placeholder>
+
+## Worum es geht
+
+In der <Term id="attention">Attention</Term> stellt jedes Token eine Frage (<Term id="qkv">Query</Term>), vergleicht sie mit den Etiketten (Keys) aller früheren Tokens und sammelt deren Inhalte (Values) – gewichtet danach, wie gut sie passen. Mehrere <Term id="head">Heads</Term> tun das parallel mit unterschiedlichen Schwerpunkten.
+
+<DeepDive>
+$$
+\operatorname{Attention}(Q, K, V) = \operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}} + M\right) V
+$$
+
+$M$ ist die kausale Maske: $-\infty$ für alle Positionen in der Zukunft, sonst $0$.
+</DeepDive>

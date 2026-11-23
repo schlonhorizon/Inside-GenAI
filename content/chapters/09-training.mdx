@@ -1,0 +1,29 @@
+---
+number: 9
+slug: training
+title: "Training"
+short: "Wie die Gewichte entstehen"
+minutes: 18
+phase: P3
+ready: false
+goals:
+  - "Training als „Next-Token-Vorhersage üben“ verstehen."
+  - "Loss, Gradient und Lernrate in Beziehung setzen."
+  - "Overfitting erkennen und Skalierung einordnen."
+---
+
+<Placeholder phase="P3">
+Gradientenabstieg in 2D und ein Mini-Modell, das live im Browser auf deinem Text trainiert.
+</Placeholder>
+
+## Worum es geht
+
+Am Anfang sind alle <Term id="gewicht">Gewichte</Term> zufällig. Im <Term id="pretraining">Pretraining</Term> sieht das Modell sehr viel Text, sagt jeweils das nächste Token vorher und misst mit dem <Term id="loss">Loss</Term>, wie falsch es lag. Der <Term id="gradient-descent">Gradientenabstieg</Term> verschiebt dann alle Gewichte ein kleines Stück in die bessere Richtung.
+
+<DeepDive>
+Cross-Entropy-Loss über eine Sequenz der Länge $T$:
+
+$$
+\mathcal{L} = -\frac{1}{T} \sum_{t=1}^{T} \log p_\theta(x_t \mid x_{<t})
+$$
+</DeepDive>
