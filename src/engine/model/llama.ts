@@ -1,5 +1,5 @@
 import { applyRope, linear, linearRow, rmsNorm, ropeTables, silu, softmaxInPlace, type Linear } from '../core/ops.ts';
-import { linearBytes, linearF32, quantizeRows } from './quantize.ts';
+import { linearBytes, linearDownloadBytes, linearF32, quantizeGroups, quantizeRows, toF16Precision } from './quantize.ts';
 import type { SafeTensors } from './safetensors.ts';
 
 /**
@@ -58,17 +58,36 @@ export interface LlamaWeights {
   finalNorm: Float32Array;
 }
 
-export type Precision = 'f32' | 'q8';
+/**
+ * Gewichtsformat:
+ *   f32       volle Genauigkeit
+ *   q8        int8, ein Skalierungsfaktor pro Zeile
+ *   q8g64     int8, ein Skalierungsfaktor je 64 Werte (q8g32: je 32)
+ *   q8g64-hp  wie q8g64, aber Embedding/Ausgabeschicht in fp16-Genauigkeit
+ */
+export type Precision = 'f32' | 'q8' | 'q8g64' | 'q8g32' | 'q8g64-hp';
 
-/** Lädt Gewichte aus einer HF-safetensors-Datei; optional als int8 pro Zeile. */
+/** Lädt Gewichte aus einer HF-safetensors-Datei im gewünschten Format. */
 export function loadLlamaWeights(st: SafeTensors, cfg: LlamaConfig, precision: Precision): LlamaWeights {
-  const lin = (name: string, rows: number, cols: number): Linear => {
-    const w = st.get(name).data;
-    return precision === 'q8' ? quantizeRows(w, rows, cols) : linearF32(w, rows, cols);
+  const quant = (w: Float32Array, rows: number, cols: number): Linear => {
+    switch (precision) {
+      case 'f32':
+        return linearF32(w, rows, cols);
+      case 'q8':
+        return quantizeRows(w, rows, cols);
+      case 'q8g32':
+        return quantizeGroups(w, rows, cols, 32);
+      default:
+        return quantizeGroups(w, rows, cols, 64);
+    }
   };
+  const lin = (name: string, rows: number, cols: number): Linear => quant(st.get(name).data, rows, cols);
   const vec = (name: string) => st.get(name).data;
   const { dModel: d, heads, kvHeads, headDim, dFF, vocab } = cfg;
-  const embed = lin('model.embed_tokens.weight', vocab, d);
+  const embed =
+    precision === 'q8g64-hp'
+      ? linearF32(toF16Precision(st.get('model.embed_tokens.weight').data), vocab, d)
+      : lin('model.embed_tokens.weight', vocab, d);
   const layers: Layer[] = [];
   for (let i = 0; i < cfg.layers; i++) {
     const p = `model.layers.${i}.`;
@@ -88,14 +107,20 @@ export function loadLlamaWeights(st: SafeTensors, cfg: LlamaConfig, precision: P
   return { embed, lmHead, layers, finalNorm: vec('model.norm.weight') };
 }
 
-export function weightBytes(w: LlamaWeights): number {
-  let n = linearBytes(w.embed) + (w.lmHead === w.embed ? 0 : linearBytes(w.lmHead)) + w.finalNorm.byteLength;
+function sumBytes(w: LlamaWeights, f: (l: Linear) => number, vecBytes: number): number {
+  let n = f(w.embed) + (w.lmHead === w.embed ? 0 : f(w.lmHead)) + w.finalNorm.length * vecBytes;
   for (const l of w.layers) {
-    n += l.inNorm.byteLength + l.postNorm.byteLength;
-    for (const x of [l.q, l.k, l.v, l.o, l.gate, l.up, l.down]) n += linearBytes(x);
+    n += (l.inNorm.length + l.postNorm.length) * vecBytes;
+    for (const x of [l.q, l.k, l.v, l.o, l.gate, l.up, l.down]) n += f(x);
   }
   return n;
 }
+
+/** Arbeitsspeicher der Gewichte im jeweiligen Format. */
+export const weightBytes = (w: LlamaWeights) => sumBytes(w, linearBytes, 4);
+
+/** Geschätzte Downloadgröße (f32-Teile als fp16 ausgeliefert, Skalen als fp16). */
+export const downloadBytes = (w: LlamaWeights) => sumBytes(w, linearDownloadBytes, 2);
 
 export class LlamaModel {
   readonly cfg: LlamaConfig;

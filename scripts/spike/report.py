@@ -79,15 +79,26 @@ for r in rows:
         f"{r['max_abs']:.3e} | {r['greedy_match']}/{r['greedy_len']} | {'✓' if r['pass_start_criterion'] else '✗'} |"
     )
 
+L.append("\n## Zusammenfassung je Präzision (schlechtester Wert über alle Prompts)\n")
+L.append("| Präzision | Top-1 alle | Top-10 identisch | min. Überlappung | max. rel. L2 | min. Korrelation | min. Greedy gleich |")
+L.append("|---|---|---|---|---|---|---|")
+for prec in dict.fromkeys(r["precision"] for r in rows):
+    rs = [r for r in rows if r["precision"] == prec]
+    L.append(
+        f"| {prec} | {sum(r['top1'] for r in rs)}/{len(rs)} | {sum(r['top10_identical'] for r in rs)}/{len(rs)} | "
+        f"{min(r['top10_overlap'] for r in rs)}/10 | {max(r['rel_l2'] for r in rs):.2e} | {min(r['corr'] for r in rs):.6f} | "
+        f"{min(r['greedy_match'] for r in rs)}/{rs[0]['greedy_len']} |"
+    )
+
 L.append("\n## Leistung (Base-Modell)\n")
-L.append("| Präzision | Laden + Aufbereiten | Gewichte | Prefill 16 / 64 / 128 Tokens | Decode | RSS |")
-L.append("|---|---|---|---|---|---|")
+L.append("| Präzision | Laden + Aufbereiten | RAM Gewichte | Download ≈ | Prefill 16 / 64 / 128 Tokens | Decode | RSS |")
+L.append("|---|---|---|---|---|---|---|")
 for run in eng["runs"]:
-    if run["model"] != "base":
+    if run["model"] != "base" or "perf" not in run:
         continue
     pf = run["perf"]["prefillMs"]
     L.append(
-        f"| {run['precision']} | {run['loadMs']/1000:.1f} s | {run['weightMB']} MB | "
+        f"| {run['precision']} | {run['loadMs']/1000:.1f} s | {run['weightMB']} MB | {run['downloadMB']} MB | "
         f"{pf['16']/1000:.1f} / {pf['64']/1000:.1f} / {pf['128']/1000:.1f} s | {run['perf']['decodeMsPerToken']} ms/Token | "
         f"{run['memory']['rssMB']} MB |"
     )

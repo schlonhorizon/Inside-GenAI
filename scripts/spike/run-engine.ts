@@ -10,7 +10,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseSafeTensors } from '../../src/engine/model/safetensors.ts';
-import { argmax, configFromHf, LlamaModel, loadLlamaWeights, weightBytes, type Precision } from '../../src/engine/model/llama.ts';
+import { argmax, configFromHf, downloadBytes, LlamaModel, loadLlamaWeights, weightBytes, type Precision } from '../../src/engine/model/llama.ts';
 
 interface RefPrompt {
   id: string;
@@ -41,7 +41,8 @@ for (const [mkey, minfo] of Object.entries(ref.models)) {
   if (minfo.safetensors.length !== 1) throw new Error(`Erwartet genau eine safetensors-Datei, gefunden: ${minfo.safetensors}`);
   const file = readFileSync(join(minfo.path, minfo.safetensors[0]));
   const buf = file.buffer.slice(file.byteOffset, file.byteOffset + file.byteLength);
-  const precisions: Precision[] = mkey === 'base' ? ['f32', 'q8'] : ['f32', 'q8'];
+  const precisions: Precision[] = ['f32', 'q8', 'q8g64', 'q8g32', 'q8g64-hp'];
+  const perfFor = new Set<Precision>(['f32', 'q8', 'q8g64', 'q8g64-hp']);
 
   for (const precision of precisions) {
     globalThis.gc?.();
@@ -55,9 +56,10 @@ for (const [mkey, minfo] of Object.entries(ref.models)) {
       precision,
       loadMs: Math.round(loadMs),
       weightMB: Math.round(weightBytes(weights) / MB),
+      downloadMB: Math.round(downloadBytes(weights) / MB),
       prompts: [] as unknown[],
     };
-    console.log(`[engine] ${mkey}/${precision}: geladen in ${(loadMs / 1000).toFixed(1)} s, Gewichte ${run.weightMB} MB`);
+    console.log(`[engine] ${mkey}/${precision}: geladen in ${(loadMs / 1000).toFixed(1)} s, RAM ${run.weightMB} MB, Download ≈ ${run.downloadMB} MB`);
 
     for (const p of ref.prompts.filter((x) => x.model === mkey)) {
       model.reset();
@@ -78,7 +80,7 @@ for (const [mkey, minfo] of Object.entries(ref.models)) {
     }
 
     // Leistung nur für das Base-Modell (Instruct ist architekturgleich)
-    if (mkey === 'base') {
+    if (mkey === 'base' && perfFor.has(precision)) {
       const seed = ref.prompts[0].ids;
       const prefill: Record<string, number> = {};
       for (const n of [16, 64, 128]) {

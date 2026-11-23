@@ -6,7 +6,9 @@
 /** Lineare Schicht y = W·x, W zeilenweise [rows × cols] (HF-Layout: [out, in]). */
 export type Linear =
   | { kind: 'f32'; rows: number; cols: number; w: Float32Array }
-  | { kind: 'q8'; rows: number; cols: number; q: Int8Array; scale: Float32Array };
+  | { kind: 'q8'; rows: number; cols: number; q: Int8Array; scale: Float32Array }
+  /** int8 mit eigenem Skalierungsfaktor je Gruppe von `group` Werten innerhalb einer Zeile */
+  | { kind: 'q8g'; rows: number; cols: number; group: number; q: Int8Array; scale: Float32Array };
 
 export function linear(l: Linear, x: Float32Array, out: Float32Array): void {
   const { rows, cols } = l;
@@ -18,7 +20,7 @@ export function linear(l: Linear, x: Float32Array, out: Float32Array): void {
       for (let c = 0; c < cols; c++) acc += w[off + c] * x[c];
       out[r] = acc;
     }
-  } else {
+  } else if (l.kind === 'q8') {
     const q = l.q;
     const s = l.scale;
     for (let r = 0; r < rows; r++) {
@@ -26,6 +28,21 @@ export function linear(l: Linear, x: Float32Array, out: Float32Array): void {
       const off = r * cols;
       for (let c = 0; c < cols; c++) acc += q[off + c] * x[c];
       out[r] = acc * s[r];
+    }
+  } else {
+    const { q, scale, group } = l;
+    const groups = cols / group;
+    for (let r = 0; r < rows; r++) {
+      let acc = 0;
+      const off = r * cols;
+      for (let g = 0; g < groups; g++) {
+        let part = 0;
+        const go = off + g * group;
+        const xo = g * group;
+        for (let c = 0; c < group; c++) part += q[go + c] * x[xo + c];
+        acc += part * scale[r * groups + g];
+      }
+      out[r] = acc;
     }
   }
 }
@@ -35,9 +52,12 @@ export function linearRow(l: Linear, row: number, out: Float32Array): void {
   const off = row * l.cols;
   if (l.kind === 'f32') {
     out.set(l.w.subarray(off, off + l.cols));
-  } else {
+  } else if (l.kind === 'q8') {
     const s = l.scale[row];
     for (let c = 0; c < l.cols; c++) out[c] = l.q[off + c] * s;
+  } else {
+    const groups = l.cols / l.group;
+    for (let c = 0; c < l.cols; c++) out[c] = l.q[off + c] * l.scale[row * groups + Math.floor(c / l.group)];
   }
 }
 

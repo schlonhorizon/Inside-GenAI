@@ -46,6 +46,18 @@ describe('Llama-Engine (Mini-Modell)', () => {
     });
   });
 
+  it.each(['q8g64', 'q8g32', 'q8g64-hp'] as const)('%s: genauer oder gleich gut wie int8 pro Zeile', (precision) => {
+    const row = new LlamaModel(cfg, loadLlamaWeights(st, cfg, 'q8'), 32);
+    const grp = new LlamaModel(cfg, loadLlamaWeights(st, cfg, precision), 32);
+    let errRow = 0;
+    let errGrp = 0;
+    ref.tokens.forEach((t, i) => {
+      errRow += relL2(row.step(t)!, ref.logits[i]);
+      errGrp += relL2(grp.step(t)!, ref.logits[i]);
+    });
+    expect(errGrp).toBeLessThanOrEqual(errRow * 1.05);
+  });
+
   it('prefill + reset liefern dasselbe wie Einzelschritte', () => {
     const model = new LlamaModel(cfg, loadLlamaWeights(st, cfg, 'f32'), 32);
     const a = Array.from(model.prefill(ref.tokens));
