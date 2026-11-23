@@ -61,11 +61,12 @@ export interface LlamaWeights {
 /**
  * Gewichtsformat:
  *   f32       volle Genauigkeit
+ *   f16       fp16-Genauigkeit (so würde es ausgeliefert), im Speicher als f32
  *   q8        int8, ein Skalierungsfaktor pro Zeile
  *   q8g64     int8, ein Skalierungsfaktor je 64 Werte (q8g32: je 32)
  *   q8g64-hp  wie q8g64, aber Embedding/Ausgabeschicht in fp16-Genauigkeit
  */
-export type Precision = 'f32' | 'q8' | 'q8g64' | 'q8g32' | 'q8g64-hp';
+export type Precision = 'f32' | 'f16' | 'q8' | 'q8g64' | 'q8g32' | 'q8g64-hp';
 
 /** Lädt Gewichte aus einer HF-safetensors-Datei im gewünschten Format. */
 export function loadLlamaWeights(st: SafeTensors, cfg: LlamaConfig, precision: Precision): LlamaWeights {
@@ -73,6 +74,8 @@ export function loadLlamaWeights(st: SafeTensors, cfg: LlamaConfig, precision: P
     switch (precision) {
       case 'f32':
         return linearF32(w, rows, cols);
+      case 'f16':
+        return linearF32(toF16Precision(w), rows, cols);
       case 'q8':
         return quantizeRows(w, rows, cols);
       case 'q8g32':

@@ -39,7 +39,12 @@ for run in eng["runs"]:
             if a != b:
                 break
             greedy_match += 1
+        pr = np.exp(r - r.max()); pr /= pr.sum()
+        pt = np.exp(t - t.max()); pt /= pt.sum()
         row = {
+            "kl": float(np.sum(pr * (np.log(pr + 1e-30) - np.log(pt + 1e-30)))),
+            "max_dp": float(np.max(np.abs(pr - pt))),
+            "top5": [{"id": int(i), "p_ref": float(pr[i]), "p_eng": float(pt[i])} for i in top_r[:5]],
             "model": run["model"],
             "precision": run["precision"],
             "prompt": rp["id"],
@@ -80,15 +85,28 @@ for r in rows:
     )
 
 L.append("\n## Zusammenfassung je Präzision (schlechtester Wert über alle Prompts)\n")
-L.append("| Präzision | Top-1 alle | Top-10 identisch | min. Überlappung | max. rel. L2 | min. Korrelation | min. Greedy gleich |")
-L.append("|---|---|---|---|---|---|---|")
+L.append("| Präzision | Top-1 alle | Top-10 identisch | min. Überlappung | max. rel. L2 | min. Korrelation | max. KL (nats) | max. Δp | min. Greedy gleich |")
+L.append("|---|---|---|---|---|---|---|---|---|")
 for prec in dict.fromkeys(r["precision"] for r in rows):
     rs = [r for r in rows if r["precision"] == prec]
     L.append(
         f"| {prec} | {sum(r['top1'] for r in rs)}/{len(rs)} | {sum(r['top10_identical'] for r in rs)}/{len(rs)} | "
         f"{min(r['top10_overlap'] for r in rs)}/10 | {max(r['rel_l2'] for r in rs):.2e} | {min(r['corr'] for r in rs):.6f} | "
+        f"{max(r['kl'] for r in rs):.2e} | {max(r['max_dp'] for r in rs)*100:.2f} pp | "
         f"{min(r['greedy_match'] for r in rs)}/{rs[0]['greedy_len']} |"
     )
+
+L.append("\n## Wahrscheinlichkeiten im Vergleich (Top-5, PyTorch vs. Engine)\n")
+for pid in dict.fromkeys(r["prompt"] for r in rows):
+    rs = [r for r in rows if r["prompt"] == pid]
+    tokz = toks[rs[0]["model"]]
+    L.append(f"**{pid}**\n")
+    L.append("| Token | PyTorch | " + " | ".join(r["precision"] for r in rs) + " |")
+    L.append("|---|---|" + "---|" * len(rs))
+    for i, t in enumerate(rs[0]["top5"]):
+        name = tokz.decode([t["id"]]).replace("\n", "↵").replace("|", "\\|")
+        L.append(f"| `{name}` | {t['p_ref']*100:.1f} % | " + " | ".join(f"{r['top5'][i]['p_eng']*100:.1f} %" for r in rs) + " |")
+    L.append("")
 
 L.append("\n## Leistung (Base-Modell)\n")
 L.append("| Präzision | Laden + Aufbereiten | RAM Gewichte | Download ≈ | Prefill 16 / 64 / 128 Tokens | Decode | RSS |")

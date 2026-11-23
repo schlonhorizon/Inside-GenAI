@@ -41,8 +41,8 @@ for (const [mkey, minfo] of Object.entries(ref.models)) {
   if (minfo.safetensors.length !== 1) throw new Error(`Erwartet genau eine safetensors-Datei, gefunden: ${minfo.safetensors}`);
   const file = readFileSync(join(minfo.path, minfo.safetensors[0]));
   const buf = file.buffer.slice(file.byteOffset, file.byteOffset + file.byteLength);
-  const precisions: Precision[] = ['f32', 'q8', 'q8g64', 'q8g32', 'q8g64-hp'];
-  const perfFor = new Set<Precision>(['f32', 'q8', 'q8g64', 'q8g64-hp']);
+  const precisions: Precision[] = ['f32', 'f16', 'q8', 'q8g64-hp'];
+  const perfFor = new Set<Precision>(['f32', 'q8']);
 
   for (const precision of precisions) {
     globalThis.gc?.();
