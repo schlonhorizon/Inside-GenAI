@@ -1,0 +1,51 @@
+name: CI (Pull Request)
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Ab P2: Modell-Shards aus demselben Cache wie deploy.yml wiederherstellen
+      # (bei Cache-Miss: scripts/prepare-models.ts) und Golden-Tests dagegen laufen lassen.
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Playwright-Browser installieren
+        run: npx playwright install --with-deps chromium
+
+      - name: Screenshots + Smoke-Test (alle Routen, Hell und Dunkel)
+        run: |
+          npx vite preview --port 4173 --strictPort &
+          npx --yes wait-on@8 -t 30000 http://localhost:4173/
+          npm run screenshots -- http://localhost:4173/ screenshots
+
+      - name: Screenshots als Artifact anhängen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
+          retention-days: 14

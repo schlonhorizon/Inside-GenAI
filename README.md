@@ -5,7 +5,17 @@
 Ein interaktives Lernkompendium, das Schritt für Schritt zeigt, wie Sprachmodelle (LLMs) aus einem Prompt eine Antwort machen: Tokenisierung, Embeddings, Attention, Sampling, Training, Assistant-Tuning und mehr. Die Seite ist rein statisch und läuft komplett im Browser.
 
 - **Plan & Konzept:** [PLAN.md](PLAN.md)
-- **Aktueller Stand:** D0, eine Design-Probe (Style Tile), auf der Schriften und Farben ausgewählt werden
+- **Aktueller Stand:** P0 (Fundament): Seitengerüst mit allen 16 Kapiteln als Platzhalter, Glossar, Diagnose-Seite, Styleguide. Änderungen siehe [CHANGELOG.md](CHANGELOG.md)
+
+## Texte bearbeiten
+
+Alle Inhalte liegen in `content/` und lassen sich direkt im GitHub-Webeditor ändern:
+
+- `content/chapters/NN-slug.mdx`: Kapiteltexte (Markdown; Formeln mit `$…$` bzw. `$$…$$`; Fachbegriffe mit `<Term id="token">Tokens</Term>`)
+- `content/glossary.yaml`: Glossar
+- `content/credits.yaml`: Quellen & Lizenzen
+
+Nach dem Commit auf `main` prüft GitHub Actions die Inhalte (Tests) und veröffentlicht die Seite neu.
 
 ## Entwicklung
 
@@ -16,6 +26,10 @@ Lokal (optional, Node 22):
 ```bash
 npm install
 npm run dev
+```
+
+```bash
+npm test
 ```
 
 ## Lizenz

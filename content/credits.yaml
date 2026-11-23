@@ -1,0 +1,63 @@
+# Quellen & Lizenzen – jede Datei in public/licenses/ muss hier verlinkt sein (Test: test/credits.test.ts).
+# Neue Drittquelle? Lizenz prüfen, Lizenztext nach public/licenses/ legen, Eintrag ergänzen.
+
+- group: Projekt
+  items:
+    - name: Inside GenAI
+      what: Quellcode dieser Seite
+      license: MIT
+      licenseFile: inside-genai-MIT.txt
+
+- group: Schriften
+  items:
+    - name: Fraunces
+      what: Headlines
+      by: The Fraunces Project Authors
+      license: SIL Open Font License 1.1
+      url: https://github.com/undercasetype/Fraunces
+      licenseFile: fraunces-OFL-1.1.txt
+    - name: Inter
+      what: Fließtext
+      by: The Inter Project Authors
+      license: SIL Open Font License 1.1
+      url: https://github.com/rsms/inter
+      licenseFile: inter-OFL-1.1.txt
+    - name: JetBrains Mono
+      what: Tokens, Zahlen, Code
+      by: The JetBrains Mono Project Authors
+      license: SIL Open Font License 1.1
+      url: https://github.com/JetBrains/JetBrainsMono
+      licenseFile: jetbrains-mono-OFL-1.1.txt
+
+- group: Bibliotheken
+  items:
+    - name: React
+      what: Benutzeroberfläche
+      license: MIT
+      url: https://react.dev
+      licenseFile: react-MIT.txt
+    - name: KaTeX
+      what: Formelsatz
+      license: MIT
+      url: https://katex.org
+      licenseFile: katex-MIT.txt
+    - name: Motion
+      what: Animationen
+      license: MIT
+      url: https://motion.dev
+      licenseFile: motion-MIT.txt
+    - name: Zustand
+      what: Einstellungen und Lernfortschritt
+      license: MIT
+      url: https://github.com/pmndrs/zustand
+      licenseFile: zustand-MIT.txt
+    - name: MDX
+      what: Kapiteltexte mit eingebetteten Komponenten
+      license: MIT
+      url: https://mdxjs.com
+      licenseFile: mdx-js-MIT.txt
+
+# Ab P2/P3 (noch nicht eingebunden):
+#   SmolLM2-135M / -Instruct – Apache-2.0 (Lizenz + Hinweis auf int8-Quantisierung)
+#   GPT-2-Tokenizer – MIT (OpenAI)
+#   fastText-Wortvektoren (Deutsch) – CC BY-SA 3.0, Grave et al. 2018; abgeleitete Datei unter derselben Lizenz

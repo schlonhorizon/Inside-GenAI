@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { animate, motion, useInView, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
+import { useReducedMotionPref } from '../state/settings';
+import { animate, motion, useInView, useMotionValue, useTransform } from 'motion/react';
 
 /**
  * Mini-Pipeline als Line-Art: Linien zeichnen sich beim Erscheinen,
@@ -33,7 +34,7 @@ function usePulse(pathRef: React.RefObject<SVGPathElement | null>, progress: Ret
 }
 
 export function PipelineFigure() {
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionPref();
   const wrapRef = useRef<HTMLDivElement>(null);
   const inView = useInView(wrapRef, { once: true, amount: 0.4 });
   const [playing, setPlaying] = useState(true);
