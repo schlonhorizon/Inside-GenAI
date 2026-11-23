@@ -1,0 +1,102 @@
+/*
+ * Design-Tokens „Inside GenAI“ – Stand D0 (Design-Probe).
+ * Regel (PLAN.md 6.2): Jeder Farbwert gehört zu genau EINER Rolle.
+ * Das Theme wird über [data-theme] auf <html> gesetzt (siehe index.html / theme.ts).
+ */
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* Neutral */
+  --bg: #faf8f3;
+  --surface: #f3f0e8;
+  --surface-raised: #fffdf9;
+  --border: #e3ded3;
+  --ink: #2a2722;
+  --ink-muted: #6b655b;
+  --ink-faint: #a39c90;
+
+  /* Akzent: aktiv / ausgewählt / Datenfluss */
+  --accent: #b5562f;
+
+  /* Sequenziell (Sepia-Tinte): Größe eines Werts */
+  --seq-1: #efe6d6;
+  --seq-2: #d6c6ad;
+  --seq-3: #b39a78;
+  --seq-4: #87704f;
+  --seq-5: #574632;
+
+  /* Divergierend: erhöht (+) ↔ senkt (−) */
+  --div-pos: #5e7a3a;
+  --div-mid: #dcd5c8;
+  --div-neg: #8a4f72;
+
+  /* A/B-Vergleich */
+  --ab-a: #3e6d85;
+  --ab-b: #a38419;
+
+  /* Kategorial: nur Attention-Heads & Embedding-Cluster */
+  --cat-1: #1a8574;
+  --cat-2: #8a7cc4;
+  --cat-3: #3f467f;
+
+  /* Chip-Abgrenzung (ohne Bedeutung) */
+  --chip-a: #f1ece3;
+  --chip-b: #e6dfd2;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #262523;
+  --surface: #2f2e2b;
+  --surface-raised: #383633;
+  --border: #45423d;
+  --ink: #eeeae2;
+  --ink-muted: #ada79c;
+  --ink-faint: #77716a;
+
+  --accent: #e08a63;
+
+  --seq-1: #3a3631;
+  --seq-2: #5e5446;
+  --seq-3: #8c7a60;
+  --seq-4: #bca585;
+  --seq-5: #e6d5b8;
+
+  --div-pos: #9db873;
+  --div-mid: #4a4640;
+  --div-neg: #c48aae;
+
+  --ab-a: #7fb0c8;
+  --ab-b: #e0b84a;
+
+  --cat-1: #62c4ac;
+  --cat-2: #bdb3f2;
+  --cat-3: #6a72c4;
+
+  --chip-a: #34322e;
+  --chip-b: #3d3a35;
+}
+
+:root {
+  /* Typografie (in der Probe umschaltbar) */
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-body: 'Inter Variable', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --display-variation: 'SOFT' 50, 'WONK' 1;
+
+  /* Linien */
+  --stroke-hair: 1px;
+  --stroke: 1.25px;
+  --stroke-strong: 1.5px;
+  --stroke-flow: 2px;
+
+  /* Bewegung */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-ui: 240ms;
+
+  --radius: 6px;
+  --measure: 68ch;
+}
