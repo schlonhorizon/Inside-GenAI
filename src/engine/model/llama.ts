@@ -1,168 +1,54 @@
-import { applyRope, linear, linearRow, rmsNorm, ropeTables, silu, softmaxInPlace, type Linear } from '../core/ops.ts';
-import { linearBytes, linearDownloadBytes, linearF32, quantizeGroups, quantizeRows, toF16Precision } from './quantize.ts';
-import type { SafeTensors } from './safetensors.ts';
+import { applyRope, linear, linearBatch, linearRow, rmsNorm, ropeTables, silu, softmaxInPlace } from '../core/ops.ts';
+import type { LlamaConfig, LlamaWeights } from './weights.ts';
+
+export {
+  configFromHf,
+  downloadBytes,
+  loadLlamaWeights,
+  parseFormat,
+  weightBytes,
+  type Fmt,
+  type LlamaConfig,
+  type LlamaWeights,
+  type Precision,
+  type WeightFormat,
+} from './weights.ts';
 
 /**
  * Decoder-Transformer im Llama-Stil (SmolLM2, Llama, Mistral …):
  * RMSNorm · RoPE · Grouped-Query-Attention · SwiGLU-MLP · optional gebundene Embeddings.
- * Ein Token pro Aufruf mit KV-Cache – einfach nachvollziehbar, Hooks folgen in P2.
- */
-
-export interface LlamaConfig {
-  vocab: number;
-  dModel: number;
-  layers: number;
-  heads: number;
-  kvHeads: number;
-  headDim: number;
-  dFF: number;
-  eps: number;
-  ropeTheta: number;
-  maxPos: number;
-  tied: boolean;
-  /** false = kein Positionssignal (Toy-Variante für Kapitel 4) */
-  rope: boolean;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function configFromHf(c: any): LlamaConfig {
-  return {
-    vocab: c.vocab_size,
-    dModel: c.hidden_size,
-    layers: c.num_hidden_layers,
-    heads: c.num_attention_heads,
-    kvHeads: c.num_key_value_heads ?? c.num_attention_heads,
-    headDim: c.head_dim ?? c.hidden_size / c.num_attention_heads,
-    dFF: c.intermediate_size,
-    eps: c.rms_norm_eps ?? 1e-5,
-    ropeTheta: c.rope_theta ?? 10000,
-    maxPos: c.max_position_embeddings ?? 2048,
-    tied: c.tie_word_embeddings ?? false,
-    rope: c.rope !== false,
-  };
-}
-
-interface Layer {
-  inNorm: Float32Array;
-  q: Linear;
-  k: Linear;
-  v: Linear;
-  o: Linear;
-  postNorm: Float32Array;
-  gate: Linear;
-  up: Linear;
-  down: Linear;
-}
-
-export interface LlamaWeights {
-  embed: Linear;
-  lmHead: Linear;
-  layers: Layer[];
-  finalNorm: Float32Array;
-}
-
-/**
- * Gewichtsformat je Teil des Modells:
- *   f32      volle Genauigkeit
- *   f16      fp16-Genauigkeit (so würde es ausgeliefert), im Speicher als f32
- *   q8       int8, ein Skalierungsfaktor pro Zeile
- *   q8g<N>   int8, ein Skalierungsfaktor je N Werte einer Zeile (z. B. q8g64)
  *
- * Teile: attn (q/k/v/o), mlp (gate/up), down (MLP-down), emb (Embedding = LM-Head).
- * Als String: "q8g64" (alle Teile) oder "attn:q8,mlp:q8,down:f16,emb:f16";
- * Zusatz "+s16" rundet die int8-Skalen auf fp16 (wie bei der Auslieferung).
+ * Der KV-Cache ist ein eigenes Objekt (`KvCache`). Ein Modell kann mehrere davon haben
+ * (eine Sitzung pro Widget) und wechselt mit `useCache` zwischen ihnen, ohne Gewichte zu kopieren.
  */
-export type Fmt = 'f32' | 'f16' | 'q8' | `q8g${number}`;
-export interface WeightFormat {
-  attn: Fmt;
-  mlp: Fmt;
-  down: Fmt;
-  emb: Fmt;
-  scales16: boolean;
-}
-export type Precision = string;
 
-const PARTS = ['attn', 'mlp', 'down', 'emb'] as const;
-
-export function parseFormat(spec: string | WeightFormat): WeightFormat {
-  if (typeof spec !== 'string') return spec;
-  const [body, ...flags] = spec.split('+');
-  const scales16 = flags.includes('s16');
-  const check = (f: string): Fmt => {
-    if (f === 'f32' || f === 'f16' || f === 'q8' || /^q8g\d+$/.test(f)) return f as Fmt;
-    throw new Error(`Unbekanntes Format: ${f}`);
-  };
-  if (!body.includes(':')) {
-    const f = check(body);
-    return { attn: f, mlp: f, down: f, emb: f, scales16 };
+/** Keys und Values aller Layer für eine Tokenfolge; `length` = Anzahl gespeicherter Positionen. */
+export class KvCache {
+  readonly k: Float32Array[];
+  readonly v: Float32Array[];
+  readonly maxSeq: number;
+  length = 0;
+  constructor(cfg: LlamaConfig, maxSeq: number) {
+    const kvDim = cfg.kvHeads * cfg.headDim;
+    this.maxSeq = maxSeq;
+    this.k = Array.from({ length: cfg.layers }, () => new Float32Array(maxSeq * kvDim));
+    this.v = Array.from({ length: cfg.layers }, () => new Float32Array(maxSeq * kvDim));
   }
-  const out: WeightFormat = { attn: 'f32', mlp: 'f32', down: 'f32', emb: 'f32', scales16 };
-  for (const part of body.split(',')) {
-    const [k, v] = part.split(':');
-    if (!(PARTS as readonly string[]).includes(k)) throw new Error(`Unbekannter Teil: ${k}`);
-    out[k as (typeof PARTS)[number]] = check(v);
+  get bytes() {
+    return this.k.reduce((s, a) => s + a.byteLength, 0) * 2;
   }
-  return out;
 }
 
-function makeLinear(w: Float32Array, rows: number, cols: number, fmt: Fmt, scales16: boolean): Linear {
-  if (fmt === 'f32') return linearF32(w, rows, cols);
-  if (fmt === 'f16') return linearF32(toF16Precision(w), rows, cols);
-  if (fmt === 'q8') return quantizeRows(w, rows, cols, scales16);
-  return quantizeGroups(w, rows, cols, Number(fmt.slice(3)), scales16);
-}
-
-/** Lädt Gewichte aus einer HF-safetensors-Datei im gewünschten Format. */
-export function loadLlamaWeights(st: SafeTensors, cfg: LlamaConfig, precision: Precision | WeightFormat): LlamaWeights {
-  const f = parseFormat(precision);
-  const lin = (name: string, rows: number, cols: number, part: (typeof PARTS)[number]): Linear =>
-    makeLinear(st.get(name).data, rows, cols, f[part], f.scales16);
-  const vec = (name: string) => st.get(name).data;
-  const { dModel: d, heads, kvHeads, headDim, dFF, vocab } = cfg;
-  const embed = lin('model.embed_tokens.weight', vocab, d, 'emb');
-  const layers: Layer[] = [];
-  for (let i = 0; i < cfg.layers; i++) {
-    const p = `model.layers.${i}.`;
-    layers.push({
-      inNorm: vec(p + 'input_layernorm.weight'),
-      q: lin(p + 'self_attn.q_proj.weight', heads * headDim, d, 'attn'),
-      k: lin(p + 'self_attn.k_proj.weight', kvHeads * headDim, d, 'attn'),
-      v: lin(p + 'self_attn.v_proj.weight', kvHeads * headDim, d, 'attn'),
-      o: lin(p + 'self_attn.o_proj.weight', d, heads * headDim, 'attn'),
-      postNorm: vec(p + 'post_attention_layernorm.weight'),
-      gate: lin(p + 'mlp.gate_proj.weight', dFF, d, 'mlp'),
-      up: lin(p + 'mlp.up_proj.weight', dFF, d, 'mlp'),
-      down: lin(p + 'mlp.down_proj.weight', d, dFF, 'down'),
-    });
-  }
-  const lmHead = cfg.tied || !st.header['lm_head.weight'] ? embed : lin('lm_head.weight', vocab, d, 'emb');
-  return { embed, lmHead, layers, finalNorm: vec('model.norm.weight') };
-}
-
-function sumBytes(w: LlamaWeights, f: (l: Linear) => number, vecBytes: number): number {
-  let n = f(w.embed) + (w.lmHead === w.embed ? 0 : f(w.lmHead)) + w.finalNorm.length * vecBytes;
-  for (const l of w.layers) {
-    n += (l.inNorm.length + l.postNorm.length) * vecBytes;
-    for (const x of [l.q, l.k, l.v, l.o, l.gate, l.up, l.down]) n += f(x);
-  }
-  return n;
-}
-
-/** Arbeitsspeicher der Gewichte im jeweiligen Format. */
-export const weightBytes = (w: LlamaWeights) => sumBytes(w, linearBytes, 4);
-
-/** Geschätzte Downloadgröße (f32-Teile als fp16 ausgeliefert, Skalen als fp16). */
-export const downloadBytes = (w: LlamaWeights) => sumBytes(w, linearDownloadBytes, 2);
+/** Batches beim Prefill höchstens so groß (begrenzt den Arbeitsspeicher pro Aufruf). */
+const PREFILL_CHUNK = 64;
 
 export class LlamaModel {
   readonly cfg: LlamaConfig;
   readonly w: LlamaWeights;
   readonly maxSeq: number;
-  private kCache: Float32Array[];
-  private vCache: Float32Array[];
+  private kv: KvCache;
   private rope: ReturnType<typeof ropeTables>;
-  private pos = 0;
-  // Arbeitsspeicher, einmal angelegt
+  // Arbeitsspeicher für Einzelschritte, einmal angelegt
   private x: Float32Array;
   private xn: Float32Array;
   private q: Float32Array;
@@ -180,8 +66,7 @@ export class LlamaModel {
     this.w = w;
     this.maxSeq = maxSeq;
     const kvDim = cfg.kvHeads * cfg.headDim;
-    this.kCache = w.layers.map(() => new Float32Array(maxSeq * kvDim));
-    this.vCache = w.layers.map(() => new Float32Array(maxSeq * kvDim));
+    this.kv = new KvCache(cfg, maxSeq);
     this.rope = ropeTables(cfg.headDim, maxSeq, cfg.ropeTheta);
     this.x = new Float32Array(cfg.dModel);
     this.xn = new Float32Array(cfg.dModel);
@@ -197,19 +82,38 @@ export class LlamaModel {
   }
 
   get position() {
-    return this.pos;
+    return this.kv.length;
+  }
+
+  /** Neuer, leerer KV-Cache passend zu diesem Modell. */
+  newCache(maxSeq = this.maxSeq): KvCache {
+    return new KvCache(this.cfg, Math.min(maxSeq, this.maxSeq));
+  }
+
+  /** Arbeitet ab jetzt mit diesem KV-Cache (z. B. einer anderen Sitzung). */
+  useCache(c: KvCache) {
+    this.kv = c;
+  }
+
+  get cache(): KvCache {
+    return this.kv;
   }
 
   reset() {
-    this.pos = 0;
+    this.kv.length = 0;
+  }
+
+  /** Verwirft alle Positionen ab n; die ersten n bleiben gültig (gemeinsamer Anfang). */
+  truncate(n: number) {
+    this.kv.length = Math.max(0, Math.min(this.kv.length, n));
   }
 
   /** Verarbeitet ein Token an der nächsten Position; berechnet Logits nur auf Wunsch. */
   step(token: number, computeLogits = true): Float32Array | null {
     const { cfg, w } = this;
     const { heads, kvHeads, headDim, eps } = cfg;
-    const pos = this.pos;
-    if (pos >= this.maxSeq) throw new Error(`Kontext voll (${this.maxSeq} Tokens)`);
+    const pos = this.kv.length;
+    if (pos >= this.kv.maxSeq) throw new Error(`Kontext voll (${this.kv.maxSeq} Tokens)`);
     const kvDim = kvHeads * headDim;
     const group = heads / kvHeads;
     const scale = 1 / Math.sqrt(headDim);
@@ -228,8 +132,8 @@ export class LlamaModel {
         for (let h = 0; h < heads; h++) applyRope(this.q, h * headDim, pos, this.rope);
         for (let h = 0; h < kvHeads; h++) applyRope(this.k, h * headDim, pos, this.rope);
       }
-      const kc = this.kCache[li];
-      const vc = this.vCache[li];
+      const kc = this.kv.k[li];
+      const vc = this.kv.v[li];
       kc.set(this.k, pos * kvDim);
       vc.set(this.v, pos * kvDim);
 
@@ -262,18 +166,110 @@ export class LlamaModel {
       for (let i = 0; i < x.length; i++) x[i] += this.tmp[i];
     }
 
-    this.pos++;
+    this.kv.length = pos + 1;
     if (!computeLogits) return null;
     rmsNorm(x, w.finalNorm, eps, this.xn);
     linear(w.lmHead, this.xn, this.logits);
     return this.logits;
   }
 
-  /** Prompt einlesen; liefert die Logits nach dem letzten Token. */
+  /** Prompt Token für Token einlesen (Referenzweg); liefert die Logits nach dem letzten Token. */
   prefill(tokens: number[]): Float32Array {
     let out: Float32Array | null = null;
     for (let i = 0; i < tokens.length; i++) out = this.step(tokens[i], i === tokens.length - 1);
     return out!;
+  }
+
+  /**
+   * Batch-Prefill: alle Tokens einer Folge gemeinsam durch jede Schicht (Matrix × Matrix).
+   * Jede Gewichtszeile wird pro Schicht nur einmal gelesen statt einmal pro Token.
+   * Setzt am aktuellen Ende des KV-Caches an (Verlängerung nach `truncate`).
+   * Ergebnis ist bitgleich mit `prefill`, nur schneller.
+   */
+  prefillBatch(tokens: number[]): Float32Array {
+    if (!tokens.length) throw new Error('prefillBatch: keine Tokens');
+    for (let s = 0; s < tokens.length; s += PREFILL_CHUNK) this.batchChunk(tokens.slice(s, s + PREFILL_CHUNK));
+    return this.logits;
+  }
+
+  private batchChunk(tokens: number[]) {
+    const { cfg, w } = this;
+    const { heads, kvHeads, headDim, eps, dModel: d, dFF } = cfg;
+    const n = tokens.length;
+    const start = this.kv.length;
+    if (start + n > this.kv.maxSeq) throw new Error(`Kontext voll (${this.kv.maxSeq} Tokens)`);
+    const kvDim = kvHeads * headDim;
+    const qDim = heads * headDim;
+    const group = heads / kvHeads;
+    const scale = 1 / Math.sqrt(headDim);
+
+    const X = new Float32Array(n * d);
+    const XN = new Float32Array(n * d);
+    const Q = new Float32Array(n * qDim);
+    const K = new Float32Array(n * kvDim);
+    const V = new Float32Array(n * kvDim);
+    const A = new Float32Array(n * qDim);
+    const T = new Float32Array(n * d);
+    const G = new Float32Array(n * dFF);
+    const U = new Float32Array(n * dFF);
+    const att = this.att;
+    const row = (buf: Float32Array, t: number, len: number) => buf.subarray(t * len, (t + 1) * len);
+
+    for (let t = 0; t < n; t++) linearRow(w.embed, tokens[t], row(X, t, d));
+
+    for (let li = 0; li < w.layers.length; li++) {
+      const L = w.layers[li];
+      for (let t = 0; t < n; t++) rmsNorm(row(X, t, d), L.inNorm, eps, row(XN, t, d));
+      linearBatch(L.q, XN, n, Q);
+      linearBatch(L.k, XN, n, K);
+      linearBatch(L.v, XN, n, V);
+      const kc = this.kv.k[li];
+      const vc = this.kv.v[li];
+      for (let t = 0; t < n; t++) {
+        const pos = start + t;
+        if (cfg.rope) {
+          for (let h = 0; h < heads; h++) applyRope(Q, t * qDim + h * headDim, pos, this.rope);
+          for (let h = 0; h < kvHeads; h++) applyRope(K, t * kvDim + h * headDim, pos, this.rope);
+        }
+        kc.set(row(K, t, kvDim), pos * kvDim);
+        vc.set(row(V, t, kvDim), pos * kvDim);
+      }
+      // kausale Attention: Token t sieht alle Positionen bis einschließlich start + t
+      for (let t = 0; t < n; t++) {
+        const pos = start + t;
+        for (let h = 0; h < heads; h++) {
+          const kvh = Math.floor(h / group);
+          const qo = t * qDim + h * headDim;
+          for (let s = 0; s <= pos; s++) {
+            const ko = s * kvDim + kvh * headDim;
+            let dot = 0;
+            for (let i = 0; i < headDim; i++) dot += Q[qo + i] * kc[ko + i];
+            att[s] = dot * scale;
+          }
+          softmaxInPlace(att, pos + 1);
+          for (let i = 0; i < headDim; i++) A[qo + i] = 0;
+          for (let s = 0; s <= pos; s++) {
+            const a = att[s];
+            const vo = s * kvDim + kvh * headDim;
+            for (let i = 0; i < headDim; i++) A[qo + i] += a * vc[vo + i];
+          }
+        }
+      }
+      linearBatch(L.o, A, n, T);
+      for (let i = 0; i < X.length; i++) X[i] += T[i];
+
+      for (let t = 0; t < n; t++) rmsNorm(row(X, t, d), L.postNorm, eps, row(XN, t, d));
+      linearBatch(L.gate, XN, n, G);
+      linearBatch(L.up, XN, n, U);
+      for (let i = 0; i < G.length; i++) G[i] = silu(G[i]) * U[i];
+      linearBatch(L.down, G, n, T);
+      for (let i = 0; i < X.length; i++) X[i] += T[i];
+    }
+
+    this.kv.length = start + n;
+    // Logits nur für das letzte Token
+    rmsNorm(row(X, n - 1, d), w.finalNorm, eps, this.xn);
+    linear(w.lmHead, this.xn, this.logits);
   }
 }
 

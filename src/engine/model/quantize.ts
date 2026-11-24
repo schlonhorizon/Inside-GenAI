@@ -43,45 +43,51 @@ export function quantizeGroups(w: Float32Array, rows: number, cols: number, grou
 const f32buf = new Float32Array(1);
 const u32buf = new Uint32Array(f32buf.buffer);
 
-/** Rundet einen f32-Wert auf fp16-Genauigkeit (round to nearest even) und zurück. */
-export function roundToF16(v: number): number {
+/** f32 → fp16-Bitmuster (round to nearest even), wie bei der Auslieferung der Gewichte. */
+export function f32ToF16Bits(v: number): number {
   f32buf[0] = v;
   const x = u32buf[0];
   const sign = (x >>> 16) & 0x8000;
   const exp = ((x >>> 23) & 0xff) - 127 + 15;
   let mant = x & 0x7fffff;
-  let h: number;
-  if (exp >= 0x1f) h = sign | 0x7c00;
-  else if (exp <= 0) {
-    if (exp < -10) h = sign;
-    else {
-      mant |= 0x800000;
-      const shift = 14 - exp;
-      let m = mant >>> shift;
-      const rem = mant & ((1 << shift) - 1);
-      const half = 1 << (shift - 1);
-      if (rem > half || (rem === half && m & 1)) m++;
-      h = sign | m;
-    }
-  } else {
-    let m = mant >>> 13;
-    const rem = mant & 0x1fff;
-    let e = exp;
-    if (rem > 0x1000 || (rem === 0x1000 && m & 1)) {
-      m++;
-      if (m === 0x400) {
-        m = 0;
-        e++;
-      }
-    }
-    h = e >= 0x1f ? sign | 0x7c00 : sign | (e << 10) | m;
+  if (((x >>> 23) & 0xff) === 0xff) return sign | 0x7c00 | (mant ? 0x200 : 0);
+  if (exp >= 0x1f) return sign | 0x7c00;
+  if (exp <= 0) {
+    if (exp < -10) return sign;
+    mant |= 0x800000;
+    const shift = 14 - exp;
+    let m = mant >>> shift;
+    const rem = mant & ((1 << shift) - 1);
+    const half = 1 << (shift - 1);
+    if (rem > half || (rem === half && m & 1)) m++;
+    return sign | m;
   }
+  let m = mant >>> 13;
+  const rem = mant & 0x1fff;
+  let e = exp;
+  if (rem > 0x1000 || (rem === 0x1000 && m & 1)) {
+    m++;
+    if (m === 0x400) {
+      m = 0;
+      e++;
+    }
+  }
+  return e >= 0x1f ? sign | 0x7c00 : sign | (e << 10) | m;
+}
+
+/** fp16-Bitmuster → Zahl */
+export function f16BitsToF32(h: number): number {
   const s = h & 0x8000 ? -1 : 1;
-  const e2 = (h >> 10) & 0x1f;
+  const e = (h >> 10) & 0x1f;
   const f = h & 0x3ff;
-  if (e2 === 0) return s * 2 ** -14 * (f / 1024);
-  if (e2 === 0x1f) return s * Infinity;
-  return s * 2 ** (e2 - 15) * (1 + f / 1024);
+  if (e === 0) return s * 2 ** -14 * (f / 1024);
+  if (e === 0x1f) return f ? NaN : s * Infinity;
+  return s * 2 ** (e - 15) * (1 + f / 1024);
+}
+
+/** Rundet einen f32-Wert auf fp16-Genauigkeit (round to nearest even) und zurück. */
+export function roundToF16(v: number): number {
+  return f16BitsToF32(f32ToF16Bits(v));
 }
 
 export function toF16Precision(w: Float32Array): Float32Array {
