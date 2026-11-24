@@ -219,7 +219,7 @@ export function linearBatch(l: Linear, X: Float32Array, n: number, Y: Float32Arr
             p6 += wv * P[pi + 6];
             p7 += wv * P[pi + 7];
           }
-          const s = scale[so + g];
+          const s = scale[so + (g & 15)]; // GEGENPROBE: absichtlich falsch, wird zurückgenommen
           a0 += p0 * s;
           a1 += p1 * s;
           a2 += p2 * s;
