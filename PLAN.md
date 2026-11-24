@@ -192,6 +192,7 @@ Aufwand: **S** ≈ 0,5–1 Tag · **M** ≈ 2–3 Tage · **L** ≈ 4+ Tage (Cla
   - Regler für Lernrate, Batchgröße, Kontextlänge, Embedding-Dim und Train/Validation-Split, damit Overfitting sichtbar wird.
   - Einordnung mit öffentlichen Zahlen (Toy vs. SmolLM2-135M vs. Frontier-Modelle; Claude-Details nicht öffentlich, so gekennzeichnet).
 - **Echt:** `ECHT · TOY` (echtes Training, handgeschriebener Backprop im Web Worker), Skalierung `ILLUSTRATIV` mit Quellen.
+- **Idee (aus dem Toy-Nachtrag):** Widget „Was die Daten sagen vs. was das Modell gelernt hat“. Für ein Präfix der Toy-Grammatik stehen die exakte Soll-Verteilung (aus `test/fixtures/toy-eval.json`) und die Ist-Verteilung des Modells nebeneinander, über den Trainingsverlauf (dafür im Assets-Lauf Checkpoints mitspeichern). Mit KL als Verlaufskurve; das macht sichtbar, wie Lernen, Unteranpassung und Überanpassung aussehen.
 
 ### Kapitel 10: Vom Base-Model zum Assistenten · **M–L**
 - **Lernziel:** Pretraining erzeugt einen „Text-Fortsetzer“, SFT und Präferenz-Training (RLHF, Constitutional AI) machen daraus einen Assistenten. Dazu das Chat-Template mit Special Tokens und die Rolle des System-Prompts.

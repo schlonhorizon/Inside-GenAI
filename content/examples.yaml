@@ -26,6 +26,8 @@ leitbeispiel:
 # Prompts für das Spielzeugmodell (nur Wörter aus seinem Vokabular)
 toyPrompts:
   - "die hauptstadt von frankreich ist"
+  - "die bank"
+  - "der hund"
   - "die bank erhöht den zins weil"
   - "die bank senkt den zins weil die"
   - "wenn der zins steigt ,"

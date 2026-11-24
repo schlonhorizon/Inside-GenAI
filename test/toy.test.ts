@@ -48,7 +48,10 @@ describe('Toy-Generierung', () => {
     const paris = model.tokenizer.encode('paris')[0].id;
     const top = d.final.indexOf(Math.max(...d.final));
     expect(top).toBe(paris);
-    expect(d.final[paris]).toBeLessThan(0.95);
+    expect(d.final[paris]).toBeLessThan(0.7);
+    const schoen = model.tokenizer.encode('schön')[0].id;
+    const top3 = Array.from(d.final.keys()).sort((x, y) => d.final[y] - d.final[x]).slice(0, 3);
+    expect(top3).toContain(schoen);
   });
 
   it('gleicher Seed → gleicher Text', () => {
@@ -65,4 +68,38 @@ describe('Toy-Generierung', () => {
     };
     expect(gen(1)).toBe(gen(1));
   });
+});
+
+/** Regressionstest: Das Modell soll die Soll-Verteilung der Trainingsgrammatik treffen (docs/toy-model.md). */
+describe('Toy-Modelle treffen die Soll-Verteilung', () => {
+  const evalSet = JSON.parse(readFileSync(new URL('./fixtures/toy-eval.json', import.meta.url), 'utf8')) as {
+    goals: { below80_share: number; entropy_bits: number };
+    positions: { prefix: string; soll: Record<string, number> }[];
+  };
+
+  for (const variant of ['toy', 'toy-nopos'] as const) {
+    it(`${variant}: Hilfs-Zielwerte erfüllt und KL(Soll ‖ Modell) klein`, () => {
+      const model = load(variant);
+      const report = JSON.parse(readFileSync(new URL(`../public/data/${variant}/eval.json`, import.meta.url), 'utf8'));
+      let below = 0;
+      let entropy = 0;
+      let kl = 0;
+      for (const pos of evalSet.positions) {
+        const ids = model.promptIds(pos.prefix);
+        const p = distribution(model.logitsFor(ids), { temperature: 1, topK: 0, topP: 1 }).final;
+        const top = Math.max(...p);
+        if (top < 0.8) below++;
+        for (const x of p) if (x > 0) entropy -= x * Math.log2(x);
+        for (const [w, q] of Object.entries(pos.soll)) {
+          const id = w === '<eos>' ? model.tokenizer.eosId : model.tokenizer.encode(w)[0].id;
+          kl += q * Math.log2(q / Math.max(p[id], 1e-12));
+        }
+      }
+      const n = evalSet.positions.length;
+      expect(below / n).toBeGreaterThanOrEqual(evalSet.goals.below80_share);
+      expect(entropy / n).toBeGreaterThanOrEqual(evalSet.goals.entropy_bits);
+      // gleiche Größenordnung wie im Trainingslauf gemessen (Faktor 1,5 Spielraum)
+      expect(kl / n).toBeLessThan(report.after.kl_bits * 1.5);
+    });
+  }
 });
