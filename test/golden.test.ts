@@ -105,36 +105,47 @@ describe.runIf(haveGolden && haveShards)('Golden-Tests gegen PyTorch', () => {
         const { manifest, model } = loadLocalModel(e.model, e.edition);
         expect(manifest.revision, 'Shards und Referenz müssen dieselbe Revision haben').toBe(golden.models[e.key].revision);
         const sessions = new KvSessions(model, 1);
-        const rows: string[] = [];
-        for (const g of golden.prompts.filter((p) => p.model === e.key)) {
-          const ours = sessions.logits(g.id, g.ids);
-          const c = compare(ours, refLogits(g.id));
-          rows.push(
-            `${g.id.padEnd(14)} top1 ${c.top1 ? '✓' : '✗'} top10 ${c.overlap}/10 KL ${c.kl.toExponential(2)} Δp ${(c.dp * 100).toFixed(2)} pp relL2 ${c.relL2.toExponential(2)}`,
-          );
-          if (e.exact) {
-            expect(c.topSame, `${g.id}: Top-10 identisch`).toBe(true);
-            expect(c.relL2, `${g.id}: rel. L2`).toBeLessThan(TOL.exact.relL2);
-            expect(c.kl, `${g.id}: KL`).toBeLessThan(TOL.exact.kl);
-            // Greedy-Fortsetzung über den KV-Cache der Sitzung (Verlängerung um je ein Token)
-            const seq = g.ids.slice();
-            const greedy: number[] = [];
-            let logits = ours;
-            for (let i = 0; i < golden.greedy_steps; i++) {
-              const t = argmax(logits);
-              greedy.push(t);
-              seq.push(t);
-              logits = sessions.logits(g.id, seq);
+        // erst alle Prompts messen und die Tabelle ins Log schreiben, dann prüfen –
+        // so stehen bei einem Fehlschlag alle Werte im Log, nicht nur der erste Verstoß
+        const results = golden.prompts
+          .filter((p) => p.model === e.key)
+          .map((g) => {
+            const ours = sessions.logits(g.id, g.ids);
+            const c = compare(ours, refLogits(g.id));
+            let greedy: number[] | null = null;
+            if (e.exact) {
+              // Greedy-Fortsetzung über den KV-Cache der Sitzung (Verlängerung um je ein Token)
+              const seq = g.ids.slice();
+              greedy = [];
+              let logits = ours;
+              for (let i = 0; i < golden.greedy_steps; i++) {
+                const t = argmax(logits);
+                greedy.push(t);
+                seq.push(t);
+                logits = sessions.logits(g.id, seq);
+              }
             }
-            expect(greedy, `${g.id}: Greedy ${golden.greedy_steps}/${golden.greedy_steps}`).toEqual(g.greedy_ids);
+            return { g, c, greedy };
+          });
+        const rows = results.map(
+          ({ g, c, greedy }) =>
+            `${g.id.padEnd(14)} top1 ${c.top1 ? '✓' : '✗'} top10 ${c.overlap}/10 KL ${c.kl.toExponential(2)} Δp ${(c.dp * 100).toFixed(2)} pp relL2 ${c.relL2.toExponential(2)}` +
+            (greedy ? ` greedy ${greedy.filter((t, i) => t === g.greedy_ids[i]).length}/${g.greedy_ids.length}` : ''),
+        );
+        console.log(`[golden] ${e.model}/${e.edition}\n  ${rows.join('\n  ')}`);
+        for (const { g, c, greedy } of results) {
+          if (e.exact) {
+            expect.soft(c.topSame, `${g.id}: Top-10 identisch`).toBe(true);
+            expect.soft(c.relL2, `${g.id}: rel. L2`).toBeLessThan(TOL.exact.relL2);
+            expect.soft(c.kl, `${g.id}: KL`).toBeLessThan(TOL.exact.kl);
+            expect.soft(greedy, `${g.id}: Greedy ${golden.greedy_steps}/${golden.greedy_steps}`).toEqual(g.greedy_ids);
           } else {
-            expect(c.top1, `${g.id}: Top-1 identisch`).toBe(true);
-            expect(c.overlap, `${g.id}: Top-10-Überlappung`).toBeGreaterThanOrEqual(TOL.int8.top10Overlap);
-            expect(c.kl, `${g.id}: KL`).toBeLessThan(TOL.int8.kl);
-            expect(c.dp, `${g.id}: max. Δp`).toBeLessThan(TOL.int8.dp);
+            expect.soft(c.top1, `${g.id}: Top-1 identisch`).toBe(true);
+            expect.soft(c.overlap, `${g.id}: Top-10-Überlappung`).toBeGreaterThanOrEqual(TOL.int8.top10Overlap);
+            expect.soft(c.kl, `${g.id}: KL`).toBeLessThan(TOL.int8.kl);
+            expect.soft(c.dp, `${g.id}: max. Δp`).toBeLessThan(TOL.int8.dp);
           }
         }
-        console.log(`[golden] ${e.model}/${e.edition}\n  ${rows.join('\n  ')}`);
       },
       300_000,
     );
