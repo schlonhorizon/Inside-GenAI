@@ -113,7 +113,8 @@ def words(s: str) -> list[str]:
     return WORD_RE.findall(s.lower())
 
 
-def corpus(n: int, rng: random.Random) -> list[str]:
+def corpus_v1(n: int, rng: random.Random) -> list[str]:
+    """Korpus der ersten Toy-Version (P1b). Nur noch für den Vorher-Vergleich."""
     capitals = {"frankreich": "paris", "deutschland": "berlin", "italien": "rom", "spanien": "madrid", "österreich": "wien"}
     out = []
     for _ in range(n):
@@ -166,10 +167,303 @@ def corpus(n: int, rng: random.Random) -> list[str]:
     return out
 
 
+# ── Korpus v2: gewichtete, endliche Grammatik ─────────────────────────────────
+# Knoten: str (Wörter), S(...) = Folge, C((gewicht, knoten), ...) = Auswahl.
+# Daraus: (a) exakte Aufzählung aller Sätze mit Wahrscheinlichkeit, (b) Sampling des Korpus,
+# (c) exakte Soll-Verteilung des nächsten Wortes für jedes Präfix.
+
+
+class S(tuple):
+    def __new__(cls, *parts):
+        return super().__new__(cls, parts)
+
+
+class C(tuple):
+    def __new__(cls, *opts):
+        return super().__new__(cls, opts)
+
+
+LANDS = [("frankreich", "paris"), ("deutschland", "berlin"), ("italien", "rom"), ("spanien", "madrid"), ("österreich", "wien")]
+
+
+def capital_tail(city: str):
+    return C(
+        (48, f"{city} ."),
+        (12, "schön ."),
+        (8, "sehr schön ."),
+        (8, "sehr groß ."),
+        (8, "eine alte stadt ."),
+        (6, "eine schöne stadt ."),
+        (5, f"{city} und sehr schön ."),
+        (5, "schön und alt ."),
+    )
+
+
+OBJ = C((5, "den zins"), (3, "den leitzins"), (2, "die zinsen"))
+PLACE = C((4, "im garten"), (3, S("auf dem", C((3, "sofa"), (2, "bett")))), (3, "im haus"))
+
+
+def animal_vp(barks: bool):
+    opts = [
+        (3, S("spielt", PLACE)),
+        (3, S("schläft", PLACE)),
+        (2, S("läuft", C((1, "schnell"), (1, S("schnell", PLACE))))),
+    ]
+    if barks:
+        opts.append((2, S("bellt", C((1, "laut"), (1, "leise")))))
+    return C(*opts)
+
+
+GRAMMAR = C(
+    (
+        32,
+        C(
+            (60, S("die hauptstadt von", C(*[(1, S(land, "ist", capital_tail(city))) for land, city in LANDS]))),
+            (20, S("die größte stadt von", C(*[(1, S(land, "ist", C((70, f"{city} ."), (30, "sehr groß .")))) for land, city in LANDS]))),
+            (20, C(*[(1, S(city, "ist", C((6, f"die hauptstadt von {land} ."), (2, "sehr schön ."), (2, "eine alte stadt .")))) for land, city in LANDS])),
+        ),
+    ),
+    (
+        26,
+        S(
+            C((5, "die bank"), (3, "die zentralbank"), (2, "die notenbank")),
+            C(
+                (
+                    45,
+                    S(
+                        "erhöht",
+                        OBJ,
+                        C(
+                            (55, S("weil", C((5, S("die inflation", C((6, "steigt"), (2, "weiter steigt"), (2, "hoch ist")))), (3, "die preise steigen"), (2, "die wirtschaft stark ist")))),
+                            (20, "heute"),
+                            (15, "erneut"),
+                            (10, S("denn", C((6, "die inflation steigt"), (4, "die preise steigen")))),
+                        ),
+                    ),
+                ),
+                (
+                    35,
+                    S(
+                        "senkt",
+                        OBJ,
+                        C(
+                            (55, S("weil", C((5, S("die wirtschaft", C((7, "schwach ist"), (3, "kaum wächst")))), (3, "die inflation sinkt"), (2, "die preise sinken")))),
+                            (20, "heute"),
+                            (15, "erneut"),
+                            (10, S("denn", C((6, "die wirtschaft schwach ist"), (4, "die inflation sinkt")))),
+                        ),
+                    ),
+                ),
+                (20, S("hält", OBJ, C((50, "stabil"), (30, "heute stabil"), (20, S("weil die inflation", C((1, "sinkt"), (1, "steigt"))))))),
+            ),
+            ".",
+        ),
+    ),
+    (
+        20,
+        C(
+            (
+                35,
+                S(
+                    C((6, "die aktie"), (4, "der kurs")),
+                    C((4, "steigt"), (4, "fällt"), (2, "schwankt")),
+                    C((4, S("heute", C((4, "stark"), (3, "leicht"), (3, "")))), (3, "stark"), (3, "leicht"), (1, "kaum")),
+                    ".",
+                ),
+            ),
+            (35, S("die kurse", C((1, "steigen"), (1, "fallen")), C((4, S("heute", C((1, "stark"), (1, "leicht"), (1, "")))), (3, "stark"), (3, "leicht")), ".")),
+            (
+                30,
+                S(
+                    "wenn der zins",
+                    C(
+                        (1, S("steigt ,", C((6, "sinken"), (4, "fallen")), "die", C((6, "kurse"), (4, "preise")))),
+                        (1, S("sinkt , steigen die", C((6, "kurse"), (4, "preise")))),
+                    ),
+                    ".",
+                ),
+            ),
+        ),
+    ),
+    (
+        22,
+        C(
+            (
+                35,
+                S(
+                    "es war einmal",
+                    C(
+                        (3, S("ein", C((4, "kleiner"), (3, "alter"), (3, "kluger")), C((6, "hund"), (4, "fuchs")))),
+                        (2, S("eine", C((4, "kleine"), (3, "alte"), (3, "kluge")), C((5, "katze"), (5, "maus")))),
+                    ),
+                    ".",
+                ),
+            ),
+            (35, S("der", C((6, S("hund", animal_vp(True))), (4, S("fuchs", animal_vp(False)))), ".")),
+            (30, S("die", C((5, "katze"), (5, "maus")), animal_vp(False), ".")),
+        ),
+    ),
+)
+
+
+def enumerate_grammar(node) -> dict[tuple, float]:
+    if isinstance(node, str):
+        return {tuple(words(node)): 1.0}
+    if isinstance(node, S):
+        acc = {(): 1.0}
+        for part in node:
+            sub = enumerate_grammar(part)
+            nxt: dict[tuple, float] = {}
+            for a, pa in acc.items():
+                for b, pb in sub.items():
+                    nxt[a + b] = nxt.get(a + b, 0.0) + pa * pb
+            acc = nxt
+        return acc
+    if isinstance(node, C):
+        total = sum(w for w, _ in node)
+        out: dict[tuple, float] = {}
+        for w, child in node:
+            for k, p in enumerate_grammar(child).items():
+                out[k] = out.get(k, 0.0) + p * w / total
+        return out
+    raise TypeError(type(node))
+
+
+def target_next(dist: dict[tuple, float], prefix: tuple) -> dict[str, float]:
+    """Exakte Soll-Verteilung des nächsten Wortes nach `prefix` (nach Satzende: <eos>)."""
+    n = len(prefix)
+    out: dict[str, float] = {}
+    for sent, p in dist.items():
+        if sent[:n] == prefix:
+            nxt = sent[n] if n < len(sent) else "<eos>"
+            out[nxt] = out.get(nxt, 0.0) + p
+    z = sum(out.values())
+    if z == 0:
+        raise ValueError(f"Präfix kommt in der Grammatik nicht vor: {' '.join(prefix)}")
+    return {k: v / z for k, v in sorted(out.items(), key=lambda kv: -kv[1])}
+
+
+def empirical_next(sentences: list[str], prefix: tuple) -> dict[str, float]:
+    """Empirische bedingte Verteilung im (alten) Korpus – Soll-Ersatz für das Vorher-Modell."""
+    n = len(prefix)
+    out: dict[str, float] = {}
+    for s in sentences:
+        ws = tuple(words(s))
+        if ws[:n] == prefix:
+            nxt = ws[n] if n < len(ws) else "<eos>"
+            out[nxt] = out.get(nxt, 0.0) + 1
+    z = sum(out.values()) or 1
+    return {k: v / z for k, v in sorted(out.items(), key=lambda kv: -kv[1])}
+
+
+def sample_corpus(dist: dict[tuple, float], n: int, rng: random.Random) -> list[str]:
+    sents = list(dist)
+    weights = [dist[s] for s in sents]
+    return [" ".join(s) for s in rng.choices(sents, weights, k=n)]
+
+
+# Feste Prüfsätze: jedes Wort wird nach seinem Präfix vorhergesagt (wie in P1b gemessen)
+EVAL_SENTENCES = [
+    "die hauptstadt von frankreich ist paris .",
+    "die hauptstadt von deutschland ist sehr groß .",
+    "die bank erhöht den zins weil die inflation steigt .",
+    "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+    "wenn der zins steigt , sinken die kurse .",
+    "die aktie steigt heute stark .",
+    "es war einmal ein kleiner hund .",
+    "der hund spielt im garten .",
+    "die katze schläft auf dem sofa .",
+    "rom ist die hauptstadt von italien .",
+]
+GOALS = {"below80_share": 0.5, "entropy_bits": 1.0}
+LEIT_PREFIX = "die hauptstadt von frankreich ist"
+
+
+def eval_positions():
+    for s in EVAL_SENTENCES:
+        ws = words(s)
+        for k in range(len(ws)):
+            yield s, tuple(ws[:k]), ws[k]
+
+
+def dist_stats(d: dict[str, float]) -> tuple[float, float]:
+    import math
+
+    top = max(d.values())
+    h = -sum(p * math.log2(p) for p in d.values() if p > 0)
+    return top, h
+
+
+def summarize(rows: list[dict], key: str) -> dict:
+    n = len(rows)
+    below = sum(1 for r in rows if r[key]["top1"] < 0.8)
+    return {
+        "positions": n,
+        "below80": below,
+        "below80_share": round(below / n, 4),
+        "entropy_bits": round(sum(r[key]["entropy_bits"] for r in rows) / n, 4),
+    }
+
+
 TOY_PROMPTS = ["die hauptstadt von frankreich ist", "die bank erhöht den zins weil", "es war einmal"]
 
 
-def train_toy(sentences, vocab, rope: bool, outdir: pathlib.Path, seed: int = 0):
+def model_next_probs(model, stoi, vocab, prefix: tuple):
+    import torch
+
+    ids = [stoi["<bos>"]] + [stoi.get(w, stoi["<unk>"]) for w in prefix]
+    with torch.no_grad():
+        p = torch.softmax(model(input_ids=torch.tensor([ids])).logits[0, -1], -1)
+    return {vocab[i]: float(p[i]) for i in range(len(vocab))}
+
+
+def evaluate(model, stoi, vocab, targets: dict) -> tuple[list[dict], float]:
+    import math
+
+    rows, kl_sum = [], 0.0
+    for sent, prefix, actual in eval_positions():
+        soll = targets[prefix]
+        ist = model_next_probs(model, stoi, vocab, prefix)
+        kl = sum(p * math.log2(p / max(ist.get(w, 0.0), 1e-12)) for w, p in soll.items() if p > 0)
+        kl_sum += kl
+        st, sh = dist_stats(soll)
+        it, ih = dist_stats(ist)
+        rows.append(
+            {
+                "sentence": sent,
+                "prefix": " ".join(prefix),
+                "actual": actual,
+                "kl_bits": round(kl, 5),
+                "soll": {"top1": round(st, 4), "entropy_bits": round(sh, 4), "top5": [[w, round(p, 4)] for w, p in list(soll.items())[:5]]},
+                "ist": {
+                    "top1": round(it, 4),
+                    "entropy_bits": round(ih, 4),
+                    "top5": [[w, round(p, 4)] for w, p in sorted(ist.items(), key=lambda kv: -kv[1])[:5]],
+                },
+            }
+        )
+    return rows, kl_sum / len(rows)
+
+
+def load_existing_model(outdir: pathlib.Path):
+    """Lädt das bisher eingecheckte Toy-Modell (für den Vorher-Vergleich)."""
+    import torch
+    from safetensors.torch import load_file
+    from transformers import LlamaConfig, LlamaForCausalLM
+
+    conf = json.loads((outdir / "config.json").read_text())
+    vocab = json.loads((outdir / "vocab.json").read_text())
+    keep = {k: v for k, v in conf.items() if k not in ("rope", "final_loss", "corpus_version", "training")}
+    model = LlamaForCausalLM(LlamaConfig(**keep))
+    model.load_state_dict(load_file(str(outdir / "model.safetensors")), strict=False)
+    model.tie_weights()
+    model.eval()
+    return model, conf, vocab
+
+
+def train_toy(train, val, vocab, rope: bool, outdir: pathlib.Path, seed: int = 0):
+    import copy
+
     import torch
     from safetensors.torch import save_file
     from transformers import LlamaConfig, LlamaForCausalLM
@@ -182,11 +476,22 @@ def train_toy(sentences, vocab, rope: bool, outdir: pathlib.Path, seed: int = 0)
     try:
         torch.manual_seed(seed)
         stoi = {w: i for i, w in enumerate(vocab)}
-        max_len = 24
-        seqs = []
-        for s in sentences:
-            ids = [stoi["<bos>"]] + [stoi[w] for w in words(s)] + [stoi["<eos>"]]
-            seqs.append(ids[:max_len])
+        pad = stoi["<pad>"]
+
+        def encode(sentences):
+            return [[stoi["<bos>"]] + [stoi[w] for w in words(s)] + [stoi["<eos>"]] for s in sentences]
+
+        def batchify(seqs):
+            L = max(len(b) for b in seqs)
+            x = torch.full((len(seqs), L), pad)
+            y = torch.full((len(seqs), L), -100)
+            for i, b in enumerate(seqs):
+                x[i, : len(b)] = torch.tensor(b)
+                y[i, : len(b)] = torch.tensor(b)
+            return x, y
+
+        tr, va = encode(train), encode(val)
+        vx, vy = batchify(va)
         cfg = LlamaConfig(
             vocab_size=len(vocab),
             hidden_size=32,
@@ -197,71 +502,150 @@ def train_toy(sentences, vocab, rope: bool, outdir: pathlib.Path, seed: int = 0)
             max_position_embeddings=32,
             rms_norm_eps=1e-5,
             rope_theta=10000.0,
+            attention_dropout=0.1,
             tie_word_embeddings=True,
             bos_token_id=stoi["<bos>"],
             eos_token_id=stoi["<eos>"],
-            pad_token_id=stoi["<pad>"],
+            pad_token_id=pad,
         )
         model = LlamaForCausalLM(cfg)
         opt = torch.optim.AdamW(model.parameters(), lr=3e-3, weight_decay=0.01)
-        pad = stoi["<pad>"]
-        steps, bs = 3000, 64
-        for step in range(steps):
-            batch = random.Random(seed * 100000 + step).sample(seqs, bs)
-            L = max(len(b) for b in batch)
-            x = torch.full((bs, L), pad)
-            labels = torch.full((bs, L), -100)
-            for i, b in enumerate(batch):
-                x[i, : len(b)] = torch.tensor(b)
-                labels[i, : len(b)] = torch.tensor(b)
-            loss = model(input_ids=x, labels=labels).loss
+        max_steps, bs, every, patience = 3000, 64, 100, 5
+        best = (float("inf"), 0, None)
+        bad = 0
+        history = []
+        rng = random.Random(seed)
+        for step in range(1, max_steps + 1):
+            model.train()
+            x, y = batchify(rng.sample(tr, bs))
+            loss = model(input_ids=x, labels=y).loss
             opt.zero_grad()
             loss.backward()
             opt.step()
-            if step % 500 == 0 or step == steps - 1:
-                print(f"[toy{'' if rope else '-nopos'}] step {step} loss {loss.item():.4f}")
+            if step % every == 0:
+                model.eval()
+                with torch.no_grad():
+                    vloss = float(model(input_ids=vx, labels=vy).loss)
+                history.append({"step": step, "train": round(float(loss), 4), "val": round(vloss, 4)})
+                if vloss < best[0] - 1e-4:
+                    best = (vloss, step, copy.deepcopy(model.state_dict()))
+                    bad = 0
+                else:
+                    bad += 1
+                print(f"[toy{'' if rope else '-nopos'}] step {step} train {float(loss):.4f} val {vloss:.4f}")
+                if bad >= patience:
+                    break
+        model.load_state_dict(best[2])
         model.eval()
         outdir.mkdir(parents=True, exist_ok=True)
         state = {k: v.detach().contiguous() for k, v in model.state_dict().items() if k != "lm_head.weight"}
         save_file(state, str(outdir / "model.safetensors"))
         conf = cfg.to_dict()
         conf["rope"] = rope
-        conf["final_loss"] = round(float(loss.item()), 4)
+        conf["corpus_version"] = 2
+        conf["training"] = {"best_step": best[1], "best_val_loss": round(best[0], 4), "stopped_at": history[-1]["step"], "history": history}
         (outdir / "config.json").write_text(json.dumps(conf, indent=2) + "\n")
         (outdir / "vocab.json").write_text(json.dumps(vocab, ensure_ascii=False, indent=1) + "\n")
-        # Referenz-Logits (alle Positionen) für den Engine-Test
         ref = {"prompts": []}
         with torch.no_grad():
             for p in TOY_PROMPTS:
                 ids = [stoi["<bos>"]] + [stoi[w] for w in words(p)]
                 logits = model(input_ids=torch.tensor([ids])).logits[0]
                 ref["prompts"].append({"text": p, "ids": ids, "logits": [[round(float(v), 5) for v in row] for row in logits]})
-        return ref
+        return model, stoi, ref, conf["training"]
     finally:
         llama_mod.apply_rotary_pos_emb = original
 
 
 def build_toy() -> None:
+    dist = enumerate_grammar(GRAMMAR)
+    targets = {prefix: target_next(dist, prefix) for _, prefix, _ in eval_positions()}
+
+    # 1) Erfüllt schon die Soll-Verteilung die Hilfs-Zielwerte? Sonst Korpus anpassen, nicht Training verschlechtern.
+    soll_rows = [{"soll": dict(zip(("top1", "entropy_bits"), dist_stats(targets[p])))} for _, p, _ in eval_positions()]
+    soll_summary = summarize(soll_rows, "soll")
+    print(f"[toy] Grammatik: {len(dist)} verschiedene Sätze; Soll: {soll_summary}")
+    if soll_summary["below80_share"] < GOALS["below80_share"] or soll_summary["entropy_bits"] < GOALS["entropy_bits"]:
+        raise SystemExit("[toy] Die Soll-Verteilung erfüllt die Zielwerte nicht – Grammatik anpassen.")
+
     rng = random.Random(42)
-    sentences = corpus(8000, rng)
+    sentences = sample_corpus(dist, 12000, rng)
+    n_val = len(sentences) // 10
+    val, train = sentences[:n_val], sentences[n_val:]
     counts: dict[str, int] = {}
+    for s in dist:
+        for w in s:
+            counts[w] = counts.get(w, 0) + 1
+    sample_counts: dict[str, int] = {}
     for s in sentences:
         for w in words(s):
-            counts[w] = counts.get(w, 0) + 1
-    vocab = SPECIALS + sorted(counts, key=lambda w: (-counts[w], w))
-    print(f"[toy] {len(sentences)} Sätze, Vokabular {len(vocab)}")
+            sample_counts[w] = sample_counts.get(w, 0) + 1
+    vocab = SPECIALS + sorted(counts, key=lambda w: (-sample_counts.get(w, 0), w))
+    print(f"[toy] Korpus: {len(train)} Training + {len(val)} Validierung, Vokabular {len(vocab)}")
+
+    FIXTURES.mkdir(parents=True, exist_ok=True)
+    (FIXTURES / "toy-eval.json").write_text(
+        json.dumps(
+            {
+                "sentences": EVAL_SENTENCES,
+                "goals": GOALS,
+                "positions": [{"prefix": " ".join(p), "soll": targets[p]} for _, p, _ in eval_positions()],
+            },
+            ensure_ascii=False,
+            indent=1,
+        )
+        + "\n"
+    )
+
     info = {
+        "corpus_version": 2,
+        "grammar_sentences": len(dist),
         "sentences": len(sentences),
         "vocab_size": len(vocab),
         "examples": sentences[:20],
-        "word_counts": dict(sorted(counts.items(), key=lambda kv: -kv[1])),
+        "word_counts": dict(sorted(sample_counts.items(), key=lambda kv: -kv[1])),
     }
-    FIXTURES.mkdir(parents=True, exist_ok=True)
     for rope, name in [(True, "toy"), (False, "toy-nopos")]:
         outdir = PUBLIC / "data" / name
-        ref = train_toy(sentences, vocab, rope, outdir)
+        # Vorher: altes Modell gegen die empirische Verteilung seines eigenen (alten) Korpus
+        before = None
+        old_eval = outdir / "eval.json"
+        if (outdir / "config.json").exists():
+            old_conf = json.loads((outdir / "config.json").read_text())
+            if old_conf.get("corpus_version", 1) == 1:
+                old_model, _, old_vocab = load_existing_model(outdir)
+                old_sents = corpus_v1(8000, random.Random(42))
+                old_targets = {p: empirical_next(old_sents, p) for _, p, _ in eval_positions()}
+                rows, kl = evaluate(old_model, {w: i for i, w in enumerate(old_vocab)}, old_vocab, old_targets)
+                before = {
+                    "note": "Modell v1 gegen die empirische Verteilung seines eigenen Korpus (v1 war keine Grammatik)",
+                    "model": summarize(rows, "ist"),
+                    "soll": summarize(rows, "soll"),
+                    "kl_bits": round(kl, 4),
+                    "leitbeispiel": next(r for r in rows if r["prefix"] == LEIT_PREFIX),
+                }
+            elif old_eval.exists():
+                before = json.loads(old_eval.read_text()).get("before")
+        model, stoi, ref, training = train_toy(train, val, vocab, rope, outdir)
+        rows, kl = evaluate(model, stoi, vocab, targets)
+        after = {"model": summarize(rows, "ist"), "soll": summarize(rows, "soll"), "kl_bits": round(kl, 4)}
+        leit = next(r for r in rows if r["prefix"] == LEIT_PREFIX)
+        report = {
+            "variant": name,
+            "goals": GOALS,
+            "before": before,
+            "after": after,
+            "leitbeispiel": leit,
+            "training": {k: v for k, v in training.items() if k != "history"},
+            "label_smoothing": 0,
+            "positions": rows,
+        }
+        (outdir / "eval.json").write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n")
         (outdir / "corpus-info.json").write_text(json.dumps(info, ensure_ascii=False, indent=1) + "\n")
         (FIXTURES / f"{name}-reference.json").write_text(json.dumps(ref) + "\n")
+        print(f"[toy{'' if rope else '-nopos'}] vorher: {before and before['model']} KL {before and before['kl_bits']}")
+        print(f"[toy{'' if rope else '-nopos'}] nachher: {after}")
+        print(f"[toy{'' if rope else '-nopos'}] Leitbeispiel Soll {leit['soll']['top5']} · Ist {leit['ist']['top5']}")
 
 
 KNOWN = {"tokenizers": build_tokenizers, "toy": build_toy, "golden": None, "embeddings": None}
