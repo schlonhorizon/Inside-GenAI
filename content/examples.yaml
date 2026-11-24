@@ -34,6 +34,20 @@ toyPrompts:
   - "es war einmal"
   - "die aktie"
 
+# Prompts für das echte Modell (SmolLM2 ist überwiegend auf Englisch trainiert)
+realPrompts:
+  - "The capital of France is"
+  - "The central bank raised interest rates because"
+  - "Once upon a time, there was a"
+  - "The stock market fell sharply after"
+  - "My favorite food is"
+
+# Erste Fragen im Chat-Modus (Instruct-Modell)
+chatPrompts:
+  - "What is the capital of France?"
+  - "Why do central banks raise interest rates?"
+  - "Write a haiku about the sea."
+
 # Vokabular des Spielzeugmodells, gruppiert für die Wortliste im Playground.
 # Wörter, die hier fehlen, landen automatisch unter „Weitere“.
 toyVocabGroups:

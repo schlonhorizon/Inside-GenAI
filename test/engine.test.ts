@@ -1,9 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseSafeTensors } from '../src/engine/model/safetensors';
-import { configFromHf, LlamaModel, loadLlamaWeights, parseFormat } from '../src/engine/model/llama';
+import { configFromHf, LlamaModel, loadLlamaWeights, parseFormat, weightBytes } from '../src/engine/model/llama';
 import { quantizeGroups, quantizeRows } from '../src/engine/model/quantize';
 import { linearRow, type Linear } from '../src/engine/core/ops';
+import { KvSessions } from '../src/engine/model/sessions';
+import { packWeights, sha256Hex, shardRanges, unpackWeights } from '../src/engine/model/pack';
 
 /**
  * Engine gegen eine unabhängige NumPy-Referenz (scripts/spike/make_tiny_fixture.py):
@@ -84,5 +86,105 @@ describe('Llama-Engine (Mini-Modell)', () => {
     model.reset();
     const b = Array.from(model.prefill(ref.tokens));
     expect(b).toEqual(a);
+  });
+});
+
+describe('Batch-Prefill und KV-Sitzungen (Mini-Modell)', () => {
+  const weights = loadLlamaWeights(st, cfg, 'q8g16+s16');
+  const fresh = (ids: number[]) => {
+    const m = new LlamaModel(cfg, weights, 64);
+    return Array.from(m.prefill(ids));
+  };
+
+  it('prefillBatch ist bitgleich mit Token für Token (f32 und int8)', () => {
+    for (const w of [loadLlamaWeights(st, cfg, 'f32'), weights]) {
+      const a = new LlamaModel(cfg, w, 64);
+      const b = new LlamaModel(cfg, w, 64);
+      expect(Array.from(b.prefillBatch(ref.tokens))).toEqual(Array.from(a.prefill(ref.tokens)));
+      // Verlängerung im Batch an einen bestehenden Cache
+      expect(Array.from(b.prefillBatch([3, 4, 5]))).toEqual(Array.from(a.prefill([3, 4, 5])));
+    }
+  });
+
+  it('Batch-Prefill über die Blockgröße hinaus (> 64 Tokens) bleibt exakt', async () => {
+    const { LlamaModel: M } = await import('../src/engine/model/llama');
+    const ids = Array.from({ length: 100 }, (_, i) => (i * 7) % cfg.vocab);
+    const a = new M(cfg, weights, 128);
+    const b = new M(cfg, weights, 128);
+    expect(Array.from(b.prefillBatch(ids))).toEqual(Array.from(a.prefill(ids)));
+  });
+
+  const close = (a: Float32Array, b: number[]) => {
+    let m = 0;
+    for (let i = 0; i < b.length; i++) m = Math.max(m, Math.abs(a[i] - b[i]));
+    return m;
+  };
+
+  it('Abzweigung, Verlängerung, Verkürzung und identische Folge = Neuberechnung', () => {
+    const s = new KvSessions(new LlamaModel(cfg, weights, 64), 3);
+    const A = [1, 2, 3, 4, 5, 6];
+    const cases: [string, number[], number][] = [
+      ['Start', A, 6],
+      ['Verlängerung', [...A, 7, 8], 2],
+      ['Abzweigung', [1, 2, 3, 9, 10], 2],
+      ['Verkürzung', [1, 2, 3], 1],
+      ['identisch', [1, 2, 3], 0],
+      ['ganz anders', [11, 12], 2],
+    ];
+    for (const [name, ids, computed] of cases) {
+      expect(close(s.logits('w', ids), fresh(ids)), name).toBeLessThan(1e-5);
+      expect(s.last.computed, `${name}: gerechnete Tokens`).toBe(computed);
+    }
+  });
+
+  it('LRU: zwei Sitzungen im Wechsel verdrängen sich nicht, die vierte verdrängt die älteste', () => {
+    const s = new KvSessions(new LlamaModel(cfg, weights, 64), 3);
+    const A = [1, 2, 3, 4];
+    const B = [5, 6, 7, 8];
+    s.logits('a', A);
+    s.logits('b', B);
+    expect(close(s.logits('a', [...A, 9]), fresh([...A, 9]))).toBeLessThan(1e-5);
+    expect(s.last.computed).toBe(1);
+    expect(close(s.logits('b', [...B, 9]), fresh([...B, 9]))).toBeLessThan(1e-5);
+    expect(s.last.computed).toBe(1);
+    s.logits('c', [1]);
+    s.logits('d', [2]); // verdrängt „a“ (am längsten unbenutzt)
+    expect(s.has('a')).toBe(false);
+    expect(s.has('b')).toBe(true);
+    expect(close(s.logits('a', A), fresh(A))).toBeLessThan(1e-5);
+    expect(s.last.computed).toBe(4);
+  });
+
+  it('zu lange Folge: klare Fehlermeldung, Sitzung bleibt benutzbar', () => {
+    const s = new KvSessions(new LlamaModel(cfg, weights, 16), 2);
+    expect(() => s.logits('x', Array.from({ length: 20 }, () => 1))).toThrow(/zu lang/);
+    expect(close(s.logits('x', [1, 2]), fresh([1, 2]))).toBeLessThan(1e-5);
+  });
+});
+
+describe('Auslieferungsformat (Shards)', () => {
+  it.each(['attn:f16,mlp:q8g16,down:q8g16,emb:q8g16+s16', 'f16', 'q8+s16', 'f32'])(
+    '%s: packen → zusammensetzen ergibt dieselben Logits (bitgleich)',
+    (spec) => {
+      const w = loadLlamaWeights(st, cfg, spec);
+      const { tensors, data } = packWeights(w);
+      // über Shard-Grenzen verteilen und wieder zusammensetzen, wie beim Download
+      const ranges = shardRanges(data.byteLength, 1000);
+      const buf = new Uint8Array(data.byteLength);
+      for (const r of ranges) buf.set(data.subarray(r.offset, r.offset + r.bytes), r.offset);
+      const u = unpackWeights(tensors, buf.buffer, cfg.layers);
+      const a = new LlamaModel(cfg, w, 32);
+      const b = new LlamaModel(cfg, u, 32);
+      expect(Array.from(b.prefillBatch(ref.tokens))).toEqual(Array.from(a.prefillBatch(ref.tokens)));
+      expect(weightBytes(u)).toBe(weightBytes(w));
+    },
+  );
+
+  it('Skalen ohne fp16-Rundung werden abgelehnt (sonst wäre die Auslieferung ungenauer als gemessen)', () => {
+    expect(() => packWeights(loadLlamaWeights(st, cfg, 'q8g16'))).toThrow(/s16/);
+  });
+
+  it('SHA-256 wie erwartet', async () => {
+    expect(await sha256Hex(new TextEncoder().encode('abc'))).toBe('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
   });
 });

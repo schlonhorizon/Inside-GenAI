@@ -115,3 +115,142 @@ export function applyRope(v: Float32Array, off: number, pos: number, t: { cos: F
     v[off + i + half] = b * c + a * s;
   }
 }
+
+/** Arbeitspuffer für verschränkte 8er-Blöcke, als f64: jeder Eingabewert wird einmal pro Schicht umgewandelt statt einmal pro Gewichtszeile. */
+let packed = new Float64Array(0);
+
+/**
+ * Legt je 8 aufeinanderfolgende Vektoren verschränkt ab: P[(b·cols + c)·8 + j] = X[(8b + j)·cols + c].
+ * Die innere Schleife liest dann 8 benachbarte Werte statt 8 weit auseinanderliegender.
+ */
+function pack8(X: Float32Array, blocks: number, cols: number): Float64Array {
+  const need = blocks * cols * 8;
+  if (packed.length < need) packed = new Float64Array(need);
+  const P = packed;
+  for (let b = 0; b < blocks; b++) {
+    const pb = b * cols * 8;
+    for (let j = 0; j < 8; j++) {
+      const xo = (b * 8 + j) * cols;
+      for (let c = 0; c < cols; c++) P[pb + c * 8 + j] = X[xo + c];
+    }
+  }
+  return P;
+}
+
+/**
+ * Dieselbe lineare Schicht für n Vektoren auf einmal (Batch-Prefill):
+ * X ist [n × cols] zeilenweise, Y wird [n × rows]. Jede Gewichtszeile wird einmal geladen und
+ * in Blöcken zu 8 Vektoren angewendet (ein geladenes Gewicht → 8 Multiplikationen).
+ * Die Summationsreihenfolge je Ausgabewert ist identisch mit `linear`, die Ergebnisse sind
+ * daher bitgleich mit dem Token-für-Token-Weg.
+ */
+export function linearBatch(l: Linear, X: Float32Array, n: number, Y: Float32Array): void {
+  const { rows, cols } = l;
+  const blocks = n >> 3;
+  const n8 = blocks * 8;
+  const P = blocks ? pack8(X, blocks, cols) : X;
+  if (l.kind === 'f32' || l.kind === 'q8') {
+    const w = l.kind === 'f32' ? l.w : l.q;
+    const scale = l.kind === 'q8' ? l.scale : null;
+    for (let r = 0; r < rows; r++) {
+      const off = r * cols;
+      const s = scale ? scale[r] : 1;
+      for (let b = 0; b < blocks; b++) {
+        let a0 = 0, a1 = 0, a2 = 0, a3 = 0, a4 = 0, a5 = 0, a6 = 0, a7 = 0;
+        let pi = b * cols * 8;
+        for (let c = 0; c < cols; c++, pi += 8) {
+          const wv = w[off + c];
+          a0 += wv * P[pi];
+          a1 += wv * P[pi + 1];
+          a2 += wv * P[pi + 2];
+          a3 += wv * P[pi + 3];
+          a4 += wv * P[pi + 4];
+          a5 += wv * P[pi + 5];
+          a6 += wv * P[pi + 6];
+          a7 += wv * P[pi + 7];
+        }
+        if (scale) {
+          a0 *= s;
+          a1 *= s;
+          a2 *= s;
+          a3 *= s;
+          a4 *= s;
+          a5 *= s;
+          a6 *= s;
+          a7 *= s;
+        }
+        const t = b * 8;
+        Y[t * rows + r] = a0;
+        Y[(t + 1) * rows + r] = a1;
+        Y[(t + 2) * rows + r] = a2;
+        Y[(t + 3) * rows + r] = a3;
+        Y[(t + 4) * rows + r] = a4;
+        Y[(t + 5) * rows + r] = a5;
+        Y[(t + 6) * rows + r] = a6;
+        Y[(t + 7) * rows + r] = a7;
+      }
+      for (let t = n8; t < n; t++) {
+        const xo = t * cols;
+        let acc = 0;
+        for (let c = 0; c < cols; c++) acc += w[off + c] * X[xo + c];
+        Y[t * rows + r] = scale ? acc * s : acc;
+      }
+    }
+  } else {
+    const { q, scale, group } = l;
+    const groups = cols / group;
+    for (let r = 0; r < rows; r++) {
+      const off = r * cols;
+      const so = r * groups;
+      for (let b = 0; b < blocks; b++) {
+        let a0 = 0, a1 = 0, a2 = 0, a3 = 0, a4 = 0, a5 = 0, a6 = 0, a7 = 0;
+        let pi = b * cols * 8;
+        for (let g = 0; g < groups; g++) {
+          let p0 = 0, p1 = 0, p2 = 0, p3 = 0, p4 = 0, p5 = 0, p6 = 0, p7 = 0;
+          const go = off + g * group;
+          for (let c = 0; c < group; c++, pi += 8) {
+            const wv = q[go + c];
+            p0 += wv * P[pi];
+            p1 += wv * P[pi + 1];
+            p2 += wv * P[pi + 2];
+            p3 += wv * P[pi + 3];
+            p4 += wv * P[pi + 4];
+            p5 += wv * P[pi + 5];
+            p6 += wv * P[pi + 6];
+            p7 += wv * P[pi + 7];
+          }
+          const s = scale[so + g];
+          a0 += p0 * s;
+          a1 += p1 * s;
+          a2 += p2 * s;
+          a3 += p3 * s;
+          a4 += p4 * s;
+          a5 += p5 * s;
+          a6 += p6 * s;
+          a7 += p7 * s;
+        }
+        const t = b * 8;
+        Y[t * rows + r] = a0;
+        Y[(t + 1) * rows + r] = a1;
+        Y[(t + 2) * rows + r] = a2;
+        Y[(t + 3) * rows + r] = a3;
+        Y[(t + 4) * rows + r] = a4;
+        Y[(t + 5) * rows + r] = a5;
+        Y[(t + 6) * rows + r] = a6;
+        Y[(t + 7) * rows + r] = a7;
+      }
+      for (let t = n8; t < n; t++) {
+        const xb = t * cols;
+        let acc = 0;
+        for (let g = 0; g < groups; g++) {
+          let part = 0;
+          const go = off + g * group;
+          const xo = xb + g * group;
+          for (let c = 0; c < group; c++) part += q[go + c] * X[xo + c];
+          acc += part * scale[so + g];
+        }
+        Y[t * rows + r] = acc;
+      }
+    }
+  }
+}

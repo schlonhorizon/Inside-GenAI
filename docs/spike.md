@@ -133,6 +133,25 @@ Frühere Läufe auf langsameren Runnern ergaben ≈ 160–170 ms/Token. Prefill 
 
 Die int8-Grenzen lassen etwa den Faktor 2,5–3 Spielraum. Echte Fehler (falsche Indizes, vertauschte Gewichte) erzeugen KL-Werte im Bereich > 1 und fallen sofort auf. In P2 werden die Golden-Tests auf ≈ 20 Prompts erweitert, damit die Werte statistisch stabiler sind.
 
+## Golden-Tests in P2a: 20 Prompts mit den ausgelieferten Shards
+
+Seit P2a vergleichen die Golden-Tests die **ausgelieferten** Shards mit PyTorch (fp32): 10 Base-Prompts und 10 Chats,
+die Referenz-Logits liegen vollständig als f32 im Repo (`test/fixtures/golden/`). Erste Werte im CI (schlechtester Prompt):
+
+| Fassung | Top-1 | Top-10-Überlappung | KL | max. Δp |
+|---|---|---|---|---|
+| Base fp16 | 10/10 | 10/10 identisch | 8·10⁻¹² | 0,00 pp (Greedy 16/16) |
+| Base int8 | 10/10 | ≥ 9/10 | 1,4·10⁻³ | 1,40 pp |
+| Instruct int8 | 10/10 | ≥ 9/10 | 3,1·10⁻³ (Chat auf Deutsch) | 1,36 pp |
+
+Die Toleranzen bleiben unverändert. Beim Instruct-Modell liegt der schlechteste KL-Wert näher an der Grenze (Faktor 1,3
+statt 2,5–3 im Spike), weil die neuen Prompts vielfältiger sind (deutscher Chat). Sollte ein künftiger Prompt die Grenze
+reißen, wird zuerst geprüft, ob die Engine wirklich abweicht, bevor eine Toleranz angepasst wird.
+
+**Gegenprobe:** Ein absichtlich falscher Skalen-Index in `linearBatch` (betrifft nur Zeilen mit mehr als 16 Gruppen, also
+nur das echte Modell) ließ alle Unit-Tests grün, aber die Golden-Tests an den Toleranzen scheitern: KL bis 6,7,
+Δp bis 76 pp, Top-10-Überlappung bis 0/10.
+
 ## Aufgaben für P2 aus dem Spike
 
 1. Shards beim Build erzeugen: int8-Fassung (Attention fp16, Rest q8g32, Skalen fp16) für Base und Instruct, fp16 nur für Base; gepinnte Revisionen.

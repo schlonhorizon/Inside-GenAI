@@ -24,6 +24,7 @@
   "include": [
     "src",
     "vite.config.ts",
-    "scripts/spike"
+    "scripts/spike",
+    "scripts/*.ts"
   ]
 }

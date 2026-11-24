@@ -5,7 +5,7 @@
 Ein interaktives Lernkompendium, das Schritt für Schritt zeigt, wie Sprachmodelle (LLMs) aus einem Prompt eine Antwort machen: Tokenisierung, Embeddings, Attention, Sampling, Training, Assistant-Tuning und mehr. Die Seite ist rein statisch und läuft komplett im Browser.
 
 - **Plan & Konzept:** [PLAN.md](PLAN.md)
-- **Aktueller Stand:** P1b (MVP): Kapitel 0, 2, 7 und 8 sind fertig, dazu der Mini-Playground mit Spielzeugmodell. Änderungen siehe [CHANGELOG.md](CHANGELOG.md)
+- **Aktueller Stand:** P2a: Kapitel 0, 2, 7 und 8 sind fertig, dazu der Mini-Playground. Das echte Modell SmolLM2-135M (Base und Instruct) lässt sich per Klick laden und rechnet im Browser; ohne Laden rechnet ein Spielzeugmodell. Änderungen siehe [CHANGELOG.md](CHANGELOG.md)
 
 ## Texte bearbeiten
 
@@ -30,6 +30,20 @@ npm run dev
 
 ```bash
 npm test
+```
+
+Das echte Modell wird nur im CI aus den Hugging-Face-Dateien aufbereitet (`npm run prepare-models`, braucht Zugang zu huggingface.co). Ohne diese Dateien läuft die Seite lokal mit dem Spielzeugmodell. Um Laden, Worker und Oberfläche trotzdem lokal zu testen, gibt es ein kleines Zufallsmodell mit dem echten Vokabular:
+
+```bash
+npm run prepare-models:fake
+```
+
+```bash
+npm run build && npx vite preview
+```
+
+```bash
+npm run check:ui -- http://localhost:4173/ --models
 ```
 
 ## Lizenz

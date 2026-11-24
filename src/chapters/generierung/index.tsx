@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Figure } from '../../components/primitives';
 import { EXAMPLES } from '../../content/examples';
 import { distribution, mulberry32, rankOrder, sampleIndex, type SamplingParams } from '../../engine/sampling';
-import type { ToyLanguageModel } from '../../engine/lm';
+import { StaleRequest, type LanguageModel, type ToyLanguageModel } from '../../engine/lm';
 import { useReducedMotionPref } from '../../state/settings';
-import { PromptInput } from '../shared/PromptInput';
+import { CalcState, ModelBar, ModelFigure, ModelPromptInput, promptIdsOrNull, useLogits, usePromptPerKind, useWidgetModel } from '../shared/model';
 import { pct, SamplingControls, showWhitespace, WithToyModel } from '../shared/Shared';
 
 /* ── Datenmodell des Antwort-Baums ───────────────────────────────── */
@@ -47,57 +47,91 @@ function addChild(tree: Tree, parent: number, token: number, p: number, forced: 
 
 /* ── Generator ────────────────────────────────────────────────────── */
 
-function GeneratorInner({ model }: { model: ToyLanguageModel }) {
+function GeneratorInner({ toy }: { toy: ToyLanguageModel }) {
+  const model = useWidgetModel(toy);
   const reduce = useReducedMotionPref();
-  const [prompt, setPrompt] = useState(EXAMPLES.toyPrompts[0]);
+  const session = useId();
+  const { prompt, setPrompt, settled } = usePromptPerKind(model, EXAMPLES.toyPrompts[0]);
   const [params, setParams] = useState<SamplingParams>({ temperature: 1, topK: 0, topP: 1, minP: 0 });
   const [seed, setSeed] = useState(7);
   const [tree, setTree] = useState<Tree>(newTree);
   const [draws, setDraws] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [inspect, setInspect] = useState<number | null>(null);
+  // Zähler je Baum: Antworten auf einen inzwischen verworfenen Baum werden ignoriert
+  const epoch = useRef(0);
 
-  const promptIds = useMemo(() => model.promptIds(prompt), [model, prompt]);
+  const promptIds = useMemo(() => promptIdsOrNull(model, settled) ?? [], [model, settled]);
   const cur = path(tree, tree.current);
   const ctx = (nodes: TreeNode[]) => [...promptIds, ...nodes.map((n) => n.token!)];
-  const ended = cur.length >= MAX_NEW || (cur.length > 0 && model.eosIds.includes(cur[cur.length - 1].token!));
+  const ended =
+    !promptIds.length ||
+    cur.length >= MAX_NEW ||
+    promptIds.length + cur.length >= model.maxContext ||
+    (cur.length > 0 && model.eosIds.includes(cur[cur.length - 1].token!));
 
-  const step = () => {
-    if (ended) return false;
-    const d = distribution(model.logitsFor(ctx(cur)), params);
-    const tok = sampleIndex(d.final, mulberry32(seed * 7919 + draws)());
-    setDraws((x) => x + 1);
-    setTree((t) => addChild(t, t.current, tok, d.probs[tok], false));
-    return true;
+  const reset = () => {
+    epoch.current++;
+    setTree(newTree());
+    setDraws(0);
+    setInspect(null);
+    setPlaying(false);
+    setBusy(false);
+    setError(null);
+  };
+  // anderes Modell oder anderer Prompt → neuer Baum
+  useEffect(reset, [model.id, promptIds.join(',')]);
+
+  const step = async () => {
+    if (ended || busy) return;
+    const my = epoch.current;
+    const parent = tree.current;
+    setBusy(true);
+    try {
+      const logits = await model.logitsFor(ctx(cur), { session });
+      if (my !== epoch.current) return;
+      const d = distribution(logits, params);
+      const tok = sampleIndex(d.final, mulberry32(seed * 7919 + draws)());
+      setDraws((x) => x + 1);
+      setTree((t) => addChild(t, parent, tok, d.probs[tok], false));
+    } catch (e) {
+      if (!(e instanceof StaleRequest) && my === epoch.current) {
+        setError((e as Error).message);
+        setPlaying(false);
+      }
+    } finally {
+      if (my === epoch.current) setBusy(false);
+    }
   };
 
   const stepRef = useRef(step);
   stepRef.current = step;
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || busy) return;
     if (ended) {
       setPlaying(false);
       return;
     }
-    const t = setTimeout(() => stepRef.current(), reduce ? 150 : 550);
+    const t = setTimeout(() => void stepRef.current(), reduce ? 150 : model.kind === 'real' ? 250 : 550);
     return () => clearTimeout(t);
-  }, [playing, ended, tree, reduce]);
+  }, [playing, busy, ended, tree, reduce, model.kind]);
 
   const restart = (p = prompt) => {
     setPrompt(p);
-    setTree(newTree());
-    setDraws(0);
-    setInspect(null);
-    setPlaying(false);
+    reset();
   };
 
-  // Alternativen an der inspizierten Stelle (Index in cur)
+  // Alternativen an der inspizierten Stelle (Index in cur): eigene Sitzung im Worker
+  const altIds = inspect !== null && inspect < cur.length ? ctx(cur.slice(0, inspect)) : null;
+  const altState = useLogits(model, altIds);
   const alt = useMemo(() => {
-    if (inspect === null || inspect >= cur.length) return null;
-    const d = distribution(model.logitsFor(ctx(cur.slice(0, inspect))), params);
+    if (inspect === null || inspect >= cur.length || !altState.logits || !altState.fresh) return null;
+    const d = distribution(altState.logits, params);
     return { d, order: rankOrder(d.probs).slice(0, 6), chosen: cur[inspect].token! };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inspect, tree, params, promptIds, model]);
+  }, [inspect, tree, params, altState.logits, altState.fresh]);
 
   const force = (token: number) => {
     if (inspect === null || !alt) return;
@@ -108,20 +142,21 @@ function GeneratorInner({ model }: { model: ToyLanguageModel }) {
 
   return (
     <div className="widget">
-      <PromptInput model={model} value={prompt} onChange={(v) => restart(v)} />
+      <ModelBar />
+      <ModelPromptInput model={model} value={prompt} onChange={(v) => restart(v)} />
       <SamplingControls value={params} onChange={setParams} vocabSize={model.vocabSize} seed={seed} onSeed={setSeed} />
       <div className="row-gap">
         <button type="button" className="btn btn--primary" onClick={() => setPlaying(!playing)} disabled={ended && !playing}>
           {playing ? 'Pause' : 'Abspielen'}
         </button>
-        <button type="button" className="btn" onClick={() => step()} disabled={ended || playing}>
+        <button type="button" className="btn" onClick={() => void step()} disabled={ended || playing || busy}>
           Ein Schritt
         </button>
         <button
           type="button"
           className="btn"
           onClick={() => setTree((t) => ({ ...t, current: t.nodes[t.current].parent ?? 0 }))}
-          disabled={tree.current === 0 || playing}
+          disabled={tree.current === 0 || playing || busy}
         >
           Zurück
         </button>
@@ -129,9 +164,11 @@ function GeneratorInner({ model }: { model: ToyLanguageModel }) {
           Neu
         </button>
         <span className="mono small muted">
-          {cur.length} / {MAX_NEW} Tokens{ended ? ' · fertig' : ''}
+          {cur.length} / {MAX_NEW} Tokens{ended && promptIds.length ? ' · fertig' : ''}
+          {busy && model.kind === 'real' ? ' · rechnet …' : ''}
         </span>
       </div>
+      {error && <p className="widget-error small">{error}</p>}
 
       <div className="gen-line" aria-live="polite">
         <span className="gen-prompt mono">{model.decode(promptIds)}</span>
@@ -150,6 +187,7 @@ function GeneratorInner({ model }: { model: ToyLanguageModel }) {
         ))}
       </div>
 
+      {inspect !== null && !alt && <CalcState state={altState} model={model} />}
       {alt && (
         <div className="alts">
           <span className="meta">Alternativen an Position {inspect! + 1} – klicken, um dieses Token zu erzwingen</span>
@@ -174,7 +212,7 @@ function GeneratorInner({ model }: { model: ToyLanguageModel }) {
 const COL = 96;
 const ROW = 44;
 
-function AnswerTree({ tree, model, onSelect }: { tree: Tree; model: ToyLanguageModel; onSelect: (id: number) => void }) {
+function AnswerTree({ tree, model, onSelect }: { tree: Tree; model: LanguageModel; onSelect: (id: number) => void }) {
   const layout = useMemo(() => {
     const pos = new Map<number, { x: number; y: number }>();
     let leaf = 0;
@@ -254,9 +292,9 @@ function AnswerTree({ tree, model, onSelect }: { tree: Tree; model: ToyLanguageM
 
 export function Generator() {
   return (
-    <Figure num="8.1" caption="Token für Token: Jede Entscheidung verändert alles, was danach kommt." stamp="toy">
-      <WithToyModel>{(m) => <GeneratorInner model={m} />}</WithToyModel>
-    </Figure>
+    <ModelFigure num="8.1" caption={(m) => <>Token für Token{m.real ? <> mit <strong>{m.label}</strong></> : ''}: Jede Entscheidung verändert alles, was danach kommt.</>}>
+      <WithToyModel>{(m) => <GeneratorInner toy={m} />}</WithToyModel>
+    </ModelFigure>
   );
 }
 

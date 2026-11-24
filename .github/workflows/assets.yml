@@ -1,7 +1,7 @@
 name: Assets erzeugen
 
 # Erzeugt kleine, vorberechnete Datendateien mit Python/PyTorch (Tokenizer-Dateien und
-# Referenz-Tokenisierungen, Toy-Modelle, später Golden-Referenzwerte und Embeddings).
+# Referenz-Tokenisierungen, Toy-Modelle, Golden-Referenzwerte, später Embeddings).
 #
 # • Push auf einen claude/**-Branch, der scripts/py/** ändert: Der Job committet die
 #   Ergebnisse direkt auf denselben Branch. Sein eigener Commit ändert nur public/** und
@@ -37,10 +37,15 @@ jobs:
   build-assets:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      TARGETS: ${{ inputs.targets || 'tokenizers,toy' }}
     steps:
       - uses: actions/checkout@v4
+
+      # Push: Ziele aus scripts/py/push-targets.txt (so wird nicht bei jeder Änderung alles neu erzeugt)
+      - name: Ziele bestimmen
+        run: |
+          if [ -n "${{ inputs.targets }}" ]; then T="${{ inputs.targets }}"; else T="$(grep -v '^#' scripts/py/push-targets.txt | tr -d ' \n')"; fi
+          echo "TARGETS=${T:-tokenizers,toy}" >> "$GITHUB_ENV"
+          echo "Ziele: ${T:-tokenizers,toy}"
 
       - uses: actions/setup-python@v5
         with:
@@ -54,7 +59,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface
-          key: assets-hf-v1
+          key: assets-hf-v2
 
       - name: Assets erzeugen
         run: python scripts/py/build_assets.py --targets "$TARGETS"

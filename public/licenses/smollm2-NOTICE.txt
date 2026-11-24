@@ -1,0 +1,21 @@
+SmolLM2-135M und SmolLM2-135M-Instruct
+Copyright Hugging Face (HuggingFaceTB)
+Lizenz: Apache License 2.0 (siehe smollm2-Apache-2.0.txt)
+
+Quellen (gepinnte Revisionen):
+  https://huggingface.co/HuggingFaceTB/SmolLM2-135M           Revision 93efa2f097d58c2a74874c7e644dbc9b0cee75a2
+  https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct  Revision 12fd25f77366fa6b3b4b768ec3050bf629380bac
+
+Änderungen durch dieses Projekt (Apache 2.0, Abschnitt 4 b):
+  Die Gewichte werden unverändert heruntergeladen und für die Auslieferung im Browser in ein
+  eigenes Format umgewandelt (Skript scripts/prepare-models.ts):
+
+  • int8-Fassung (Base und Instruct): Attention-Gewichte auf fp16 gerundet; MLP-, Embedding- und
+    LM-Head-Gewichte symmetrisch auf int8 quantisiert, je 32 Werte einer Zeile mit eigenem
+    Skalierungsfaktor (fp16). Die Wahrscheinlichkeiten weichen dadurch um wenige Prozentpunkte
+    von der exakten Rechnung ab; Seiten mit dieser Fassung tragen den Stempel „Echt · int8“.
+  • fp16-Fassung (nur Base): alle Gewichte auf fp16 gerundet (verlustfrei gegenüber den
+    ausgelieferten bf16-Gewichten im Rahmen der Rechengenauigkeit).
+
+  Beide Fassungen werden in Blöcke zu höchstens 32 MB geteilt und mit Prüfsummen (SHA-256)
+  ausgeliefert. Am Modell selbst (Architektur, Training, Tokenizer) wurde nichts verändert.

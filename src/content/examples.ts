@@ -13,6 +13,8 @@ export interface Examples {
     top: { token: string; p: number }[];
   };
   toyPrompts: string[];
+  realPrompts: string[];
+  chatPrompts: string[];
   toyVocabGroups: { name: string; words: string[] }[];
   languagePairs: { de: string; en: string }[];
   bpeCorpus: string;

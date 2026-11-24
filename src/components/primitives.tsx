@@ -24,14 +24,14 @@ export function Stamp({ kind }: { kind: StampKind }) {
   if (kind === 'real-q8') {
     // zweigeteilt: gefüllter Teil „Echt“ + umrandeter Teil „int8“ – Unterscheidung über die Form
     return (
-      <span className="stamp stamp--split" title={STAMP_HINT[kind]} aria-label={STAMP_LABEL[kind]}>
+      <span className="stamp stamp--split" title={STAMP_HINT[kind]} aria-label={STAMP_LABEL[kind]} data-stamp={kind}>
         <span className="stamp__a">Echt</span>
         <span className="stamp__b">int8</span>
       </span>
     );
   }
   return (
-    <span className={`stamp stamp--${kind}`} title={STAMP_HINT[kind]}>
+    <span className={`stamp stamp--${kind}`} title={STAMP_HINT[kind]} data-stamp={kind}>
       {STAMP_LABEL[kind]}
     </span>
   );

@@ -2,13 +2,14 @@
 /**
  * Erzeugt Build-Daten in src/generated/ (nicht eingecheckt):
  *   - model-facts.json   Modellzahlen aus den Configs (PLAN.md 5.5)
+ *   - model-editions.json ausgelieferte Fassungen der echten Modelle (aus den Manifesten in .cache/models)
  *   - npm-licenses.json  Lizenzen der direkten npm-Abhängigkeiten (für #/credits)
  *
  * Modell-Configs werden gesucht unter .cache/models/<id>/config.json (ab P2 vom
  * Deploy-Workflow befüllt) bzw. public/data/toy/config.json (Toy-Modell).
  * Fehlt eine Config, wird das Modell als "available: false" eingetragen.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { llamaFacts } from './model-facts-lib.mjs';
@@ -55,6 +56,36 @@ if (facts.toy.available && existsSync(evalPath)) {
 }
 writeFileSync(join(out, 'model-facts.json'), JSON.stringify(facts, null, 2) + '\n');
 
+// Ausgelieferte Fassungen der echten Modelle (aus den Manifesten von scripts/prepare-models.ts).
+// Die Oberfläche bietet nur an, was hier steht; ohne Shards (lokal) bleibt die Liste leer.
+const editions = [];
+const modelsDir = join(root, '.cache/models');
+if (existsSync(modelsDir)) {
+  for (const model of readdirSync(modelsDir).sort()) {
+    for (const edition of ['int8', 'fp16']) {
+      const mp = join(modelsDir, model, edition, 'manifest.json');
+      if (!existsSync(mp)) continue;
+      const m = JSON.parse(readFileSync(mp, 'utf8'));
+      const c = m.config;
+      editions.push({
+        model,
+        edition,
+        repo: m.repo,
+        revision: m.revision,
+        version: m.version,
+        spec: m.spec,
+        downloadBytes: m.totalBytes,
+        weightBytes: m.weightBytes,
+        layers: c.num_hidden_layers,
+        kvDim: (c.num_key_value_heads ?? c.num_attention_heads) * (c.head_dim ?? c.hidden_size / c.num_attention_heads),
+        eos: m.generation?.eos_token_id ?? null,
+        fake: !!m.fake,
+      });
+    }
+  }
+}
+writeFileSync(join(out, 'model-editions.json'), JSON.stringify(editions, null, 2) + '\n');
+
 // npm-Lizenzen der direkten Abhängigkeiten
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const licenses = Object.keys(pkg.dependencies ?? {})
@@ -71,4 +102,4 @@ writeFileSync(join(out, 'npm-licenses.json'), JSON.stringify(licenses, null, 2) 
 const avail = Object.entries(facts)
   .map(([k, v]) => `${k}:${v.available ? 'ok' : '—'}`)
   .join(' ');
-console.log(`[generate] model-facts (${avail}), npm-licenses (${licenses.length})`);
+console.log(`[generate] model-facts (${avail}), model-editions (${editions.map((e) => `${e.model}/${e.edition}${e.fake ? '*' : ''}`).join(' ') || '—'}), npm-licenses (${licenses.length})`);

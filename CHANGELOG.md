@@ -1,5 +1,17 @@
 # Changelog
 
+## P2a: Echtes Modell im Browser (2026-11-24)
+
+- **SmolLM2-135M (Base + Instruct) rechnet im Browser**, in einem Web Worker (Comlink). Laden auf Klick mit Fortschritt und Abbrechen, Ablage im Cache Storage (zweiter Besuch ohne Download), Prüfsummen je Shard
+- **Shards beim Build:** `scripts/prepare-models.ts` lädt die gepinnten Revisionen im CI, bereitet die Gewichte mit derselben Funktion auf wie die Engine und schreibt Shards ≤ 32 MB mit Manifest; Fassungen: int8 (Base, Instruct) und fp16 (nur Base). Cache in `ci.yml` und `deploy.yml`, Größenprüfung < 800 MB
+- **Engine:** Batch-Prefill (bitgleich mit Token für Token, im CI 2,29× schneller), KV-Cache als eigenes Objekt, Kürzen auf den gemeinsamen Anfang (Verlängerung, Abzweigung, Verkürzung), Sitzungen pro Widget mit LRU, Stopp-Tokens
+- **Kapitel 7, 8, Mini-Playground:** Umschalter Spielzeug / Echt · Base / Echt · Instruct, Stempel folgt dem Modell, freie Texteingabe mit BPE-Chips, „Live nachrechnen“ für das Leitbeispiel, Chat-Modus mit Kürzung auf das Prompt-Limit
+- „Neueste Anfrage gewinnt“: überholte Antworten werden verworfen, Generierungen bei neuer Eingabe abgebrochen
+- Höchstens ein echtes Modell im Worker; Download- und RAM-Angabe an den Ladeknöpfen; `#/diagnose` zeigt das geladene Modell, den Speicher und einen Batch-Benchmark
+- **Golden-Tests** gegen PyTorch (10 Base-Prompts, 10 Chats, volle Logits) mit den Toleranzen aus dem Spike, in PR-Check und Deploy: fp16 exakt (Greedy 16/16), int8 höchstens 1,4 pp Abweichung; eine absichtlich falsche Engine-Änderung wird im PR-Check rot
+- Playwright prüft im CI: Laden mit Fortschritt, Cache beim zweiten Besuch, blockierten Download, Instruct-Stopp, schnelle Eingabefolgen
+- Credits: SmolLM2-Gewichte (Apache-2.0 mit Änderungshinweis), Comlink
+
 ## Toy-Modell v2 (2026-11-24)
 
 - Korpus als gewichtete Grammatik mit Weggabelungen an vielen Stellen; Training per Sampling, Early Stopping auf Validierungsdaten, kein Label Smoothing

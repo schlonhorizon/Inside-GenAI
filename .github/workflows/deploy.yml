@@ -17,6 +17,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -30,10 +31,42 @@ jobs:
 
       - run: npm ci
 
-      - name: Tests
-        run: npm test
+      # Modell-Shards: gleicher Schlüssel in ci.yml und deploy.yml. Er hängt nur von den gepinnten
+      # Revisionen (im Skript) und der Gewichtsaufbereitung ab, nicht vom Forward-Pass.
+      # Hinweis: Caches aus PR-Branches sind auf main nicht sichtbar; main-Caches sind es für PRs.
+      - name: Modell-Shards aus dem Cache holen
+        id: models
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/models
+          key: models-v1-${{ hashFiles('scripts/prepare-models.ts', 'src/engine/model/weights.ts', 'src/engine/model/quantize.ts', 'src/engine/model/pack.ts', 'src/engine/model/safetensors.ts') }}
 
-      - name: Build
+      - name: Modell-Shards erzeugen (nur bei Cache-Miss)
+        if: steps.models.outputs.cache-hit != 'true'
+        run: npm run prepare-models
+
+      - name: Modell-Shards im Cache speichern
+        if: steps.models.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/models
+          key: ${{ steps.models.outputs.cache-primary-key }}
+
+      - name: Cache-Status
+        run: |
+          echo "Shards aus dem Cache: ${{ steps.models.outputs.cache-hit == 'true' && 'ja' || 'nein (neu erzeugt)' }}"
+          echo "Shards aus dem Cache: ${{ steps.models.outputs.cache-hit == 'true' && 'ja' || 'nein (neu erzeugt)' }}" >> "$GITHUB_STEP_SUMMARY"
+          du -sh .cache/models/*/* || true
+
+      - name: Tests (inkl. Golden-Tests gegen die echten Shards)
+        run: npm test
+        env:
+          REQUIRE_MODELS: '1'
+
+      - name: Benchmark Batch-Prefill
+        run: node --experimental-strip-types scripts/bench-prefill.ts 64
+
+      - name: Build (inkl. Shards nach dist/models und Größenprüfung < 800 MB)
         run: npm run build
         env:
           # z. B. "/Inside-GenAI/" – kommt aus den Pages-Einstellungen des Repos

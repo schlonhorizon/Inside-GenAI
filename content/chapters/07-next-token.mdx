@@ -33,9 +33,14 @@ wahrscheinlich, aber nicht sicher. Wie oft dabei etwas Falsches herauskommt, hä
 
 ## Selbst am Würfel drehen
 
-Hier rechnet das Spielzeugmodell live: ein winziger Transformer mit <Fact m="toy" k="params" /> Parametern, der auf
-einfachen deutschen Sätzen trainiert wurde und <Fact m="toy" k="vocab" /> Wörter kennt. Sein Gegenstück zum Leitbeispiel
-ist „die hauptstadt von frankreich ist“.
+Zunächst rechnet hier das Spielzeugmodell live: ein winziger Transformer mit <Fact m="toy" k="params" /> Parametern, der
+auf einfachen deutschen Sätzen trainiert wurde und <Fact m="toy" k="vocab" /> Wörter kennt. Sein Gegenstück zum
+Leitbeispiel ist „die hauptstadt von frankreich ist“.
+
+Über „Echt · Base“ kannst du stattdessen das echte SmolLM2 mit <Fact m="smollm2" k="params" format="compact" /> Parametern
+laden. Es rechnet dann vollständig in deinem Browser, ohne Server. Standard ist die int8-Fassung: Ihre Gewichte sind
+gerundet, die Wahrscheinlichkeiten weichen deshalb um wenige Prozentpunkte von der exakten Rechnung ab. Das zeigt der
+Stempel „Echt · int8“. Mit „Live nachrechnen“ in Abb. 7.1 siehst du den Unterschied direkt.
 
 <ToyDistribution />
 

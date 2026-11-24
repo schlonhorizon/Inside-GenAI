@@ -1,10 +1,11 @@
 /**
- * Einheitliche Schnittstelle für Sprachmodelle in den Widgets.
- * P1b: Spielzeugmodell (Wort-Tokenizer + winziges Llama). P2: echtes SmolLM2 über dieselbe Schnittstelle.
+ * Einheitliche Schnittstelle für Sprachmodelle in den Widgets: Spielzeugmodell (im Hauptthread)
+ * und echtes SmolLM2 (im Worker, src/engine/real.ts). Logits kommen immer asynchron.
  */
 import type { StampKind } from '../components/primitives';
 import { LlamaModel, configFromHf, loadLlamaWeights, type LlamaConfig } from './model/llama.ts';
 import { parseSafeTensors } from './model/safetensors.ts';
+import { KvSessions } from './model/sessions.ts';
 import { WordTokenizer } from './tokenizer/word.ts';
 
 export interface TokenView {
@@ -12,32 +13,54 @@ export interface TokenView {
   text: string;
   unknown?: boolean;
   special?: boolean;
+  partial?: boolean;
+}
+
+export interface LogitsOptions {
+  /** eine Sitzung pro Widget: eigener KV-Cache, „neueste Anfrage gewinnt“ */
+  session?: string;
+}
+
+/** Ergebnis einer überholten Anfrage: wird still verworfen. */
+export class StaleRequest extends Error {
+  constructor() {
+    super('überholt');
+    this.name = 'StaleRequest';
+  }
 }
 
 export interface LanguageModel {
   id: string;
   label: string;
   stamp: StampKind;
+  kind: 'toy' | 'real';
   vocabSize: number;
   bosId: number | null;
+  /** Tokens, bei denen die Generierung stoppt */
   eosIds: number[];
+  /** Höchstzahl Tokens im Kontext (Prompt + Erzeugtes) */
+  maxContext: number;
+  /** Höchstzahl Tokens im Prompt */
+  promptLimit: number;
   /** Prompt-Text → Tokens (ohne BOS) */
   tokenize(text: string): TokenView[];
   token(id: number): TokenView;
   decode(ids: number[]): string;
-  /** Logits für das nächste Token nach der kompletten Folge (inkl. BOS, falls verwendet); Kopie */
-  logitsFor(ids: number[]): Float32Array;
+  /** Prompt-Text → IDs, wie das Modell sie im Training gesehen hat (ggf. mit BOS) */
+  promptIds(text: string): number[];
+  /** Logits für das nächste Token nach der kompletten Folge; Kopie */
+  logitsFor(ids: number[], opts?: LogitsOptions): Promise<Float32Array>;
 }
 
 export class ToyLanguageModel implements LanguageModel {
   readonly id: string;
   readonly label: string;
   readonly stamp: StampKind = 'toy';
+  readonly kind = 'toy' as const;
   readonly tokenizer: WordTokenizer;
   readonly cfg: LlamaConfig;
   readonly config: Record<string, unknown>;
-  private model: LlamaModel;
-  private cache = new Map<string, Float32Array>();
+  private sessions: KvSessions;
 
   constructor(id: string, label: string, config: Record<string, unknown>, vocab: string[], weights: ArrayBuffer) {
     this.id = id;
@@ -45,7 +68,8 @@ export class ToyLanguageModel implements LanguageModel {
     this.config = config;
     this.cfg = configFromHf(config);
     this.tokenizer = new WordTokenizer(vocab);
-    this.model = new LlamaModel(this.cfg, loadLlamaWeights(parseSafeTensors(weights), this.cfg, 'f32'), this.cfg.maxPos);
+    const model = new LlamaModel(this.cfg, loadLlamaWeights(parseSafeTensors(weights), this.cfg, 'f32'), this.cfg.maxPos);
+    this.sessions = new KvSessions(model, 16);
   }
 
   get vocabSize() {
@@ -60,6 +84,9 @@ export class ToyLanguageModel implements LanguageModel {
   get maxContext() {
     return this.cfg.maxPos;
   }
+  get promptLimit() {
+    return this.cfg.maxPos - 1;
+  }
 
   tokenize(text: string): TokenView[] {
     return this.tokenizer.encode(text);
@@ -71,16 +98,14 @@ export class ToyLanguageModel implements LanguageModel {
     return this.tokenizer.decode(ids);
   }
 
-  logitsFor(ids: number[]): Float32Array {
-    const key = ids.join(',');
-    const hit = this.cache.get(key);
-    if (hit) return hit;
+  /** Synchron (das Spielzeugmodell rechnet in Mikrosekunden); für Tests und Auswertungen. */
+  logitsSync(ids: number[], session = 'sync'): Float32Array {
     if (ids.length > this.cfg.maxPos) throw new Error(`Kontext zu lang (max. ${this.cfg.maxPos} Tokens)`);
-    this.model.reset();
-    const out = Float32Array.from(this.model.prefill(ids));
-    if (this.cache.size > 2000) this.cache.clear();
-    this.cache.set(key, out);
-    return out;
+    return this.sessions.logits(session, ids);
+  }
+
+  async logitsFor(ids: number[], opts: LogitsOptions = {}): Promise<Float32Array> {
+    return this.logitsSync(ids, opts.session ?? 'default');
   }
 
   /** Prompt-Text → IDs mit vorangestelltem BOS (wie im Training) */
