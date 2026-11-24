@@ -539,7 +539,7 @@ Toy-Modell (Training + Engine-Kern + Sampler), echte Tokenizer, **Kapitel 0, 2, 
 Aufgeteilt in zwei PRs: **P2a** bringt das echte Modell in den Browser und schließt die fertigen Kapitel an, **P2b**
 liefert die Kapitel 1, 5 und 6.
 
-#### P2a: Echtes Modell im Browser (Infrastruktur + Kapitel 7/8/Playground) · ✅ umgesetzt (PR #7)
+#### P2a: Echtes Modell im Browser (Infrastruktur + Kapitel 7/8/Playground) · ✅ umgesetzt (PR #7, live seit 2026-11-24)
 Entscheidungen: Comlink für den Worker · Golden-Referenz als volle Logits im Repo · nach dem Laden zeigen die Widgets
 das echte Modell, das Spielzeugmodell bleibt umschaltbar.
 - **Shards beim Build** (`scripts/prepare-models.ts`, nur CI): gepinnte Revisionen, Aufbereitung mit denselben
@@ -556,13 +556,16 @@ das echte Modell, das Spielzeugmodell bleibt umschaltbar.
   von 10⁻⁴.
 
 **DoD:**
-- [ ] Deploy und PR-Check nutzen bei unveränderter Revision gecachte Shards; Seitengröße < 800 MB wird geprüft.
-  PR-Check ✓ (zweiter Lauf: „Shards aus dem Cache: ja“), Größenprüfung ✓ (614 MB). **Deploy-Teil offen:** am zweiten
-  Deploy nach dem Merge prüfen, weil Caches aus PR-Branches auf `main` nicht sichtbar sind.
+- [x] Deploy und PR-Check nutzen bei unveränderter Revision gecachte Shards; Seitengröße < 800 MB wird geprüft.
+  PR-Check: ab dem zweiten Lauf „Shards aus dem Cache: ja“. Deploy: erster Deploy nach dem Merge baute neu (Caches aus
+  PR-Branches sind auf `main` nicht sichtbar), der zweite Deploy
+  ([Lauf 45432308369](https://github.com/schlonhorizon/Inside-GenAI/actions/runs/45432308369)) nutzte den Cache
+  („Shards aus dem Cache: ja“, kein Download). Größenprüfung: 614 MB.
 - [x] Golden-Tests grün in `ci.yml` (und `deploy.yml`, gleicher Schritt). Gegenprobe: ein falscher Skalen-Index in
   `linearBatch` (nur Zeilen mit > 16 Gruppen, Unit-Tests bleiben grün) machte den PR-Check rot, und zwar an den
   Toleranzen (61 Verstöße bei KL, Δp, Überlappung, Top-1; z. B. KL bis 6,7 statt < 0,004), danach Revert → grün.
-- [x] Batch-Prefill von 64 Tokens 2,29× schneller als Token für Token (10,5 s → 4,6 s, CI-Runner, int8).
+- [~] **Teilweise erfüllt:** Batch-Prefill von 64 Tokens mindestens 2× schneller als Token für Token – ≥ 2× in 4 von 5
+  CI-Läufen (1,98–2,29×, z. B. 10,5 s → 4,6 s, int8), schwankt mit dem Runner; Reserve wird in P2b geschaffen.
 - [x] Download mit Fortschritt; beim zweiten Besuch kein Shard-Download (Playwright).
 - [x] Blockierter Download → Seite voll nutzbar mit Toy-Hinweis (Playwright).
 - [x] Kapitel 7, 8 und Playground rechnen mit dem echten Modell; Stempel automatisch korrekt; Instruct-Chat stoppt am
@@ -585,7 +588,10 @@ das echte Modell, das Spielzeugmodell bleibt umschaltbar.
 #### P2b: Kapitel 1, 5, 6 · offen
 **Kapitel 1 (Neuronale Netze), 5 (Attention), 6 (Block)**, dafür Hooks in der Engine (Attention-Gewichte, Residual
 Stream, Logit Lens, Head-Ablation).
+**Aus P2a übernommen:** mehr Reserve beim Batch-Prefill (z. B. Attention im Batch blockweise, `rmsNorm` ohne
+`subarray`-Overhead).
 **DoD:**
+- [ ] Batch-Prefill mit Reserve: ≥ 2× schneller als Token für Token in allen CI-Läufen.
 - [ ] Alle Modellzahlen im Seitentext kommen aus `model-facts.json`; der Lint-Check findet keine hart codierten Werte.
 - [ ] Kap. 5: Attention-Viewer zeigt echte Gewichte für alle Layer/Heads; Head-Ablation verändert die Verteilung;
   Kap. 6: Logit Lens für das Leitbeispiel.
