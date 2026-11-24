@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { getFact } from '../content/facts';
+import { workerClient } from '../engine/real';
+import { useModelStore } from '../state/model';
 
 /**
  * #/diagnose – zeigt in 30 Sekunden, was auf diesem Gerät / in diesem Netz geht (PLAN.md 4.4).
@@ -11,10 +13,10 @@ interface Check {
   summary: string;
   details?: string[];
 }
-type CheckId = 'download' | 'cache' | 'webgpu' | 'bench' | 'env' | 'external';
+type CheckId = 'download' | 'cache' | 'webgpu' | 'bench' | 'model' | 'env' | 'external';
 
 const TESTSHARD_BYTES = 30 * 1024 * 1024; // muss zu scripts/make-testshard.mjs passen
-const FALLBACK_PARAMS = 134.5e6; // Schätzwert, bis P2 die echte Config liefert
+const FALLBACK_PARAMS = 134.5e6; // Schätzwert, falls der Build ohne Modell-Config läuft
 const MB = 1024 * 1024;
 
 const fmt = (n: number, d = 1) => n.toLocaleString('de-DE', { maximumFractionDigits: d, minimumFractionDigits: d });
@@ -119,7 +121,7 @@ function checkBench(): Promise<Check> {
         status: msPerToken < 600 ? 'ok' : 'warn',
         summary: `${fmt(e.data.gmacPerSec, 2)} GMAC/s · geschätzt ≈ ${fmt(msPerToken, 0)} ms pro Token (SmolLM2-135M, ein Thread)`,
         details: [
-          `Grundlage: ${typeof factParams === 'number' ? 'Parameterzahl aus der Modell-Config' : 'Schätzwert der Parameterzahl (echte Config ab P2)'}`,
+          `Grundlage: ${typeof factParams === 'number' ? 'Parameterzahl aus der Modell-Config' : 'Schätzwert der Parameterzahl (Config in dieser Fassung der Seite nicht enthalten)'}`,
           'Nur die reine Rechenzeit der Matrixmultiplikationen; reale Werte liegen etwas darüber.',
           `${e.data.iterations} Durchläufe`,
         ],
@@ -131,6 +133,52 @@ function checkBench(): Promise<Check> {
     };
     worker.postMessage({ durationMs: 1500 });
   });
+}
+
+/** Speicherangabe des Browsers, falls er eine liefert */
+async function browserMemory(): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const perf = performance as any;
+  if (window.crossOriginIsolated && typeof perf.measureUserAgentSpecificMemory === 'function') {
+    try {
+      const m = await perf.measureUserAgentSpecificMemory();
+      return `Browser (gesamte Seite inkl. Worker): ${fmt(m.bytes / MB, 0)} MB`;
+    } catch {
+      /* weiter unten */
+    }
+  }
+  if (perf.memory?.usedJSHeapSize) return `Browser (nur Hauptthread, ohne Worker): ${fmt(perf.memory.usedJSHeapSize / MB, 0)} MB JS-Speicher`;
+  return 'Speicherverbrauch: vom Browser nicht verfügbar';
+}
+
+async function checkModel(): Promise<Check> {
+  const s = useModelStore.getState();
+  if (!s.model) {
+    return {
+      status: 'warn',
+      summary: 'Kein echtes Modell geladen. Lade es in Kapitel 7, 8 oder im Mini-Playground und wiederhole diesen Test.',
+      details: [await browserMemory()],
+    };
+  }
+  const info = await workerClient().info();
+  const bench = await workerClient().bench(32);
+  const details = [
+    `Gewichte im Worker: ${fmt(info.weightBytes / MB, 0)} MB (eigene Zählung)`,
+    `KV-Caches: ${fmt(info.kvBytes / MB, 1)} MB in ${info.sessions} Sitzung(en)`,
+    `Geladen in ${fmt((info.loadMs ?? 0) / 1000)} s${info.fromCache ? `, davon ${fmt(info.fromCache / MB, 0)} MB aus dem Speicher des Browsers` : ''}`,
+    `Revision: ${info.revision?.slice(0, 10) ?? '–'}`,
+    await browserMemory(),
+  ];
+  if (bench) {
+    details.push(
+      `Prompt einlesen (32 Tokens): Token für Token ${fmt(bench.perToken, 0)} ms · als Batch ${fmt(bench.batch, 0)} ms · ${fmt(bench.perToken / bench.batch)}× schneller`,
+    );
+  }
+  return {
+    status: 'ok',
+    summary: `${s.model.label} geladen · ≈ ${fmt((info.weightBytes + info.kvBytes) / MB, 0)} MB Arbeitsspeicher${info.fake ? ' · Zufallsgewichte (lokaler Test)' : ''}`,
+    details,
+  };
 }
 
 async function checkEnv(): Promise<Check> {
@@ -167,10 +215,11 @@ const LABELS: Record<CheckId, string> = {
   cache: 'Speicher & Cache API',
   webgpu: 'WebGPU',
   bench: 'Rechen-Benchmark',
+  model: 'Geladenes Modell & Speicher',
   env: 'Umgebung',
   external: 'Externe Erreichbarkeit (optional)',
 };
-const AUTO: CheckId[] = ['env', 'cache', 'webgpu', 'bench', 'download'];
+const AUTO: CheckId[] = ['env', 'cache', 'webgpu', 'bench', 'model', 'download'];
 const ICON: Record<Status, string> = { idle: '○', running: '◌', ok: '✓', warn: '!', fail: '✗' };
 
 export default function DiagnosePage() {
@@ -185,6 +234,7 @@ export default function DiagnosePage() {
       cache: checkCache,
       webgpu: checkWebGpu,
       bench: checkBench,
+      model: checkModel,
       env: checkEnv,
       external: checkExternal,
     };

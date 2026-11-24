@@ -1,7 +1,7 @@
 # PLAN.md: „Inside GenAI“
 
 > Interaktives Lernkompendium: Wie macht ein LLM aus einem Prompt eine Antwort?
-> Stand: 2026-11-23 · Revision 5 (Entscheidungen nach dem Engine-Spike) · Status: D0, P0, P1a und P1b umgesetzt; nächster Schritt P2 (echtes Modell)
+> Stand: 2026-11-24 · Revision 5 (Entscheidungen nach dem Engine-Spike) · Status: D0, P0, P1a, P1b und Toy v2 umgesetzt; P2a (echtes Modell im Browser) in Arbeit
 
 ## 1. Zusammenfassung
 
@@ -536,23 +536,48 @@ Toy-Modell (Training + Engine-Kern + Sampler), echte Tokenizer, **Kapitel 0, 2, 
 > - Die Toy-Variante ohne Positionssignal (`public/data/toy-nopos/`) ist schon mittrainiert und wird in Kapitel 4 (P3) genutzt.
 
 ### P2: Echtes Modell + Grundlagen fürs Innenleben · **L**
-`prepare-models.ts` + Cache im Deploy, int8-Loader + Cache API, Modell-Lade-UI + Fallback-Banner, Golden-Tests; Kap. 2/7/8 + Mini-Playground auf echtes Modell heben; **Kapitel 1 (Neuronale Netze), 5 (Attention), 6 (Block)**.
-**Aus dem Spike (`docs/spike.md`):**
-- Shards: int8-Fassung für Base und Instruct, fp16 nur für Base; gepinnte Revisionen.
-- Batch-Prefill.
-- Stopp-Tokens.
-- Golden-Tests mit ≈ 20 Prompts und den festgelegten Toleranzen.
-- Knopf „Exakte Fassung laden“ (nur Base); Stempel automatisch je nach Fassung.
+Aufgeteilt in zwei PRs: **P2a** bringt das echte Modell in den Browser und schließt die fertigen Kapitel an, **P2b**
+liefert die Kapitel 1, 5 und 6.
+
+#### P2a: Echtes Modell im Browser (Infrastruktur + Kapitel 7/8/Playground) · 🔄 in Arbeit
+Entscheidungen: Comlink für den Worker · Golden-Referenz als volle Logits im Repo · nach dem Laden zeigen die Widgets
+das echte Modell, das Spielzeugmodell bleibt umschaltbar.
+- **Shards beim Build** (`scripts/prepare-models.ts`, nur CI): gepinnte Revisionen, Aufbereitung mit denselben
+  Funktionen wie die Engine (`loadLlamaWeights` → `packWeights`), Manifest mit SHA-256 je Shard (≤ 32 MB).
+  Fassungen: Base int8 + fp16, Instruct int8. Cache-Schlüssel in `ci.yml` und `deploy.yml` identisch.
+- **Engine:** Batch-Prefill (bitgleich mit Token für Token), KV-Cache als eigenes Objekt, Kürzen auf das längste
+  gemeinsame Präfix (Verlängerung, Abzweigung, Verkürzung), Sitzungen pro Widget mit LRU (3 Einträge), Stopp-Tokens.
+- **Browser:** Worker mit Comlink, Laden mit Fortschritt und Abbrechen, Cache Storage, „neueste Anfrage gewinnt“,
+  250 ms Verzögerung bei Texteingabe, höchstens ein echtes Modell im Worker, RAM-Angabe an den Ladeknöpfen.
+- **Widgets:** Kapitel 7 (Verteilung, Leitbeispiel „Live nachrechnen“), Kapitel 8 (Generator, Antwort-Baum),
+  Mini-Playground (Chat-Modus für Instruct; Kürzung auf 128 Tokens mit sichtbarem Hinweis, System-Prompt bleibt).
+- **Golden-Tests:** 10 Base-Prompts + 10 Chats, volle Logits als **f32** (≈ 4 MB). fp16 als Speicherformat schied aus:
+  Schon das Runden der Referenz auf fp16 erzeugt eine relative Abweichung von ≈ 2·10⁻⁴, mehr als die exakte Toleranz
+  von 10⁻⁴.
+
 **DoD:**
-- [ ] Deploy **und** PR-Check nutzen bei unveränderter Revision die gecachten Shards (sichtbar im Log, kein Download).
-- [ ] Gesamtgröße der Seite < 800 MB (Prüfschritt im Deploy-Workflow bricht sonst ab).
-- [ ] Prefill von 64 Tokens mindestens doppelt so schnell wie im Spike (Batch-Prefill).
-- [ ] Golden-Tests laufen in `ci.yml` und `deploy.yml` grün; ein Test-PR mit absichtlich falscher Engine-Änderung wird **schon im PR-Check** rot.
+- [ ] Deploy und PR-Check nutzen bei unveränderter Revision gecachte Shards (sichtbar im Log; geprüft am **zweiten**
+  Deploy, weil Caches aus PR-Branches auf `main` nicht sichtbar sind); Seitengröße < 800 MB wird geprüft.
+- [ ] Golden-Tests grün in `ci.yml` und `deploy.yml`; ein absichtlich falscher Engine-Commit wird im PR-Check rot.
+- [ ] Batch-Prefill von 64 Tokens ist mindestens 2× schneller als Token für Token im selben CI-Lauf (Benchmark im Log).
+- [ ] Download mit Fortschritt; beim zweiten Besuch kein Shard-Download (Playwright).
+- [ ] Blockierter Download → Seite voll nutzbar mit Toy-Hinweis (Playwright).
+- [ ] Kapitel 7, 8 und Playground rechnen mit dem echten Modell; Stempel automatisch korrekt; Instruct-Chat stoppt am
+  End-Token.
+- [ ] Abzweigung im KV-Cache = Neuberechnung (Test); Sitzungen verdrängen sich nicht (Test).
+- [ ] Schnelle Eingabefolge zeigt das Ergebnis der letzten Eingabe (Playwright).
+- [ ] Höchstens ein echtes Modell im Worker; RAM-Angabe an den Ladeknöpfen; `#/diagnose` zeigt den Speicher.
+- [ ] Chat kürzt alte Nachrichten mit sichtbarem Hinweis, System-Prompt bleibt (Test).
+- [ ] `#/credits` enthält die SmolLM2-Gewichte (Apache-2.0 mit Änderungshinweis) und Comlink.
+- [ ] Alle bisherigen Tests und `check:ui` bleiben grün.
+
+#### P2b: Kapitel 1, 5, 6 · offen
+**Kapitel 1 (Neuronale Netze), 5 (Attention), 6 (Block)**, dafür Hooks in der Engine (Attention-Gewichte, Residual
+Stream, Logit Lens, Head-Ablation).
+**DoD:**
 - [ ] Alle Modellzahlen im Seitentext kommen aus `model-facts.json`; der Lint-Check findet keine hart codierten Werte.
-- [ ] `#/credits` enthält SmolLM2 (Apache-2.0, Lizenz + Hinweis mitgeliefert) und den GPT-2-Tokenizer (MIT).
-- [ ] Modell-Download zeigt Fortschritt; der zweite Besuch lädt aus dem Cache (kein Netzwerk-Download).
-- [ ] Bei blockiertem Download (simuliert) bleibt die Seite voll nutzbar mit Toy-Banner.
-- [ ] Kap. 5: Attention-Viewer zeigt echte Gewichte für alle Layer/Heads; Head-Ablation verändert die Verteilung; Kap. 6: Logit Lens für das Leitbeispiel.
+- [ ] Kap. 5: Attention-Viewer zeigt echte Gewichte für alle Layer/Heads; Head-Ablation verändert die Verteilung;
+  Kap. 6: Logit Lens für das Leitbeispiel.
 
 ### P3: Grundlagen komplett · **M–L**
 **Kapitel 3 (Embeddings), 4 (Position), 9 (Training)**; `assets.yml` produktiv (Embeddings, Toy-Modelle).
@@ -565,6 +590,10 @@ Toy-Modell (Training + Engine-Kern + Sampler), echte Tokenizer, **Kapitel 0, 2, 
 
 ### P4: Vom Modell zum Produkt · **L**
 Instruct-Modell, **Kapitel 10, 11, 12, 13, 14**.
+**Hinweis Kapitel 10 (Base vs. Instruct nebeneinander):** Für diesen Vergleich wird die Regel „höchstens ein echtes
+Modell im Worker“ (P2a) gezielt aufgehoben. Beide int8-Fassungen werden gleichzeitig geladen (≈ 320 MB Gewichte), aber
+nur, solange der Vergleich aktiv geöffnet ist, mit RAM-Hinweis am Knopf. Alternative: ein zweiter Worker. Entschieden
+wird in P4.
 **DoD:**
 - [ ] Kap. 10: Base und Instruct antworten nebeneinander auf denselben Input; Chat-Template mit Special Tokens sichtbar.
 - [ ] Kap. 11: Mit dem 64-Token-Fenster „vergisst“ das Modell nachweislich eine frühe Information.

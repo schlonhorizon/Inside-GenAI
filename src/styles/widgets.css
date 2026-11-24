@@ -454,3 +454,130 @@ html[data-motion='full'] .cursor {
     grid-template-columns: 84px minmax(0, 1fr) 56px 44px;
   }
 }
+
+/* ── Modellwahl (echtes Modell / Spielzeugmodell) ─────────────────── */
+.modelbar {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.modelbar--none {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.modelbar__offers {
+  display: grid;
+  gap: 8px;
+}
+.modelbar__offer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+.modelbar__loading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+.modelbar__progress {
+  flex: 1 1 160px;
+  min-width: 0;
+  height: 6px;
+  appearance: none;
+  border: none;
+  border-radius: 3px;
+  background: var(--surface-raised);
+  overflow: hidden;
+}
+.modelbar__progress::-webkit-progress-bar {
+  background: var(--surface-raised);
+}
+.modelbar__progress::-webkit-progress-value {
+  background: var(--accent);
+}
+.modelbar__progress::-moz-progress-bar {
+  background: var(--accent);
+}
+/* Fehler: Form statt Farbe (gestrichelter Rahmen) */
+.modelbar__error {
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px dashed var(--ink-muted);
+  border-radius: 6px;
+}
+.modelbar__ready {
+  margin: 0;
+}
+.linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.calc-state {
+  font-size: 12px;
+}
+.real-prompt textarea {
+  width: 100%;
+  min-height: 3.2em;
+  resize: vertical;
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+.real-prompt__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+}
+.chat {
+  display: grid;
+  gap: 8px;
+}
+.chat__msg {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  white-space: pre-wrap;
+}
+.chat__msg--assistant {
+  background: var(--surface-raised);
+}
+.chat__msg--dropped {
+  opacity: 0.45;
+  border-style: dashed;
+}
+.dist__bars.is-pending {
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.chat__raw {
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+}
+.chat textarea.mono {
+  width: 100%;
+  font-family: var(--font-mono);
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--ink);
+}

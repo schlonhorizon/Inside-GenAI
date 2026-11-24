@@ -17,11 +17,17 @@
       url: https://huggingface.co/openai-community/gpt2
       licenseFile: gpt2-LICENSE.txt
     - name: SmolLM2-135M-Tokenizer
-      what: Tokenisierung in Kapitel 2 (Datei tokenizer.json, Revision 93efa2f); ab P2 auch das Modell
+      what: Tokenisierung in Kapitel 2 und für das echte Modell (Datei tokenizer.json, Revision 93efa2f)
       by: Hugging Face (HuggingFaceTB)
       license: Apache-2.0
       url: https://huggingface.co/HuggingFaceTB/SmolLM2-135M
       licenseFile: smollm2-Apache-2.0.txt
+    - name: SmolLM2-135M und SmolLM2-135M-Instruct (Gewichte)
+      what: "Das echte Modell im Browser (Revisionen 93efa2f und 12fd25f). Für die Auslieferung umgewandelt: int8-Fassung (Attention fp16, Rest int8 in Gruppen zu 32) und fp16-Fassung; Details im Hinweis"
+      by: Hugging Face (HuggingFaceTB)
+      license: Apache-2.0 (mit Änderungshinweis)
+      url: https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct
+      licenseFile: smollm2-NOTICE.txt
 
 - group: Schriften
   items:
@@ -71,7 +77,12 @@
       license: MIT
       url: https://mdxjs.com
       licenseFile: mdx-js-MIT.txt
+    - name: Comlink
+      what: Verbindung zum Web Worker, in dem das echte Modell rechnet
+      by: Google
+      license: Apache-2.0
+      url: https://github.com/GoogleChromeLabs/comlink
+      licenseFile: comlink-Apache-2.0.txt
 
-# Ab P2/P3 (noch nicht eingebunden):
-#   SmolLM2-135M / -Instruct (Gewichte) – Apache-2.0 (Hinweis auf int8-Quantisierung ergänzen)
+# Ab P3 (noch nicht eingebunden):
 #   fastText-Wortvektoren (Deutsch) – CC BY-SA 3.0, Grave et al. 2018; abgeleitete Datei unter derselben Lizenz
