@@ -36,13 +36,13 @@ toyPrompts:
 # Wörter, die hier fehlen, landen automatisch unter „Weitere“.
 toyVocabGroups:
   - name: "Funktionswörter"
-    words: [die, der, den, dem, ein, eine, von, ist, und, weil, wenn, es, war, einmal, im, in, auf, sehr, heute]
+    words: [die, der, den, dem, ein, eine, von, ist, und, weil, denn, wenn, es, war, einmal, im, auf, sehr, heute, erneut, weiter, kaum, hoch]
   - name: "Länder & Städte"
-    words: [hauptstadt, frankreich, deutschland, italien, spanien, österreich, paris, berlin, rom, madrid, wien, stadt, alte]
+    words: [hauptstadt, größte, stadt, frankreich, deutschland, italien, spanien, österreich, paris, berlin, rom, madrid, wien, alte, schöne, schön, alt, groß]
   - name: "Wirtschaft"
-    words: [bank, zentralbank, zins, inflation, preise, wirtschaft, aktie, kurse, erhöht, senkt, steigt, steigen, sinkt, sinken, fällt, fallen, stark, schwach, leicht]
+    words: [bank, zentralbank, notenbank, zins, leitzins, zinsen, inflation, preise, wirtschaft, aktie, kurs, kurse, erhöht, senkt, hält, stabil, steigt, steigen, sinkt, sinken, fällt, fallen, schwankt, wächst, stark, schwach, leicht]
   - name: "Geschichten"
-    words: [hund, katze, fuchs, maus, kleiner, kleine, kluge, klug, alter, garten, sofa, spielt, schläft, bellt, läuft, laut, schnell, schön, groß]
+    words: [hund, fuchs, katze, maus, kleiner, kleine, alter, kluger, kluge, garten, haus, sofa, bett, spielt, schläft, läuft, bellt, laut, leise, schnell]
   - name: "Satzzeichen"
     words: [".", ","]
 

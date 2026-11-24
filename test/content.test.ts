@@ -62,6 +62,16 @@ describe('Glossar', () => {
     }
   });
 
+  it('keine hart eingetragenen Prozentwerte des Spielzeugmodells im Text (stattdessen <Fact m="toy" …>)', () => {
+    const offending: string[] = [];
+    for (const c of chapters) {
+      c.src.split(/\n\s*\n/).forEach((para) => {
+        if (/spielzeug|toy/i.test(para) && /\d+(,\d+)?\s?%/.test(para.replace(/<Fact[^>]*>/g, ''))) offending.push(`${c.file}: ${para.slice(0, 60)}…`);
+      });
+    }
+    expect(offending).toEqual([]);
+  });
+
   it('jedes <Term id="…"> in den Kapiteln existiert im Glossar', () => {
     const missing: string[] = [];
     for (const c of chapters) {
