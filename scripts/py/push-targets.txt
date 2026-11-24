@@ -1,0 +1,3 @@
+# Ziele, die assets.yml bei einem Push auf einen claude/**-Branch erzeugt (kommagetrennt).
+# Manuelle Läufe wählen ihre Ziele selbst.
+golden

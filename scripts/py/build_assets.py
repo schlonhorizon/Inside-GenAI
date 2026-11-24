@@ -7,7 +7,9 @@ Ziele:
   toy         – synthetisches deutsches Mini-Korpus, Training von zwei winzigen Llama-Modellen
                 (mit RoPE und ohne Positionssignal) → public/data/toy/, public/data/toy-nopos/,
                 Referenz-Logits → test/fixtures/
-  golden      – (P2) Referenzwerte für die Golden-Tests
+  golden      – Referenzwerte für die Golden-Tests: SmolLM2-135M Base + Instruct (gepinnt), je
+                Prompt die IDs, die vollen Logits nach dem letzten Token (f32) und eine
+                Greedy-Fortsetzung über 16 Tokens → test/fixtures/golden/
   embeddings  – (P3) fastText-Teilmenge
 """
 import argparse
@@ -648,7 +650,105 @@ def build_toy() -> None:
         print(f"[toy{'' if rope else '-nopos'}] Leitbeispiel Soll {leit['soll']['top5']} · Ist {leit['ist']['top5']}")
 
 
-KNOWN = {"tokenizers": build_tokenizers, "toy": build_toy, "golden": None, "embeddings": None}
+# ─────────────────────────────── Golden-Referenz ──────────────────────────
+
+GOLDEN_MODELS = {
+    "base": {"repo": "HuggingFaceTB/SmolLM2-135M", "revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2"},
+    "instruct": {"repo": "HuggingFaceTB/SmolLM2-135M-Instruct", "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac"},
+}
+GOLDEN_LONG = (
+    "In the early morning the harbour was quiet. Fishermen prepared their boats, gulls circled above the water, "
+    "and the smell of coffee drifted from the small cafe near the pier. Anna walked along the old stone wall, "
+    "counting the ships that had arrived during the night. She wrote each name into her notebook, because her "
+    "grandfather had taught her that every ship has a story worth remembering. When the sun finally rose over the hills,"
+)
+GOLDEN_BASE = [
+    ("capital", "The capital of France is"),
+    ("centralbank", "The central bank raised interest rates because"),
+    ("story", "Once upon a time, there was a"),
+    ("stocks", "The stock market fell sharply after"),
+    ("german", "Die Hauptstadt von Deutschland ist"),
+    ("numbers", "1, 2, 3, 4, 5,"),
+    ("code", "def fibonacci(n):\n    "),
+    ("coffee", "To make a good cup of coffee, you need"),
+    ("umlaut", "Unbegreiflichkeit ist ein langes Wort. Größe, Übermut und Äpfel:"),
+    ("long", GOLDEN_LONG),
+]
+GOLDEN_CHATS = [
+    ("chat-capital", [{"role": "user", "content": "What is the capital of France?"}]),
+    ("chat-rates", [{"role": "user", "content": "Why do central banks raise interest rates?"}]),
+    ("chat-haiku", [{"role": "user", "content": "Write a haiku about the sea."}]),
+    ("chat-translate", [{"role": "user", "content": "Translate 'good morning' into German."}]),
+    ("chat-math", [{"role": "user", "content": "What is 12 times 7?"}]),
+    ("chat-tips", [{"role": "user", "content": "Give me three tips for learning a language."}]),
+    ("chat-pirate", [{"role": "system", "content": "You are a pirate."}, {"role": "user", "content": "Hello!"}]),
+    (
+        "chat-memory",
+        [
+            {"role": "user", "content": "My name is Anna."},
+            {"role": "assistant", "content": "Nice to meet you, Anna!"},
+            {"role": "user", "content": "What is my name?"},
+        ],
+    ),
+    ("chat-photo", [{"role": "user", "content": "Explain photosynthesis in one sentence."}]),
+    ("chat-german", [{"role": "user", "content": "Wie geht es dir?"}]),
+]
+GOLDEN_GREEDY = 16
+
+
+def build_golden() -> None:
+    import numpy as np
+    import torch
+    from huggingface_hub import snapshot_download
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    torch.set_grad_enabled(False)
+    out = FIXTURES / "golden"
+    out.mkdir(parents=True, exist_ok=True)
+    for old in out.glob("*.f32"):
+        old.unlink()
+    result = {"models": GOLDEN_MODELS, "greedy_steps": GOLDEN_GREEDY, "dtype": "float32", "prompts": []}
+    for key, m in GOLDEN_MODELS.items():
+        path = snapshot_download(m["repo"], revision=m["revision"], allow_patterns=["*.json", "*.safetensors", "*.txt"])
+        tok = AutoTokenizer.from_pretrained(path)
+        model = AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.float32).eval()
+        items = GOLDEN_BASE if key == "base" else GOLDEN_CHATS
+        for pid, payload in items:
+            entry = {"id": pid, "model": key}
+            if key == "base":
+                ids = tok(payload, add_special_tokens=False)["input_ids"]
+                entry["text"] = payload
+            else:
+                rendered = tok.apply_chat_template(payload, tokenize=False, add_generation_prompt=True)
+                ids = tok(rendered, add_special_tokens=False)["input_ids"]
+                entry["messages"] = payload
+                entry["rendered"] = rendered
+            logits = model(torch.tensor([ids])).logits[0, -1].float()
+            logits.numpy().astype("<f4").tofile(out / f"{pid}.f32")
+            seq = list(ids)
+            greedy = []
+            for _ in range(GOLDEN_GREEDY):
+                nxt = int(model(torch.tensor([seq])).logits[0, -1].argmax())
+                greedy.append(nxt)
+                seq.append(nxt)
+            probs = torch.softmax(logits, -1)
+            p, idx = torch.topk(probs, 10)
+            entry.update(
+                {
+                    "ids": ids,
+                    "greedy_ids": greedy,
+                    "greedy_text": tok.decode(greedy),
+                    "top": [{"id": int(i), "tok": tok.decode([int(i)]), "p": float(pp)} for pp, i in zip(p, idx)],
+                }
+            )
+            result["prompts"].append(entry)
+            print(f"[golden] {pid}: {len(ids)} Tokens → {tok.decode(greedy)!r}")
+    (out / "golden.json").write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n")
+    size = sum(f.stat().st_size for f in out.iterdir())
+    print(f"[golden] {len(result['prompts'])} Prompts, {size / 1e6:.1f} MB in {out.relative_to(ROOT)}")
+
+
+KNOWN = {"tokenizers": build_tokenizers, "toy": build_toy, "golden": build_golden, "embeddings": None}
 
 
 def main() -> None:

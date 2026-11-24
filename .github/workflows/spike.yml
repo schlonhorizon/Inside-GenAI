@@ -4,12 +4,13 @@ name: Engine-Spike (P1a)
 # misst Lade-/Prefill-/Decode-Zeiten und listet Leitbeispiel-Kandidaten auf.
 # Ergebnis: Job-Zusammenfassung + Artifact "spike-out" (spike-report.md, results.json).
 
+# Seit P2a prüfen die Golden-Tests in ci.yml/deploy.yml die Engine bei jeder Änderung.
+# Der Spike läuft deshalb nur noch bei Änderungen an seinen eigenen Skripten oder manuell.
 on:
   push:
     branches: ['claude/**']
     paths:
       - 'scripts/spike/**'
-      - 'src/engine/**'
       - '.github/workflows/spike.yml'
   workflow_dispatch:
 
