@@ -1,0 +1,3942 @@
+{
+ "variant": "toy-nopos",
+ "goals": {
+  "below80_share": 0.5,
+  "entropy_bits": 1.0
+ },
+ "before": {
+  "note": "Modell v1 gegen die empirische Verteilung seines eigenen Korpus (v1 war keine Grammatik)",
+  "model": {
+   "positions": 78,
+   "below80": 31,
+   "below80_share": 0.3974,
+   "entropy_bits": 0.6859
+  },
+  "soll": {
+   "positions": 78,
+   "below80": 30,
+   "below80_share": 0.3846,
+   "entropy_bits": 0.6194
+  },
+  "kl_bits": 0.0266,
+  "leitbeispiel": {
+   "sentence": "die hauptstadt von frankreich ist paris .",
+   "prefix": "die hauptstadt von frankreich ist",
+   "actual": "paris",
+   "kl_bits": 0.0388,
+   "soll": {
+    "top1": 0.6962,
+    "entropy_bits": 1.3626,
+    "top5": [
+     [
+      "paris",
+      0.6962
+     ],
+     [
+      "schön",
+      0.1127
+     ],
+     [
+      "sehr",
+      0.1107
+     ],
+     [
+      "eine",
+      0.0805
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.6513,
+    "entropy_bits": 1.5983,
+    "top5": [
+     [
+      "paris",
+      0.6513
+     ],
+     [
+      "schön",
+      0.1275
+     ],
+     [
+      "eine",
+      0.1045
+     ],
+     [
+      "sehr",
+      0.0962
+     ],
+     [
+      "madrid",
+      0.0151
+     ]
+    ]
+   }
+  }
+ },
+ "after": {
+  "model": {
+   "positions": 78,
+   "below80": 49,
+   "below80_share": 0.6282,
+   "entropy_bits": 1.0617
+  },
+  "soll": {
+   "positions": 78,
+   "below80": 48,
+   "below80_share": 0.6154,
+   "entropy_bits": 1.0255
+  },
+  "kl_bits": 0.0238
+ },
+ "leitbeispiel": {
+  "sentence": "die hauptstadt von frankreich ist paris .",
+  "prefix": "die hauptstadt von frankreich ist",
+  "actual": "paris",
+  "kl_bits": 0.0409,
+  "soll": {
+   "top1": 0.53,
+   "entropy_bits": 1.7402,
+   "top5": [
+    [
+     "paris",
+     0.53
+    ],
+    [
+     "schön",
+     0.17
+    ],
+    [
+     "sehr",
+     0.16
+    ],
+    [
+     "eine",
+     0.14
+    ]
+   ]
+  },
+  "ist": {
+   "top1": 0.5233,
+   "entropy_bits": 1.897,
+   "top5": [
+    [
+     "paris",
+     0.5233
+    ],
+    [
+     "schön",
+     0.1731
+    ],
+    [
+     "eine",
+     0.1664
+    ],
+    [
+     "sehr",
+     0.118
+    ],
+    [
+     "madrid",
+     0.0068
+    ]
+   ]
+  }
+ },
+ "training": {
+  "best_step": 1800,
+  "best_val_loss": 0.6633,
+  "stopped_at": 2300
+ },
+ "label_smoothing": 0,
+ "positions": [
+  {
+   "sentence": "die hauptstadt von frankreich ist paris .",
+   "prefix": "",
+   "actual": "die",
+   "kl_bits": 0.00766,
+   "soll": {
+    "top1": 0.694,
+    "entropy_bits": 1.6379,
+    "top5": [
+     [
+      "die",
+      0.694
+     ],
+     [
+      "der",
+      0.105
+     ],
+     [
+      "es",
+      0.077
+     ],
+     [
+      "wenn",
+      0.06
+     ],
+     [
+      "paris",
+      0.0128
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.691,
+    "entropy_bits": 1.6763,
+    "top5": [
+     [
+      "die",
+      0.691
+     ],
+     [
+      "der",
+      0.1085
+     ],
+     [
+      "es",
+      0.0702
+     ],
+     [
+      "wenn",
+      0.0583
+     ],
+     [
+      "madrid",
+      0.0187
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von frankreich ist paris .",
+   "prefix": "die",
+   "actual": "hauptstadt",
+   "kl_bits": 0.01596,
+   "soll": {
+    "top1": 0.2767,
+    "entropy_bits": 2.9138,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2767
+     ],
+     [
+      "bank",
+      0.1873
+     ],
+     [
+      "zentralbank",
+      0.1124
+     ],
+     [
+      "kurse",
+      0.1009
+     ],
+     [
+      "größte",
+      0.0922
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.2685,
+    "entropy_bits": 2.9316,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2685
+     ],
+     [
+      "bank",
+      0.2183
+     ],
+     [
+      "größte",
+      0.0943
+     ],
+     [
+      "zentralbank",
+      0.0898
+     ],
+     [
+      "kurse",
+      0.0851
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von frankreich ist paris .",
+   "prefix": "die hauptstadt",
+   "actual": "von",
+   "kl_bits": 0.0007,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "von",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9995,
+    "entropy_bits": 0.0083,
+    "top5": [
+     [
+      "von",
+      0.9995
+     ],
+     [
+      "frankreich",
+      0.0001
+     ],
+     [
+      "italien",
+      0.0
+     ],
+     [
+      "stadt",
+      0.0
+     ],
+     [
+      "einmal",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von frankreich ist paris .",
+   "prefix": "die hauptstadt von",
+   "actual": "frankreich",
+   "kl_bits": 0.06,
+   "soll": {
+    "top1": 0.2,
+    "entropy_bits": 2.3219,
+    "top5": [
+     [
+      "frankreich",
+      0.2
+     ],
+     [
+      "deutschland",
+      0.2
+     ],
+     [
+      "italien",
+      0.2
+     ],
+     [
+      "spanien",
+      0.2
+     ],
+     [
+      "österreich",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.3046,
+    "entropy_bits": 2.306,
+    "top5": [
+     [
+      "italien",
+      0.3046
+     ],
+     [
+      "spanien",
+      0.2199
+     ],
+     [
+      "frankreich",
+      0.1644
+     ],
+     [
+      "österreich",
+      0.1634
+     ],
+     [
+      "deutschland",
+      0.1444
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von frankreich ist paris .",
+   "prefix": "die hauptstadt von frankreich",
+   "actual": "ist",
+   "kl_bits": 0.00282,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "ist",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9981,
+    "entropy_bits": 0.0286,
+    "top5": [
+     [
+      "ist",
+      0.9981
+     ],
+     [
+      "schön",
+      0.0003
+     ],
+     [
+      "weil",
+      0.0002
+     ],
+     [
+      "heute",
+      0.0002
+     ],
+     [
+      "eine",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von frankreich ist paris .",
+   "prefix": "die hauptstadt von frankreich ist",
+   "actual": "paris",
+   "kl_bits": 0.0409,
+   "soll": {
+    "top1": 0.53,
+    "entropy_bits": 1.7402,
+    "top5": [
+     [
+      "paris",
+      0.53
+     ],
+     [
+      "schön",
+      0.17
+     ],
+     [
+      "sehr",
+      0.16
+     ],
+     [
+      "eine",
+      0.14
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5233,
+    "entropy_bits": 1.897,
+    "top5": [
+     [
+      "paris",
+      0.5233
+     ],
+     [
+      "schön",
+      0.1731
+     ],
+     [
+      "eine",
+      0.1664
+     ],
+     [
+      "sehr",
+      0.118
+     ],
+     [
+      "madrid",
+      0.0068
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von frankreich ist paris .",
+   "prefix": "die hauptstadt von frankreich ist paris",
+   "actual": ".",
+   "kl_bits": 0.01801,
+   "soll": {
+    "top1": 0.9057,
+    "entropy_bits": 0.4508,
+    "top5": [
+     [
+      ".",
+      0.9057
+     ],
+     [
+      "und",
+      0.0943
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.939,
+    "entropy_bits": 0.3576,
+    "top5": [
+     [
+      ".",
+      0.939
+     ],
+     [
+      "und",
+      0.0584
+     ],
+     [
+      "stadt",
+      0.0006
+     ],
+     [
+      "im",
+      0.0004
+     ],
+     [
+      "auf",
+      0.0003
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von deutschland ist sehr groß .",
+   "prefix": "",
+   "actual": "die",
+   "kl_bits": 0.00766,
+   "soll": {
+    "top1": 0.694,
+    "entropy_bits": 1.6379,
+    "top5": [
+     [
+      "die",
+      0.694
+     ],
+     [
+      "der",
+      0.105
+     ],
+     [
+      "es",
+      0.077
+     ],
+     [
+      "wenn",
+      0.06
+     ],
+     [
+      "paris",
+      0.0128
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.691,
+    "entropy_bits": 1.6763,
+    "top5": [
+     [
+      "die",
+      0.691
+     ],
+     [
+      "der",
+      0.1085
+     ],
+     [
+      "es",
+      0.0702
+     ],
+     [
+      "wenn",
+      0.0583
+     ],
+     [
+      "madrid",
+      0.0187
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von deutschland ist sehr groß .",
+   "prefix": "die",
+   "actual": "hauptstadt",
+   "kl_bits": 0.01596,
+   "soll": {
+    "top1": 0.2767,
+    "entropy_bits": 2.9138,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2767
+     ],
+     [
+      "bank",
+      0.1873
+     ],
+     [
+      "zentralbank",
+      0.1124
+     ],
+     [
+      "kurse",
+      0.1009
+     ],
+     [
+      "größte",
+      0.0922
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.2685,
+    "entropy_bits": 2.9316,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2685
+     ],
+     [
+      "bank",
+      0.2183
+     ],
+     [
+      "größte",
+      0.0943
+     ],
+     [
+      "zentralbank",
+      0.0898
+     ],
+     [
+      "kurse",
+      0.0851
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von deutschland ist sehr groß .",
+   "prefix": "die hauptstadt",
+   "actual": "von",
+   "kl_bits": 0.0007,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "von",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9995,
+    "entropy_bits": 0.0083,
+    "top5": [
+     [
+      "von",
+      0.9995
+     ],
+     [
+      "frankreich",
+      0.0001
+     ],
+     [
+      "italien",
+      0.0
+     ],
+     [
+      "stadt",
+      0.0
+     ],
+     [
+      "einmal",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von deutschland ist sehr groß .",
+   "prefix": "die hauptstadt von",
+   "actual": "deutschland",
+   "kl_bits": 0.06,
+   "soll": {
+    "top1": 0.2,
+    "entropy_bits": 2.3219,
+    "top5": [
+     [
+      "frankreich",
+      0.2
+     ],
+     [
+      "deutschland",
+      0.2
+     ],
+     [
+      "italien",
+      0.2
+     ],
+     [
+      "spanien",
+      0.2
+     ],
+     [
+      "österreich",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.3046,
+    "entropy_bits": 2.306,
+    "top5": [
+     [
+      "italien",
+      0.3046
+     ],
+     [
+      "spanien",
+      0.2199
+     ],
+     [
+      "frankreich",
+      0.1644
+     ],
+     [
+      "österreich",
+      0.1634
+     ],
+     [
+      "deutschland",
+      0.1444
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von deutschland ist sehr groß .",
+   "prefix": "die hauptstadt von deutschland",
+   "actual": "ist",
+   "kl_bits": 0.00096,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "ist",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9993,
+    "entropy_bits": 0.0109,
+    "top5": [
+     [
+      "ist",
+      0.9993
+     ],
+     [
+      "schön",
+      0.0002
+     ],
+     [
+      "paris",
+      0.0001
+     ],
+     [
+      "sinkt",
+      0.0
+     ],
+     [
+      "weil",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von deutschland ist sehr groß .",
+   "prefix": "die hauptstadt von deutschland ist",
+   "actual": "sehr",
+   "kl_bits": 0.10533,
+   "soll": {
+    "top1": 0.53,
+    "entropy_bits": 1.7402,
+    "top5": [
+     [
+      "berlin",
+      0.53
+     ],
+     [
+      "schön",
+      0.17
+     ],
+     [
+      "sehr",
+      0.16
+     ],
+     [
+      "eine",
+      0.14
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.4463,
+    "entropy_bits": 1.9549,
+    "top5": [
+     [
+      "berlin",
+      0.4463
+     ],
+     [
+      "schön",
+      0.2889
+     ],
+     [
+      "eine",
+      0.1481
+     ],
+     [
+      "sehr",
+      0.0971
+     ],
+     [
+      "rom",
+      0.0049
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von deutschland ist sehr groß .",
+   "prefix": "die hauptstadt von deutschland ist sehr",
+   "actual": "groß",
+   "kl_bits": 0.06052,
+   "soll": {
+    "top1": 0.5,
+    "entropy_bits": 1.0,
+    "top5": [
+     [
+      "schön",
+      0.5
+     ],
+     [
+      "groß",
+      0.5
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.6326,
+    "entropy_bits": 1.0,
+    "top5": [
+     [
+      "groß",
+      0.6326
+     ],
+     [
+      "schön",
+      0.3634
+     ],
+     [
+      "garten",
+      0.0005
+     ],
+     [
+      "haus",
+      0.0005
+     ],
+     [
+      "deutschland",
+      0.0004
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die hauptstadt von deutschland ist sehr groß .",
+   "prefix": "die hauptstadt von deutschland ist sehr groß",
+   "actual": ".",
+   "kl_bits": 0.00033,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      ".",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9998,
+    "entropy_bits": 0.0041,
+    "top5": [
+     [
+      ".",
+      0.9998
+     ],
+     [
+      "und",
+      0.0001
+     ],
+     [
+      "<eos>",
+      0.0
+     ],
+     [
+      "leicht",
+      0.0
+     ],
+     [
+      "stark",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die bank erhöht den zins weil die inflation steigt .",
+   "prefix": "",
+   "actual": "die",
+   "kl_bits": 0.00766,
+   "soll": {
+    "top1": 0.694,
+    "entropy_bits": 1.6379,
+    "top5": [
+     [
+      "die",
+      0.694
+     ],
+     [
+      "der",
+      0.105
+     ],
+     [
+      "es",
+      0.077
+     ],
+     [
+      "wenn",
+      0.06
+     ],
+     [
+      "paris",
+      0.0128
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.691,
+    "entropy_bits": 1.6763,
+    "top5": [
+     [
+      "die",
+      0.691
+     ],
+     [
+      "der",
+      0.1085
+     ],
+     [
+      "es",
+      0.0702
+     ],
+     [
+      "wenn",
+      0.0583
+     ],
+     [
+      "madrid",
+      0.0187
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die bank erhöht den zins weil die inflation steigt .",
+   "prefix": "die",
+   "actual": "bank",
+   "kl_bits": 0.01596,
+   "soll": {
+    "top1": 0.2767,
+    "entropy_bits": 2.9138,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2767
+     ],
+     [
+      "bank",
+      0.1873
+     ],
+     [
+      "zentralbank",
+      0.1124
+     ],
+     [
+      "kurse",
+      0.1009
+     ],
+     [
+      "größte",
+      0.0922
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.2685,
+    "entropy_bits": 2.9316,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2685
+     ],
+     [
+      "bank",
+      0.2183
+     ],
+     [
+      "größte",
+      0.0943
+     ],
+     [
+      "zentralbank",
+      0.0898
+     ],
+     [
+      "kurse",
+      0.0851
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die bank erhöht den zins weil die inflation steigt .",
+   "prefix": "die bank",
+   "actual": "erhöht",
+   "kl_bits": 0.03102,
+   "soll": {
+    "top1": 0.45,
+    "entropy_bits": 1.5129,
+    "top5": [
+     [
+      "erhöht",
+      0.45
+     ],
+     [
+      "senkt",
+      0.35
+     ],
+     [
+      "hält",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5478,
+    "entropy_bits": 1.4488,
+    "top5": [
+     [
+      "erhöht",
+      0.5478
+     ],
+     [
+      "senkt",
+      0.2849
+     ],
+     [
+      "hält",
+      0.1655
+     ],
+     [
+      "den",
+      0.0002
+     ],
+     [
+      "stark",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die bank erhöht den zins weil die inflation steigt .",
+   "prefix": "die bank erhöht",
+   "actual": "den",
+   "kl_bits": 0.00572,
+   "soll": {
+    "top1": 0.8,
+    "entropy_bits": 0.7219,
+    "top5": [
+     [
+      "den",
+      0.8
+     ],
+     [
+      "die",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.7741,
+    "entropy_bits": 0.8,
+    "top5": [
+     [
+      "den",
+      0.7741
+     ],
+     [
+      "die",
+      0.2237
+     ],
+     [
+      "der",
+      0.0003
+     ],
+     [
+      ",",
+      0.0002
+     ],
+     [
+      ".",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die bank erhöht den zins weil die inflation steigt .",
+   "prefix": "die bank erhöht den",
+   "actual": "zins",
+   "kl_bits": 0.00218,
+   "soll": {
+    "top1": 0.625,
+    "entropy_bits": 0.9544,
+    "top5": [
+     [
+      "zins",
+      0.625
+     ],
+     [
+      "leitzins",
+      0.375
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.618,
+    "entropy_bits": 0.9806,
+    "top5": [
+     [
+      "zins",
+      0.618
+     ],
+     [
+      "leitzins",
+      0.3806
+     ],
+     [
+      "den",
+      0.0001
+     ],
+     [
+      "spanien",
+      0.0001
+     ],
+     [
+      "sinkt",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die bank erhöht den zins weil die inflation steigt .",
+   "prefix": "die bank erhöht den zins",
+   "actual": "weil",
+   "kl_bits": 0.03515,
+   "soll": {
+    "top1": 0.55,
+    "entropy_bits": 1.6815,
+    "top5": [
+     [
+      "weil",
+      0.55
+     ],
+     [
+      "heute",
+      0.2
+     ],
+     [
+      "erneut",
+      0.15
+     ],
+     [
+      "denn",
+      0.1
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.4582,
+    "entropy_bits": 1.8471,
+    "top5": [
+     [
+      "weil",
+      0.4582
+     ],
+     [
+      "heute",
+      0.2672
+     ],
+     [
+      "erneut",
+      0.1728
+     ],
+     [
+      "denn",
+      0.0969
+     ],
+     [
+      "stabil",
+      0.001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die bank erhöht den zins weil die inflation steigt .",
+   "prefix": "die bank erhöht den zins weil",
+   "actual": "die",
+   "kl_bits": 0.00275,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "die",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9981,
+    "entropy_bits": 0.0269,
+    "top5": [
+     [
+      "die",
+      0.9981
+     ],
+     [
+      "es",
+      0.0006
+     ],
+     [
+      "der",
+      0.0002
+     ],
+     [
+      "den",
+      0.0002
+     ],
+     [
+      "steigen",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die bank erhöht den zins weil die inflation steigt .",
+   "prefix": "die bank erhöht den zins weil die",
+   "actual": "inflation",
+   "kl_bits": 0.08498,
+   "soll": {
+    "top1": 0.5,
+    "entropy_bits": 1.4855,
+    "top5": [
+     [
+      "inflation",
+      0.5
+     ],
+     [
+      "preise",
+      0.3
+     ],
+     [
+      "wirtschaft",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5314,
+    "entropy_bits": 1.4878,
+    "top5": [
+     [
+      "inflation",
+      0.5314
+     ],
+     [
+      "wirtschaft",
+      0.2916
+     ],
+     [
+      "preise",
+      0.1732
+     ],
+     [
+      "kurse",
+      0.0009
+     ],
+     [
+      "zinsen",
+      0.0007
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die bank erhöht den zins weil die inflation steigt .",
+   "prefix": "die bank erhöht den zins weil die inflation",
+   "actual": "steigt",
+   "kl_bits": 0.06985,
+   "soll": {
+    "top1": 0.6,
+    "entropy_bits": 1.371,
+    "top5": [
+     [
+      "steigt",
+      0.6
+     ],
+     [
+      "weiter",
+      0.2
+     ],
+     [
+      "hoch",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5503,
+    "entropy_bits": 1.5861,
+    "top5": [
+     [
+      "steigt",
+      0.5503
+     ],
+     [
+      "hoch",
+      0.2831
+     ],
+     [
+      "weiter",
+      0.1438
+     ],
+     [
+      "fällt",
+      0.0099
+     ],
+     [
+      "schwankt",
+      0.0054
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die bank erhöht den zins weil die inflation steigt .",
+   "prefix": "die bank erhöht den zins weil die inflation steigt",
+   "actual": ".",
+   "kl_bits": 0.00062,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      ".",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9996,
+    "entropy_bits": 0.0075,
+    "top5": [
+     [
+      ".",
+      0.9996
+     ],
+     [
+      "stabil",
+      0.0001
+     ],
+     [
+      "<eos>",
+      0.0001
+     ],
+     [
+      "und",
+      0.0
+     ],
+     [
+      "leicht",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+   "prefix": "",
+   "actual": "die",
+   "kl_bits": 0.00766,
+   "soll": {
+    "top1": 0.694,
+    "entropy_bits": 1.6379,
+    "top5": [
+     [
+      "die",
+      0.694
+     ],
+     [
+      "der",
+      0.105
+     ],
+     [
+      "es",
+      0.077
+     ],
+     [
+      "wenn",
+      0.06
+     ],
+     [
+      "paris",
+      0.0128
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.691,
+    "entropy_bits": 1.6763,
+    "top5": [
+     [
+      "die",
+      0.691
+     ],
+     [
+      "der",
+      0.1085
+     ],
+     [
+      "es",
+      0.0702
+     ],
+     [
+      "wenn",
+      0.0583
+     ],
+     [
+      "madrid",
+      0.0187
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+   "prefix": "die",
+   "actual": "zentralbank",
+   "kl_bits": 0.01596,
+   "soll": {
+    "top1": 0.2767,
+    "entropy_bits": 2.9138,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2767
+     ],
+     [
+      "bank",
+      0.1873
+     ],
+     [
+      "zentralbank",
+      0.1124
+     ],
+     [
+      "kurse",
+      0.1009
+     ],
+     [
+      "größte",
+      0.0922
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.2685,
+    "entropy_bits": 2.9316,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2685
+     ],
+     [
+      "bank",
+      0.2183
+     ],
+     [
+      "größte",
+      0.0943
+     ],
+     [
+      "zentralbank",
+      0.0898
+     ],
+     [
+      "kurse",
+      0.0851
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+   "prefix": "die zentralbank",
+   "actual": "senkt",
+   "kl_bits": 0.03239,
+   "soll": {
+    "top1": 0.45,
+    "entropy_bits": 1.5129,
+    "top5": [
+     [
+      "erhöht",
+      0.45
+     ],
+     [
+      "senkt",
+      0.35
+     ],
+     [
+      "hält",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5502,
+    "entropy_bits": 1.445,
+    "top5": [
+     [
+      "erhöht",
+      0.5502
+     ],
+     [
+      "senkt",
+      0.2841
+     ],
+     [
+      "hält",
+      0.1638
+     ],
+     [
+      "den",
+      0.0002
+     ],
+     [
+      "rom",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+   "prefix": "die zentralbank senkt",
+   "actual": "den",
+   "kl_bits": 0.00571,
+   "soll": {
+    "top1": 0.8,
+    "entropy_bits": 0.7219,
+    "top5": [
+     [
+      "den",
+      0.8
+     ],
+     [
+      "die",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.774,
+    "entropy_bits": 0.7999,
+    "top5": [
+     [
+      "den",
+      0.774
+     ],
+     [
+      "die",
+      0.2238
+     ],
+     [
+      "der",
+      0.0003
+     ],
+     [
+      ",",
+      0.0002
+     ],
+     [
+      ".",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+   "prefix": "die zentralbank senkt den",
+   "actual": "zins",
+   "kl_bits": 0.00648,
+   "soll": {
+    "top1": 0.625,
+    "entropy_bits": 0.9544,
+    "top5": [
+     [
+      "zins",
+      0.625
+     ],
+     [
+      "leitzins",
+      0.375
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.6593,
+    "entropy_bits": 0.9498,
+    "top5": [
+     [
+      "zins",
+      0.6593
+     ],
+     [
+      "leitzins",
+      0.3389
+     ],
+     [
+      "spanien",
+      0.0003
+     ],
+     [
+      "frankreich",
+      0.0001
+     ],
+     [
+      "alter",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+   "prefix": "die zentralbank senkt den zins",
+   "actual": "weil",
+   "kl_bits": 0.03574,
+   "soll": {
+    "top1": 0.55,
+    "entropy_bits": 1.6815,
+    "top5": [
+     [
+      "weil",
+      0.55
+     ],
+     [
+      "heute",
+      0.2
+     ],
+     [
+      "erneut",
+      0.15
+     ],
+     [
+      "denn",
+      0.1
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.4627,
+    "entropy_bits": 1.8646,
+    "top5": [
+     [
+      "weil",
+      0.4627
+     ],
+     [
+      "heute",
+      0.2684
+     ],
+     [
+      "erneut",
+      0.1533
+     ],
+     [
+      "denn",
+      0.1085
+     ],
+     [
+      "sinkt",
+      0.0019
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+   "prefix": "die zentralbank senkt den zins weil",
+   "actual": "die",
+   "kl_bits": 0.00342,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "die",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9976,
+    "entropy_bits": 0.0327,
+    "top5": [
+     [
+      "die",
+      0.9976
+     ],
+     [
+      "es",
+      0.0008
+     ],
+     [
+      "der",
+      0.0003
+     ],
+     [
+      "den",
+      0.0002
+     ],
+     [
+      "steigen",
+      0.0002
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+   "prefix": "die zentralbank senkt den zins weil die",
+   "actual": "wirtschaft",
+   "kl_bits": 0.05651,
+   "soll": {
+    "top1": 0.5,
+    "entropy_bits": 1.4855,
+    "top5": [
+     [
+      "wirtschaft",
+      0.5
+     ],
+     [
+      "inflation",
+      0.3
+     ],
+     [
+      "preise",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5907,
+    "entropy_bits": 1.3744,
+    "top5": [
+     [
+      "wirtschaft",
+      0.5907
+     ],
+     [
+      "inflation",
+      0.2927
+     ],
+     [
+      "preise",
+      0.1125
+     ],
+     [
+      "schwach",
+      0.0006
+     ],
+     [
+      "zinsen",
+      0.0006
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+   "prefix": "die zentralbank senkt den zins weil die wirtschaft",
+   "actual": "schwach",
+   "kl_bits": 0.01928,
+   "soll": {
+    "top1": 0.7,
+    "entropy_bits": 0.8813,
+    "top5": [
+     [
+      "schwach",
+      0.7
+     ],
+     [
+      "kaum",
+      0.3
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.653,
+    "entropy_bits": 1.0404,
+    "top5": [
+     [
+      "schwach",
+      0.653
+     ],
+     [
+      "kaum",
+      0.3375
+     ],
+     [
+      "sinken",
+      0.0015
+     ],
+     [
+      "alt",
+      0.0011
+     ],
+     [
+      "sofa",
+      0.0007
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+   "prefix": "die zentralbank senkt den zins weil die wirtschaft schwach",
+   "actual": "ist",
+   "kl_bits": 0.00404,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "ist",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9972,
+    "entropy_bits": 0.0389,
+    "top5": [
+     [
+      "ist",
+      0.9972
+     ],
+     [
+      "schwach",
+      0.0011
+     ],
+     [
+      "wächst",
+      0.0002
+     ],
+     [
+      "<eos>",
+      0.0002
+     ],
+     [
+      "stark",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+   "prefix": "die zentralbank senkt den zins weil die wirtschaft schwach ist",
+   "actual": ".",
+   "kl_bits": 0.00062,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      ".",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9996,
+    "entropy_bits": 0.007,
+    "top5": [
+     [
+      ".",
+      0.9996
+     ],
+     [
+      "und",
+      0.0002
+     ],
+     [
+      "stark",
+      0.0
+     ],
+     [
+      "leicht",
+      0.0
+     ],
+     [
+      "stabil",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "wenn der zins steigt , sinken die kurse .",
+   "prefix": "",
+   "actual": "wenn",
+   "kl_bits": 0.00766,
+   "soll": {
+    "top1": 0.694,
+    "entropy_bits": 1.6379,
+    "top5": [
+     [
+      "die",
+      0.694
+     ],
+     [
+      "der",
+      0.105
+     ],
+     [
+      "es",
+      0.077
+     ],
+     [
+      "wenn",
+      0.06
+     ],
+     [
+      "paris",
+      0.0128
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.691,
+    "entropy_bits": 1.6763,
+    "top5": [
+     [
+      "die",
+      0.691
+     ],
+     [
+      "der",
+      0.1085
+     ],
+     [
+      "es",
+      0.0702
+     ],
+     [
+      "wenn",
+      0.0583
+     ],
+     [
+      "madrid",
+      0.0187
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "wenn der zins steigt , sinken die kurse .",
+   "prefix": "wenn",
+   "actual": "der",
+   "kl_bits": 0.00592,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "der",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9959,
+    "entropy_bits": 0.0579,
+    "top5": [
+     [
+      "der",
+      0.9959
+     ],
+     [
+      "wenn",
+      0.0005
+     ],
+     [
+      "es",
+      0.0005
+     ],
+     [
+      "die",
+      0.0004
+     ],
+     [
+      "hund",
+      0.0004
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "wenn der zins steigt , sinken die kurse .",
+   "prefix": "wenn der",
+   "actual": "zins",
+   "kl_bits": 0.01158,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "zins",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.992,
+    "entropy_bits": 0.0815,
+    "top5": [
+     [
+      "zins",
+      0.992
+     ],
+     [
+      "leitzins",
+      0.006
+     ],
+     [
+      "zinsen",
+      0.0004
+     ],
+     [
+      "frankreich",
+      0.0003
+     ],
+     [
+      "ist",
+      0.0002
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "wenn der zins steigt , sinken die kurse .",
+   "prefix": "wenn der zins",
+   "actual": "steigt",
+   "kl_bits": 0.02574,
+   "soll": {
+    "top1": 0.5,
+    "entropy_bits": 1.0,
+    "top5": [
+     [
+      "steigt",
+      0.5
+     ],
+     [
+      "sinkt",
+      0.5
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5757,
+    "entropy_bits": 1.0472,
+    "top5": [
+     [
+      "sinkt",
+      0.5757
+     ],
+     [
+      "steigt",
+      0.419
+     ],
+     [
+      "zins",
+      0.0007
+     ],
+     [
+      "fällt",
+      0.0006
+     ],
+     [
+      "hoch",
+      0.0005
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "wenn der zins steigt , sinken die kurse .",
+   "prefix": "wenn der zins steigt",
+   "actual": ",",
+   "kl_bits": 0.00204,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      ",",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9986,
+    "entropy_bits": 0.0218,
+    "top5": [
+     [
+      ",",
+      0.9986
+     ],
+     [
+      "italien",
+      0.0002
+     ],
+     [
+      "steigt",
+      0.0002
+     ],
+     [
+      "fällt",
+      0.0001
+     ],
+     [
+      "deutschland",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "wenn der zins steigt , sinken die kurse .",
+   "prefix": "wenn der zins steigt ,",
+   "actual": "sinken",
+   "kl_bits": 0.21208,
+   "soll": {
+    "top1": 0.6,
+    "entropy_bits": 0.971,
+    "top5": [
+     [
+      "sinken",
+      0.6
+     ],
+     [
+      "fallen",
+      0.4
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.8218,
+    "entropy_bits": 0.7321,
+    "top5": [
+     [
+      "sinken",
+      0.8218
+     ],
+     [
+      "fallen",
+      0.1728
+     ],
+     [
+      "steigen",
+      0.0022
+     ],
+     [
+      "denn",
+      0.0004
+     ],
+     [
+      "erneut",
+      0.0003
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "wenn der zins steigt , sinken die kurse .",
+   "prefix": "wenn der zins steigt , sinken",
+   "actual": "die",
+   "kl_bits": 0.00373,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "die",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9974,
+    "entropy_bits": 0.0345,
+    "top5": [
+     [
+      "die",
+      0.9974
+     ],
+     [
+      "es",
+      0.0007
+     ],
+     [
+      "der",
+      0.0007
+     ],
+     [
+      "wenn",
+      0.0002
+     ],
+     [
+      "rom",
+      0.0002
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "wenn der zins steigt , sinken die kurse .",
+   "prefix": "wenn der zins steigt , sinken die",
+   "actual": "kurse",
+   "kl_bits": 0.01699,
+   "soll": {
+    "top1": 0.6,
+    "entropy_bits": 0.971,
+    "top5": [
+     [
+      "kurse",
+      0.6
+     ],
+     [
+      "preise",
+      0.4
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5775,
+    "entropy_bits": 1.1047,
+    "top5": [
+     [
+      "kurse",
+      0.5775
+     ],
+     [
+      "preise",
+      0.4113
+     ],
+     [
+      "inflation",
+      0.0026
+     ],
+     [
+      "wirtschaft",
+      0.0017
+     ],
+     [
+      "steigen",
+      0.0009
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "wenn der zins steigt , sinken die kurse .",
+   "prefix": "wenn der zins steigt , sinken die kurse",
+   "actual": ".",
+   "kl_bits": 0.00082,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      ".",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9994,
+    "entropy_bits": 0.0091,
+    "top5": [
+     [
+      ".",
+      0.9994
+     ],
+     [
+      "<eos>",
+      0.0002
+     ],
+     [
+      "stark",
+      0.0001
+     ],
+     [
+      "leicht",
+      0.0001
+     ],
+     [
+      "und",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die aktie steigt heute stark .",
+   "prefix": "",
+   "actual": "die",
+   "kl_bits": 0.00766,
+   "soll": {
+    "top1": 0.694,
+    "entropy_bits": 1.6379,
+    "top5": [
+     [
+      "die",
+      0.694
+     ],
+     [
+      "der",
+      0.105
+     ],
+     [
+      "es",
+      0.077
+     ],
+     [
+      "wenn",
+      0.06
+     ],
+     [
+      "paris",
+      0.0128
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.691,
+    "entropy_bits": 1.6763,
+    "top5": [
+     [
+      "die",
+      0.691
+     ],
+     [
+      "der",
+      0.1085
+     ],
+     [
+      "es",
+      0.0702
+     ],
+     [
+      "wenn",
+      0.0583
+     ],
+     [
+      "madrid",
+      0.0187
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die aktie steigt heute stark .",
+   "prefix": "die",
+   "actual": "aktie",
+   "kl_bits": 0.01596,
+   "soll": {
+    "top1": 0.2767,
+    "entropy_bits": 2.9138,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2767
+     ],
+     [
+      "bank",
+      0.1873
+     ],
+     [
+      "zentralbank",
+      0.1124
+     ],
+     [
+      "kurse",
+      0.1009
+     ],
+     [
+      "größte",
+      0.0922
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.2685,
+    "entropy_bits": 2.9316,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2685
+     ],
+     [
+      "bank",
+      0.2183
+     ],
+     [
+      "größte",
+      0.0943
+     ],
+     [
+      "zentralbank",
+      0.0898
+     ],
+     [
+      "kurse",
+      0.0851
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die aktie steigt heute stark .",
+   "prefix": "die aktie",
+   "actual": "steigt",
+   "kl_bits": 0.09623,
+   "soll": {
+    "top1": 0.4,
+    "entropy_bits": 1.5219,
+    "top5": [
+     [
+      "steigt",
+      0.4
+     ],
+     [
+      "fällt",
+      0.4
+     ],
+     [
+      "schwankt",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5584,
+    "entropy_bits": 1.4882,
+    "top5": [
+     [
+      "fällt",
+      0.5584
+     ],
+     [
+      "steigt",
+      0.2549
+     ],
+     [
+      "schwankt",
+      0.1811
+     ],
+     [
+      "hoch",
+      0.0011
+     ],
+     [
+      "weiter",
+      0.0008
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die aktie steigt heute stark .",
+   "prefix": "die aktie steigt",
+   "actual": "heute",
+   "kl_bits": 0.03277,
+   "soll": {
+    "top1": 0.3636,
+    "entropy_bits": 1.8676,
+    "top5": [
+     [
+      "heute",
+      0.3636
+     ],
+     [
+      "stark",
+      0.2727
+     ],
+     [
+      "leicht",
+      0.2727
+     ],
+     [
+      "kaum",
+      0.0909
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.3518,
+    "entropy_bits": 1.8556,
+    "top5": [
+     [
+      "heute",
+      0.3518
+     ],
+     [
+      "stark",
+      0.3311
+     ],
+     [
+      "leicht",
+      0.2577
+     ],
+     [
+      "kaum",
+      0.0535
+     ],
+     [
+      ".",
+      0.0019
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die aktie steigt heute stark .",
+   "prefix": "die aktie steigt heute",
+   "actual": "stark",
+   "kl_bits": 0.07257,
+   "soll": {
+    "top1": 0.4,
+    "entropy_bits": 1.571,
+    "top5": [
+     [
+      "stark",
+      0.4
+     ],
+     [
+      "leicht",
+      0.3
+     ],
+     [
+      ".",
+      0.3
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.4308,
+    "entropy_bits": 1.609,
+    "top5": [
+     [
+      ".",
+      0.4308
+     ],
+     [
+      "stark",
+      0.3512
+     ],
+     [
+      "leicht",
+      0.2102
+     ],
+     [
+      "heute",
+      0.0031
+     ],
+     [
+      "kaum",
+      0.0018
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die aktie steigt heute stark .",
+   "prefix": "die aktie steigt heute stark",
+   "actual": ".",
+   "kl_bits": 0.00174,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      ".",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9988,
+    "entropy_bits": 0.0173,
+    "top5": [
+     [
+      ".",
+      0.9988
+     ],
+     [
+      "und",
+      0.0003
+     ],
+     [
+      "im",
+      0.0002
+     ],
+     [
+      "ist",
+      0.0002
+     ],
+     [
+      "auf",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "es war einmal ein kleiner hund .",
+   "prefix": "",
+   "actual": "es",
+   "kl_bits": 0.00766,
+   "soll": {
+    "top1": 0.694,
+    "entropy_bits": 1.6379,
+    "top5": [
+     [
+      "die",
+      0.694
+     ],
+     [
+      "der",
+      0.105
+     ],
+     [
+      "es",
+      0.077
+     ],
+     [
+      "wenn",
+      0.06
+     ],
+     [
+      "paris",
+      0.0128
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.691,
+    "entropy_bits": 1.6763,
+    "top5": [
+     [
+      "die",
+      0.691
+     ],
+     [
+      "der",
+      0.1085
+     ],
+     [
+      "es",
+      0.0702
+     ],
+     [
+      "wenn",
+      0.0583
+     ],
+     [
+      "madrid",
+      0.0187
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "es war einmal ein kleiner hund .",
+   "prefix": "es",
+   "actual": "war",
+   "kl_bits": 0.00118,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "war",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9992,
+    "entropy_bits": 0.0133,
+    "top5": [
+     [
+      "war",
+      0.9992
+     ],
+     [
+      "einmal",
+      0.0002
+     ],
+     [
+      "weiter",
+      0.0001
+     ],
+     [
+      "hoch",
+      0.0001
+     ],
+     [
+      "italien",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "es war einmal ein kleiner hund .",
+   "prefix": "es war",
+   "actual": "einmal",
+   "kl_bits": 0.00107,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "einmal",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9993,
+    "entropy_bits": 0.0114,
+    "top5": [
+     [
+      "einmal",
+      0.9993
+     ],
+     [
+      "ein",
+      0.0003
+     ],
+     [
+      "eine",
+      0.0001
+     ],
+     [
+      "war",
+      0.0001
+     ],
+     [
+      "stark",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "es war einmal ein kleiner hund .",
+   "prefix": "es war einmal",
+   "actual": "ein",
+   "kl_bits": 0.02187,
+   "soll": {
+    "top1": 0.6,
+    "entropy_bits": 0.971,
+    "top5": [
+     [
+      "ein",
+      0.6
+     ],
+     [
+      "eine",
+      0.4
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5236,
+    "entropy_bits": 1.0499,
+    "top5": [
+     [
+      "ein",
+      0.5236
+     ],
+     [
+      "eine",
+      0.4724
+     ],
+     [
+      "sehr",
+      0.0006
+     ],
+     [
+      "schön",
+      0.0005
+     ],
+     [
+      "einmal",
+      0.0005
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "es war einmal ein kleiner hund .",
+   "prefix": "es war einmal ein",
+   "actual": "kleiner",
+   "kl_bits": 0.03585,
+   "soll": {
+    "top1": 0.4,
+    "entropy_bits": 1.571,
+    "top5": [
+     [
+      "kleiner",
+      0.4
+     ],
+     [
+      "alter",
+      0.3
+     ],
+     [
+      "kluger",
+      0.3
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.3937,
+    "entropy_bits": 1.6177,
+    "top5": [
+     [
+      "alter",
+      0.3937
+     ],
+     [
+      "kleiner",
+      0.3552
+     ],
+     [
+      "kluger",
+      0.2466
+     ],
+     [
+      "zinsen",
+      0.0004
+     ],
+     [
+      "fuchs",
+      0.0004
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "es war einmal ein kleiner hund .",
+   "prefix": "es war einmal ein kleiner",
+   "actual": "hund",
+   "kl_bits": 0.01996,
+   "soll": {
+    "top1": 0.6,
+    "entropy_bits": 0.971,
+    "top5": [
+     [
+      "hund",
+      0.6
+     ],
+     [
+      "fuchs",
+      0.4
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5375,
+    "entropy_bits": 1.0679,
+    "top5": [
+     [
+      "hund",
+      0.5375
+     ],
+     [
+      "fuchs",
+      0.4557
+     ],
+     [
+      "kurs",
+      0.0037
+     ],
+     [
+      "läuft",
+      0.0004
+     ],
+     [
+      "spielt",
+      0.0004
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "es war einmal ein kleiner hund .",
+   "prefix": "es war einmal ein kleiner hund",
+   "actual": ".",
+   "kl_bits": 0.00056,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      ".",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9996,
+    "entropy_bits": 0.0068,
+    "top5": [
+     [
+      ".",
+      0.9996
+     ],
+     [
+      "stark",
+      0.0001
+     ],
+     [
+      "und",
+      0.0
+     ],
+     [
+      "leicht",
+      0.0
+     ],
+     [
+      "stabil",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "der hund spielt im garten .",
+   "prefix": "",
+   "actual": "der",
+   "kl_bits": 0.00766,
+   "soll": {
+    "top1": 0.694,
+    "entropy_bits": 1.6379,
+    "top5": [
+     [
+      "die",
+      0.694
+     ],
+     [
+      "der",
+      0.105
+     ],
+     [
+      "es",
+      0.077
+     ],
+     [
+      "wenn",
+      0.06
+     ],
+     [
+      "paris",
+      0.0128
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.691,
+    "entropy_bits": 1.6763,
+    "top5": [
+     [
+      "die",
+      0.691
+     ],
+     [
+      "der",
+      0.1085
+     ],
+     [
+      "es",
+      0.0702
+     ],
+     [
+      "wenn",
+      0.0583
+     ],
+     [
+      "madrid",
+      0.0187
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "der hund spielt im garten .",
+   "prefix": "der",
+   "actual": "hund",
+   "kl_bits": 0.01619,
+   "soll": {
+    "top1": 0.44,
+    "entropy_bits": 1.5487,
+    "top5": [
+     [
+      "hund",
+      0.44
+     ],
+     [
+      "fuchs",
+      0.2933
+     ],
+     [
+      "kurs",
+      0.2667
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.4818,
+    "entropy_bits": 1.5491,
+    "top5": [
+     [
+      "hund",
+      0.4818
+     ],
+     [
+      "fuchs",
+      0.3008
+     ],
+     [
+      "kurs",
+      0.2141
+     ],
+     [
+      "zins",
+      0.0004
+     ],
+     [
+      "der",
+      0.0003
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "der hund spielt im garten .",
+   "prefix": "der hund",
+   "actual": "spielt",
+   "kl_bits": 0.03103,
+   "soll": {
+    "top1": 0.3,
+    "entropy_bits": 1.971,
+    "top5": [
+     [
+      "spielt",
+      0.3
+     ],
+     [
+      "schläft",
+      0.3
+     ],
+     [
+      "bellt",
+      0.2
+     ],
+     [
+      "läuft",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.3787,
+    "entropy_bits": 1.967,
+    "top5": [
+     [
+      "spielt",
+      0.3787
+     ],
+     [
+      "schläft",
+      0.2886
+     ],
+     [
+      "läuft",
+      0.1685
+     ],
+     [
+      "bellt",
+      0.1593
+     ],
+     [
+      "im",
+      0.0006
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "der hund spielt im garten .",
+   "prefix": "der hund spielt",
+   "actual": "im",
+   "kl_bits": 0.01652,
+   "soll": {
+    "top1": 0.7,
+    "entropy_bits": 0.8813,
+    "top5": [
+     [
+      "im",
+      0.7
+     ],
+     [
+      "auf",
+      0.3
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.7568,
+    "entropy_bits": 0.8323,
+    "top5": [
+     [
+      "im",
+      0.7568
+     ],
+     [
+      "auf",
+      0.2407
+     ],
+     [
+      "schnell",
+      0.0003
+     ],
+     [
+      "dem",
+      0.0002
+     ],
+     [
+      ".",
+      0.0002
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "der hund spielt im garten .",
+   "prefix": "der hund spielt im",
+   "actual": "garten",
+   "kl_bits": 0.0058,
+   "soll": {
+    "top1": 0.5714,
+    "entropy_bits": 0.9852,
+    "top5": [
+     [
+      "garten",
+      0.5714
+     ],
+     [
+      "haus",
+      0.4286
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.5694,
+    "entropy_bits": 1.0385,
+    "top5": [
+     [
+      "garten",
+      0.5694
+     ],
+     [
+      "haus",
+      0.4265
+     ],
+     [
+      "schön",
+      0.0007
+     ],
+     [
+      "im",
+      0.0002
+     ],
+     [
+      "wirtschaft",
+      0.0002
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "der hund spielt im garten .",
+   "prefix": "der hund spielt im garten",
+   "actual": ".",
+   "kl_bits": 0.00039,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      ".",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9997,
+    "entropy_bits": 0.0046,
+    "top5": [
+     [
+      ".",
+      0.9997
+     ],
+     [
+      "und",
+      0.0001
+     ],
+     [
+      "<eos>",
+      0.0
+     ],
+     [
+      "ist",
+      0.0
+     ],
+     [
+      "stabil",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die katze schläft auf dem sofa .",
+   "prefix": "",
+   "actual": "die",
+   "kl_bits": 0.00766,
+   "soll": {
+    "top1": 0.694,
+    "entropy_bits": 1.6379,
+    "top5": [
+     [
+      "die",
+      0.694
+     ],
+     [
+      "der",
+      0.105
+     ],
+     [
+      "es",
+      0.077
+     ],
+     [
+      "wenn",
+      0.06
+     ],
+     [
+      "paris",
+      0.0128
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.691,
+    "entropy_bits": 1.6763,
+    "top5": [
+     [
+      "die",
+      0.691
+     ],
+     [
+      "der",
+      0.1085
+     ],
+     [
+      "es",
+      0.0702
+     ],
+     [
+      "wenn",
+      0.0583
+     ],
+     [
+      "madrid",
+      0.0187
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die katze schläft auf dem sofa .",
+   "prefix": "die",
+   "actual": "katze",
+   "kl_bits": 0.01596,
+   "soll": {
+    "top1": 0.2767,
+    "entropy_bits": 2.9138,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2767
+     ],
+     [
+      "bank",
+      0.1873
+     ],
+     [
+      "zentralbank",
+      0.1124
+     ],
+     [
+      "kurse",
+      0.1009
+     ],
+     [
+      "größte",
+      0.0922
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.2685,
+    "entropy_bits": 2.9316,
+    "top5": [
+     [
+      "hauptstadt",
+      0.2685
+     ],
+     [
+      "bank",
+      0.2183
+     ],
+     [
+      "größte",
+      0.0943
+     ],
+     [
+      "zentralbank",
+      0.0898
+     ],
+     [
+      "kurse",
+      0.0851
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die katze schläft auf dem sofa .",
+   "prefix": "die katze",
+   "actual": "schläft",
+   "kl_bits": 0.01744,
+   "soll": {
+    "top1": 0.375,
+    "entropy_bits": 1.5613,
+    "top5": [
+     [
+      "spielt",
+      0.375
+     ],
+     [
+      "schläft",
+      0.375
+     ],
+     [
+      "läuft",
+      0.25
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.4125,
+    "entropy_bits": 1.5947,
+    "top5": [
+     [
+      "spielt",
+      0.4125
+     ],
+     [
+      "schläft",
+      0.3723
+     ],
+     [
+      "läuft",
+      0.2088
+     ],
+     [
+      "bellt",
+      0.0041
+     ],
+     [
+      "schnell",
+      0.0004
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die katze schläft auf dem sofa .",
+   "prefix": "die katze schläft",
+   "actual": "auf",
+   "kl_bits": 0.0154,
+   "soll": {
+    "top1": 0.7,
+    "entropy_bits": 0.8813,
+    "top5": [
+     [
+      "im",
+      0.7
+     ],
+     [
+      "auf",
+      0.3
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.7533,
+    "entropy_bits": 0.8405,
+    "top5": [
+     [
+      "im",
+      0.7533
+     ],
+     [
+      "auf",
+      0.244
+     ],
+     [
+      "schnell",
+      0.0003
+     ],
+     [
+      "dem",
+      0.0003
+     ],
+     [
+      "spielt",
+      0.0003
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die katze schläft auf dem sofa .",
+   "prefix": "die katze schläft auf",
+   "actual": "dem",
+   "kl_bits": 0.00207,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "dem",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9986,
+    "entropy_bits": 0.0218,
+    "top5": [
+     [
+      "dem",
+      0.9986
+     ],
+     [
+      "sofa",
+      0.0003
+     ],
+     [
+      "bett",
+      0.0003
+     ],
+     [
+      "auf",
+      0.0001
+     ],
+     [
+      "einmal",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die katze schläft auf dem sofa .",
+   "prefix": "die katze schläft auf dem",
+   "actual": "sofa",
+   "kl_bits": 0.08102,
+   "soll": {
+    "top1": 0.6,
+    "entropy_bits": 0.971,
+    "top5": [
+     [
+      "sofa",
+      0.6
+     ],
+     [
+      "bett",
+      0.4
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.7412,
+    "entropy_bits": 0.8897,
+    "top5": [
+     [
+      "sofa",
+      0.7412
+     ],
+     [
+      "bett",
+      0.2532
+     ],
+     [
+      "zinsen",
+      0.0007
+     ],
+     [
+      "war",
+      0.0007
+     ],
+     [
+      "kaum",
+      0.0005
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "die katze schläft auf dem sofa .",
+   "prefix": "die katze schläft auf dem sofa",
+   "actual": ".",
+   "kl_bits": 0.00038,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      ".",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9997,
+    "entropy_bits": 0.0046,
+    "top5": [
+     [
+      ".",
+      0.9997
+     ],
+     [
+      "und",
+      0.0001
+     ],
+     [
+      "<eos>",
+      0.0001
+     ],
+     [
+      "ist",
+      0.0
+     ],
+     [
+      "im",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "rom ist die hauptstadt von italien .",
+   "prefix": "",
+   "actual": "rom",
+   "kl_bits": 0.00766,
+   "soll": {
+    "top1": 0.694,
+    "entropy_bits": 1.6379,
+    "top5": [
+     [
+      "die",
+      0.694
+     ],
+     [
+      "der",
+      0.105
+     ],
+     [
+      "es",
+      0.077
+     ],
+     [
+      "wenn",
+      0.06
+     ],
+     [
+      "paris",
+      0.0128
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.691,
+    "entropy_bits": 1.6763,
+    "top5": [
+     [
+      "die",
+      0.691
+     ],
+     [
+      "der",
+      0.1085
+     ],
+     [
+      "es",
+      0.0702
+     ],
+     [
+      "wenn",
+      0.0583
+     ],
+     [
+      "madrid",
+      0.0187
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "rom ist die hauptstadt von italien .",
+   "prefix": "rom",
+   "actual": "ist",
+   "kl_bits": 0.00154,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "ist",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9989,
+    "entropy_bits": 0.0176,
+    "top5": [
+     [
+      "ist",
+      0.9989
+     ],
+     [
+      "hauptstadt",
+      0.0001
+     ],
+     [
+      "stadt",
+      0.0001
+     ],
+     [
+      "sinkt",
+      0.0001
+     ],
+     [
+      "steigt",
+      0.0001
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "rom ist die hauptstadt von italien .",
+   "prefix": "rom ist",
+   "actual": "die",
+   "kl_bits": 0.01687,
+   "soll": {
+    "top1": 0.6,
+    "entropy_bits": 1.371,
+    "top5": [
+     [
+      "die",
+      0.6
+     ],
+     [
+      "sehr",
+      0.2
+     ],
+     [
+      "eine",
+      0.2
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.6011,
+    "entropy_bits": 1.447,
+    "top5": [
+     [
+      "die",
+      0.6011
+     ],
+     [
+      "eine",
+      0.2229
+     ],
+     [
+      "sehr",
+      0.1683
+     ],
+     [
+      "madrid",
+      0.0009
+     ],
+     [
+      "rom",
+      0.0007
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "rom ist die hauptstadt von italien .",
+   "prefix": "rom ist die",
+   "actual": "hauptstadt",
+   "kl_bits": 0.01363,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "hauptstadt",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9906,
+    "entropy_bits": 0.11,
+    "top5": [
+     [
+      "hauptstadt",
+      0.9906
+     ],
+     [
+      "bank",
+      0.0021
+     ],
+     [
+      "kurse",
+      0.0015
+     ],
+     [
+      "notenbank",
+      0.0012
+     ],
+     [
+      "größte",
+      0.0011
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "rom ist die hauptstadt von italien .",
+   "prefix": "rom ist die hauptstadt",
+   "actual": "von",
+   "kl_bits": 0.00046,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "von",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9997,
+    "entropy_bits": 0.0057,
+    "top5": [
+     [
+      "von",
+      0.9997
+     ],
+     [
+      "den",
+      0.0
+     ],
+     [
+      "frankreich",
+      0.0
+     ],
+     [
+      "fallen",
+      0.0
+     ],
+     [
+      "italien",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "rom ist die hauptstadt von italien .",
+   "prefix": "rom ist die hauptstadt von",
+   "actual": "italien",
+   "kl_bits": 0.15504,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      "italien",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.8981,
+    "entropy_bits": 0.6873,
+    "top5": [
+     [
+      "italien",
+      0.8981
+     ],
+     [
+      "deutschland",
+      0.0519
+     ],
+     [
+      "spanien",
+      0.0299
+     ],
+     [
+      "österreich",
+      0.0104
+     ],
+     [
+      "war",
+      0.0022
+     ]
+    ]
+   }
+  },
+  {
+   "sentence": "rom ist die hauptstadt von italien .",
+   "prefix": "rom ist die hauptstadt von italien",
+   "actual": ".",
+   "kl_bits": 0.00054,
+   "soll": {
+    "top1": 1.0,
+    "entropy_bits": -0.0,
+    "top5": [
+     [
+      ".",
+      1.0
+     ]
+    ]
+   },
+   "ist": {
+    "top1": 0.9996,
+    "entropy_bits": 0.0059,
+    "top5": [
+     [
+      ".",
+      0.9996
+     ],
+     [
+      "und",
+      0.0002
+     ],
+     [
+      "stark",
+      0.0
+     ],
+     [
+      "leicht",
+      0.0
+     ],
+     [
+      "<eos>",
+      0.0
+     ]
+    ]
+   }
+  }
+ ]
+}

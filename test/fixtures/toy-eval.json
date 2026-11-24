@@ -1,0 +1,680 @@
+{
+ "sentences": [
+  "die hauptstadt von frankreich ist paris .",
+  "die hauptstadt von deutschland ist sehr groß .",
+  "die bank erhöht den zins weil die inflation steigt .",
+  "die zentralbank senkt den zins weil die wirtschaft schwach ist .",
+  "wenn der zins steigt , sinken die kurse .",
+  "die aktie steigt heute stark .",
+  "es war einmal ein kleiner hund .",
+  "der hund spielt im garten .",
+  "die katze schläft auf dem sofa .",
+  "rom ist die hauptstadt von italien ."
+ ],
+ "goals": {
+  "below80_share": 0.5,
+  "entropy_bits": 1.0
+ },
+ "positions": [
+  {
+   "prefix": "",
+   "soll": {
+    "die": 0.6940000000000001,
+    "der": 0.10500000000000001,
+    "es": 0.07700000000000001,
+    "wenn": 0.06,
+    "paris": 0.0128,
+    "berlin": 0.0128,
+    "rom": 0.0128,
+    "madrid": 0.0128,
+    "wien": 0.0128
+   }
+  },
+  {
+   "prefix": "die",
+   "soll": {
+    "hauptstadt": 0.276657060518732,
+    "bank": 0.18731988472622477,
+    "zentralbank": 0.1123919308357349,
+    "kurse": 0.10086455331412104,
+    "größte": 0.09221902017291066,
+    "notenbank": 0.07492795389048991,
+    "aktie": 0.06051873198847263,
+    "katze": 0.04755043227665706,
+    "maus": 0.04755043227665706
+   }
+  },
+  {
+   "prefix": "die hauptstadt",
+   "soll": {
+    "von": 1.0
+   }
+  },
+  {
+   "prefix": "die hauptstadt von",
+   "soll": {
+    "frankreich": 0.2,
+    "deutschland": 0.2,
+    "italien": 0.2,
+    "spanien": 0.2,
+    "österreich": 0.2
+   }
+  },
+  {
+   "prefix": "die hauptstadt von frankreich",
+   "soll": {
+    "ist": 1.0
+   }
+  },
+  {
+   "prefix": "die hauptstadt von frankreich ist",
+   "soll": {
+    "paris": 0.53,
+    "schön": 0.16999999999999998,
+    "sehr": 0.15999999999999998,
+    "eine": 0.13999999999999999
+   }
+  },
+  {
+   "prefix": "die hauptstadt von frankreich ist paris",
+   "soll": {
+    ".": 0.9056603773584905,
+    "und": 0.09433962264150943
+   }
+  },
+  {
+   "prefix": "",
+   "soll": {
+    "die": 0.6940000000000001,
+    "der": 0.10500000000000001,
+    "es": 0.07700000000000001,
+    "wenn": 0.06,
+    "paris": 0.0128,
+    "berlin": 0.0128,
+    "rom": 0.0128,
+    "madrid": 0.0128,
+    "wien": 0.0128
+   }
+  },
+  {
+   "prefix": "die",
+   "soll": {
+    "hauptstadt": 0.276657060518732,
+    "bank": 0.18731988472622477,
+    "zentralbank": 0.1123919308357349,
+    "kurse": 0.10086455331412104,
+    "größte": 0.09221902017291066,
+    "notenbank": 0.07492795389048991,
+    "aktie": 0.06051873198847263,
+    "katze": 0.04755043227665706,
+    "maus": 0.04755043227665706
+   }
+  },
+  {
+   "prefix": "die hauptstadt",
+   "soll": {
+    "von": 1.0
+   }
+  },
+  {
+   "prefix": "die hauptstadt von",
+   "soll": {
+    "frankreich": 0.2,
+    "deutschland": 0.2,
+    "italien": 0.2,
+    "spanien": 0.2,
+    "österreich": 0.2
+   }
+  },
+  {
+   "prefix": "die hauptstadt von deutschland",
+   "soll": {
+    "ist": 1.0
+   }
+  },
+  {
+   "prefix": "die hauptstadt von deutschland ist",
+   "soll": {
+    "berlin": 0.53,
+    "schön": 0.16999999999999998,
+    "sehr": 0.15999999999999998,
+    "eine": 0.13999999999999999
+   }
+  },
+  {
+   "prefix": "die hauptstadt von deutschland ist sehr",
+   "soll": {
+    "schön": 0.5,
+    "groß": 0.5
+   }
+  },
+  {
+   "prefix": "die hauptstadt von deutschland ist sehr groß",
+   "soll": {
+    ".": 1.0
+   }
+  },
+  {
+   "prefix": "",
+   "soll": {
+    "die": 0.6940000000000001,
+    "der": 0.10500000000000001,
+    "es": 0.07700000000000001,
+    "wenn": 0.06,
+    "paris": 0.0128,
+    "berlin": 0.0128,
+    "rom": 0.0128,
+    "madrid": 0.0128,
+    "wien": 0.0128
+   }
+  },
+  {
+   "prefix": "die",
+   "soll": {
+    "hauptstadt": 0.276657060518732,
+    "bank": 0.18731988472622477,
+    "zentralbank": 0.1123919308357349,
+    "kurse": 0.10086455331412104,
+    "größte": 0.09221902017291066,
+    "notenbank": 0.07492795389048991,
+    "aktie": 0.06051873198847263,
+    "katze": 0.04755043227665706,
+    "maus": 0.04755043227665706
+   }
+  },
+  {
+   "prefix": "die bank",
+   "soll": {
+    "erhöht": 0.45,
+    "senkt": 0.35000000000000003,
+    "hält": 0.19999999999999993
+   }
+  },
+  {
+   "prefix": "die bank erhöht",
+   "soll": {
+    "den": 0.8,
+    "die": 0.19999999999999993
+   }
+  },
+  {
+   "prefix": "die bank erhöht den",
+   "soll": {
+    "zins": 0.625,
+    "leitzins": 0.37500000000000006
+   }
+  },
+  {
+   "prefix": "die bank erhöht den zins",
+   "soll": {
+    "weil": 0.55,
+    "heute": 0.19999999999999996,
+    "erneut": 0.15,
+    "denn": 0.09999999999999999
+   }
+  },
+  {
+   "prefix": "die bank erhöht den zins weil",
+   "soll": {
+    "die": 1.0
+   }
+  },
+  {
+   "prefix": "die bank erhöht den zins weil die",
+   "soll": {
+    "inflation": 0.5,
+    "preise": 0.30000000000000004,
+    "wirtschaft": 0.2
+   }
+  },
+  {
+   "prefix": "die bank erhöht den zins weil die inflation",
+   "soll": {
+    "steigt": 0.6000000000000001,
+    "weiter": 0.2,
+    "hoch": 0.2
+   }
+  },
+  {
+   "prefix": "die bank erhöht den zins weil die inflation steigt",
+   "soll": {
+    ".": 1.0
+   }
+  },
+  {
+   "prefix": "",
+   "soll": {
+    "die": 0.6940000000000001,
+    "der": 0.10500000000000001,
+    "es": 0.07700000000000001,
+    "wenn": 0.06,
+    "paris": 0.0128,
+    "berlin": 0.0128,
+    "rom": 0.0128,
+    "madrid": 0.0128,
+    "wien": 0.0128
+   }
+  },
+  {
+   "prefix": "die",
+   "soll": {
+    "hauptstadt": 0.276657060518732,
+    "bank": 0.18731988472622477,
+    "zentralbank": 0.1123919308357349,
+    "kurse": 0.10086455331412104,
+    "größte": 0.09221902017291066,
+    "notenbank": 0.07492795389048991,
+    "aktie": 0.06051873198847263,
+    "katze": 0.04755043227665706,
+    "maus": 0.04755043227665706
+   }
+  },
+  {
+   "prefix": "die zentralbank",
+   "soll": {
+    "erhöht": 0.45,
+    "senkt": 0.35,
+    "hält": 0.19999999999999998
+   }
+  },
+  {
+   "prefix": "die zentralbank senkt",
+   "soll": {
+    "den": 0.8,
+    "die": 0.19999999999999998
+   }
+  },
+  {
+   "prefix": "die zentralbank senkt den",
+   "soll": {
+    "zins": 0.6250000000000001,
+    "leitzins": 0.375
+   }
+  },
+  {
+   "prefix": "die zentralbank senkt den zins",
+   "soll": {
+    "weil": 0.55,
+    "heute": 0.2,
+    "erneut": 0.15,
+    "denn": 0.09999999999999999
+   }
+  },
+  {
+   "prefix": "die zentralbank senkt den zins weil",
+   "soll": {
+    "die": 1.0
+   }
+  },
+  {
+   "prefix": "die zentralbank senkt den zins weil die",
+   "soll": {
+    "wirtschaft": 0.5,
+    "inflation": 0.3,
+    "preise": 0.19999999999999998
+   }
+  },
+  {
+   "prefix": "die zentralbank senkt den zins weil die wirtschaft",
+   "soll": {
+    "schwach": 0.7000000000000001,
+    "kaum": 0.3
+   }
+  },
+  {
+   "prefix": "die zentralbank senkt den zins weil die wirtschaft schwach",
+   "soll": {
+    "ist": 1.0
+   }
+  },
+  {
+   "prefix": "die zentralbank senkt den zins weil die wirtschaft schwach ist",
+   "soll": {
+    ".": 1.0
+   }
+  },
+  {
+   "prefix": "",
+   "soll": {
+    "die": 0.6940000000000001,
+    "der": 0.10500000000000001,
+    "es": 0.07700000000000001,
+    "wenn": 0.06,
+    "paris": 0.0128,
+    "berlin": 0.0128,
+    "rom": 0.0128,
+    "madrid": 0.0128,
+    "wien": 0.0128
+   }
+  },
+  {
+   "prefix": "wenn",
+   "soll": {
+    "der": 1.0
+   }
+  },
+  {
+   "prefix": "wenn der",
+   "soll": {
+    "zins": 1.0
+   }
+  },
+  {
+   "prefix": "wenn der zins",
+   "soll": {
+    "steigt": 0.5000000000000001,
+    "sinkt": 0.5
+   }
+  },
+  {
+   "prefix": "wenn der zins steigt",
+   "soll": {
+    ",": 1.0
+   }
+  },
+  {
+   "prefix": "wenn der zins steigt ,",
+   "soll": {
+    "sinken": 0.6,
+    "fallen": 0.4
+   }
+  },
+  {
+   "prefix": "wenn der zins steigt , sinken",
+   "soll": {
+    "die": 1.0
+   }
+  },
+  {
+   "prefix": "wenn der zins steigt , sinken die",
+   "soll": {
+    "kurse": 0.6,
+    "preise": 0.4
+   }
+  },
+  {
+   "prefix": "wenn der zins steigt , sinken die kurse",
+   "soll": {
+    ".": 1.0
+   }
+  },
+  {
+   "prefix": "",
+   "soll": {
+    "die": 0.6940000000000001,
+    "der": 0.10500000000000001,
+    "es": 0.07700000000000001,
+    "wenn": 0.06,
+    "paris": 0.0128,
+    "berlin": 0.0128,
+    "rom": 0.0128,
+    "madrid": 0.0128,
+    "wien": 0.0128
+   }
+  },
+  {
+   "prefix": "die",
+   "soll": {
+    "hauptstadt": 0.276657060518732,
+    "bank": 0.18731988472622477,
+    "zentralbank": 0.1123919308357349,
+    "kurse": 0.10086455331412104,
+    "größte": 0.09221902017291066,
+    "notenbank": 0.07492795389048991,
+    "aktie": 0.06051873198847263,
+    "katze": 0.04755043227665706,
+    "maus": 0.04755043227665706
+   }
+  },
+  {
+   "prefix": "die aktie",
+   "soll": {
+    "steigt": 0.4,
+    "fällt": 0.4,
+    "schwankt": 0.2
+   }
+  },
+  {
+   "prefix": "die aktie steigt",
+   "soll": {
+    "heute": 0.36363636363636365,
+    "stark": 0.27272727272727276,
+    "leicht": 0.27272727272727276,
+    "kaum": 0.09090909090909091
+   }
+  },
+  {
+   "prefix": "die aktie steigt heute",
+   "soll": {
+    "stark": 0.4,
+    "leicht": 0.29999999999999993,
+    ".": 0.29999999999999993
+   }
+  },
+  {
+   "prefix": "die aktie steigt heute stark",
+   "soll": {
+    ".": 1.0
+   }
+  },
+  {
+   "prefix": "",
+   "soll": {
+    "die": 0.6940000000000001,
+    "der": 0.10500000000000001,
+    "es": 0.07700000000000001,
+    "wenn": 0.06,
+    "paris": 0.0128,
+    "berlin": 0.0128,
+    "rom": 0.0128,
+    "madrid": 0.0128,
+    "wien": 0.0128
+   }
+  },
+  {
+   "prefix": "es",
+   "soll": {
+    "war": 1.0
+   }
+  },
+  {
+   "prefix": "es war",
+   "soll": {
+    "einmal": 1.0
+   }
+  },
+  {
+   "prefix": "es war einmal",
+   "soll": {
+    "ein": 0.6000000000000001,
+    "eine": 0.39999999999999997
+   }
+  },
+  {
+   "prefix": "es war einmal ein",
+   "soll": {
+    "kleiner": 0.4,
+    "alter": 0.3,
+    "kluger": 0.3
+   }
+  },
+  {
+   "prefix": "es war einmal ein kleiner",
+   "soll": {
+    "hund": 0.6,
+    "fuchs": 0.39999999999999997
+   }
+  },
+  {
+   "prefix": "es war einmal ein kleiner hund",
+   "soll": {
+    ".": 1.0
+   }
+  },
+  {
+   "prefix": "",
+   "soll": {
+    "die": 0.6940000000000001,
+    "der": 0.10500000000000001,
+    "es": 0.07700000000000001,
+    "wenn": 0.06,
+    "paris": 0.0128,
+    "berlin": 0.0128,
+    "rom": 0.0128,
+    "madrid": 0.0128,
+    "wien": 0.0128
+   }
+  },
+  {
+   "prefix": "der",
+   "soll": {
+    "hund": 0.43999999999999995,
+    "fuchs": 0.29333333333333333,
+    "kurs": 0.2666666666666667
+   }
+  },
+  {
+   "prefix": "der hund",
+   "soll": {
+    "spielt": 0.30000000000000004,
+    "schläft": 0.30000000000000004,
+    "bellt": 0.2,
+    "läuft": 0.19999999999999998
+   }
+  },
+  {
+   "prefix": "der hund spielt",
+   "soll": {
+    "im": 0.7000000000000001,
+    "auf": 0.3
+   }
+  },
+  {
+   "prefix": "der hund spielt im",
+   "soll": {
+    "garten": 0.5714285714285715,
+    "haus": 0.4285714285714285
+   }
+  },
+  {
+   "prefix": "der hund spielt im garten",
+   "soll": {
+    ".": 1.0
+   }
+  },
+  {
+   "prefix": "",
+   "soll": {
+    "die": 0.6940000000000001,
+    "der": 0.10500000000000001,
+    "es": 0.07700000000000001,
+    "wenn": 0.06,
+    "paris": 0.0128,
+    "berlin": 0.0128,
+    "rom": 0.0128,
+    "madrid": 0.0128,
+    "wien": 0.0128
+   }
+  },
+  {
+   "prefix": "die",
+   "soll": {
+    "hauptstadt": 0.276657060518732,
+    "bank": 0.18731988472622477,
+    "zentralbank": 0.1123919308357349,
+    "kurse": 0.10086455331412104,
+    "größte": 0.09221902017291066,
+    "notenbank": 0.07492795389048991,
+    "aktie": 0.06051873198847263,
+    "katze": 0.04755043227665706,
+    "maus": 0.04755043227665706
+   }
+  },
+  {
+   "prefix": "die katze",
+   "soll": {
+    "spielt": 0.375,
+    "schläft": 0.375,
+    "läuft": 0.25
+   }
+  },
+  {
+   "prefix": "die katze schläft",
+   "soll": {
+    "im": 0.7,
+    "auf": 0.3000000000000001
+   }
+  },
+  {
+   "prefix": "die katze schläft auf",
+   "soll": {
+    "dem": 1.0
+   }
+  },
+  {
+   "prefix": "die katze schläft auf dem",
+   "soll": {
+    "sofa": 0.6,
+    "bett": 0.39999999999999997
+   }
+  },
+  {
+   "prefix": "die katze schläft auf dem sofa",
+   "soll": {
+    ".": 1.0
+   }
+  },
+  {
+   "prefix": "",
+   "soll": {
+    "die": 0.6940000000000001,
+    "der": 0.10500000000000001,
+    "es": 0.07700000000000001,
+    "wenn": 0.06,
+    "paris": 0.0128,
+    "berlin": 0.0128,
+    "rom": 0.0128,
+    "madrid": 0.0128,
+    "wien": 0.0128
+   }
+  },
+  {
+   "prefix": "rom",
+   "soll": {
+    "ist": 1.0
+   }
+  },
+  {
+   "prefix": "rom ist",
+   "soll": {
+    "die": 0.6,
+    "sehr": 0.2,
+    "eine": 0.2
+   }
+  },
+  {
+   "prefix": "rom ist die",
+   "soll": {
+    "hauptstadt": 1.0
+   }
+  },
+  {
+   "prefix": "rom ist die hauptstadt",
+   "soll": {
+    "von": 1.0
+   }
+  },
+  {
+   "prefix": "rom ist die hauptstadt von",
+   "soll": {
+    "italien": 1.0
+   }
+  },
+  {
+   "prefix": "rom ist die hauptstadt von italien",
+   "soll": {
+    ".": 1.0
+   }
+  }
+ ]
+}
