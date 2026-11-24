@@ -1,7 +1,7 @@
 # PLAN.md: „Inside GenAI“
 
 > Interaktives Lernkompendium: Wie macht ein LLM aus einem Prompt eine Antwort?
-> Stand: 2026-11-24 · Revision 5 (Entscheidungen nach dem Engine-Spike) · Status: D0, P0, P1a, P1b und Toy v2 umgesetzt; P2a (echtes Modell im Browser) in Arbeit
+> Stand: 2026-11-24 · Revision 5 (Entscheidungen nach dem Engine-Spike) · Status: D0, P0, P1a, P1b, Toy v2 und P2a (echtes Modell im Browser) umgesetzt; nächster Schritt P2b (Kapitel 1, 5, 6)
 
 ## 1. Zusammenfassung
 
@@ -539,7 +539,7 @@ Toy-Modell (Training + Engine-Kern + Sampler), echte Tokenizer, **Kapitel 0, 2, 
 Aufgeteilt in zwei PRs: **P2a** bringt das echte Modell in den Browser und schließt die fertigen Kapitel an, **P2b**
 liefert die Kapitel 1, 5 und 6.
 
-#### P2a: Echtes Modell im Browser (Infrastruktur + Kapitel 7/8/Playground) · 🔄 in Arbeit
+#### P2a: Echtes Modell im Browser (Infrastruktur + Kapitel 7/8/Playground) · ✅ umgesetzt (PR #7)
 Entscheidungen: Comlink für den Worker · Golden-Referenz als volle Logits im Repo · nach dem Laden zeigen die Widgets
 das echte Modell, das Spielzeugmodell bleibt umschaltbar.
 - **Shards beim Build** (`scripts/prepare-models.ts`, nur CI): gepinnte Revisionen, Aufbereitung mit denselben
@@ -556,20 +556,31 @@ das echte Modell, das Spielzeugmodell bleibt umschaltbar.
   von 10⁻⁴.
 
 **DoD:**
-- [ ] Deploy und PR-Check nutzen bei unveränderter Revision gecachte Shards (sichtbar im Log; geprüft am **zweiten**
-  Deploy, weil Caches aus PR-Branches auf `main` nicht sichtbar sind); Seitengröße < 800 MB wird geprüft.
-- [ ] Golden-Tests grün in `ci.yml` und `deploy.yml`; ein absichtlich falscher Engine-Commit wird im PR-Check rot.
-- [ ] Batch-Prefill von 64 Tokens ist mindestens 2× schneller als Token für Token im selben CI-Lauf (Benchmark im Log).
-- [ ] Download mit Fortschritt; beim zweiten Besuch kein Shard-Download (Playwright).
-- [ ] Blockierter Download → Seite voll nutzbar mit Toy-Hinweis (Playwright).
-- [ ] Kapitel 7, 8 und Playground rechnen mit dem echten Modell; Stempel automatisch korrekt; Instruct-Chat stoppt am
-  End-Token.
-- [ ] Abzweigung im KV-Cache = Neuberechnung (Test); Sitzungen verdrängen sich nicht (Test).
-- [ ] Schnelle Eingabefolge zeigt das Ergebnis der letzten Eingabe (Playwright).
-- [ ] Höchstens ein echtes Modell im Worker; RAM-Angabe an den Ladeknöpfen; `#/diagnose` zeigt den Speicher.
-- [ ] Chat kürzt alte Nachrichten mit sichtbarem Hinweis, System-Prompt bleibt (Test).
-- [ ] `#/credits` enthält die SmolLM2-Gewichte (Apache-2.0 mit Änderungshinweis) und Comlink.
-- [ ] Alle bisherigen Tests und `check:ui` bleiben grün.
+- [ ] Deploy und PR-Check nutzen bei unveränderter Revision gecachte Shards; Seitengröße < 800 MB wird geprüft.
+  PR-Check ✓ (zweiter Lauf: „Shards aus dem Cache: ja“), Größenprüfung ✓ (614 MB). **Deploy-Teil offen:** am zweiten
+  Deploy nach dem Merge prüfen, weil Caches aus PR-Branches auf `main` nicht sichtbar sind.
+- [x] Golden-Tests grün in `ci.yml` (und `deploy.yml`, gleicher Schritt). Gegenprobe: ein falscher Skalen-Index in
+  `linearBatch` (nur Zeilen mit > 16 Gruppen, Unit-Tests bleiben grün) machte den PR-Check rot, und zwar an den
+  Toleranzen (61 Verstöße bei KL, Δp, Überlappung, Top-1; z. B. KL bis 6,7 statt < 0,004), danach Revert → grün.
+- [x] Batch-Prefill von 64 Tokens 2,29× schneller als Token für Token (10,5 s → 4,6 s, CI-Runner, int8).
+- [x] Download mit Fortschritt; beim zweiten Besuch kein Shard-Download (Playwright).
+- [x] Blockierter Download → Seite voll nutzbar mit Toy-Hinweis (Playwright).
+- [x] Kapitel 7, 8 und Playground rechnen mit dem echten Modell; Stempel automatisch korrekt; Instruct-Chat stoppt am
+  End-Token (Playwright, „The capital of France is Paris.“).
+- [x] Abzweigung im KV-Cache = Neuberechnung (Test); Sitzungen verdrängen sich nicht (Test).
+- [x] Schnelle Eingabefolge zeigt das Ergebnis der letzten Eingabe (Playwright).
+- [x] Höchstens ein echtes Modell im Worker; RAM-Angabe an den Ladeknöpfen; `#/diagnose` zeigt den Speicher.
+- [x] Chat kürzt alte Nachrichten mit sichtbarem Hinweis, System-Prompt bleibt (Test).
+- [x] `#/credits` enthält die SmolLM2-Gewichte (Apache-2.0 mit Änderungshinweis) und Comlink.
+- [x] Alle bisherigen Tests und `check:ui` bleiben grün.
+
+**Gemessen im CI (int8 = Attention fp16, Rest q8g32):**
+
+| Fassung | Download | im Speicher | Golden (schlechtester Wert) |
+|---|---|---|---|
+| Base int8 | 160 MB | 274 MB | KL 1,4·10⁻³ · Δp 1,40 pp · Top-10 ≥ 9/10 |
+| Base fp16 | 257 MB | 513 MB | rel. L2 2,4·10⁻⁶ · KL 8·10⁻¹² · Greedy 16/16 |
+| Instruct int8 | 160 MB | 274 MB | KL 3,1·10⁻³ · Δp 1,36 pp · Top-10 ≥ 9/10 |
 
 #### P2b: Kapitel 1, 5, 6 · offen
 **Kapitel 1 (Neuronale Netze), 5 (Attention), 6 (Block)**, dafür Hooks in der Engine (Attention-Gewichte, Residual
