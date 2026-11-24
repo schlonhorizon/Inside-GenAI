@@ -47,6 +47,20 @@ Die Stellschrauben im Einzelnen:
 - **Min-p** behält nur Tokens, die mindestens einen Bruchteil der Chance des Favoriten haben.
 - **<Term id="seed">Seed</Term>** legt den Zufall fest. Gleicher Seed und gleiche Einstellungen ergeben immer dasselbe Ergebnis.
 
+### Warum ist das Spielzeugmodell an manchen Stellen so sicher?
+
+Das Spielzeugmodell hat nur einige tausend kurze Sätze gesehen, erzeugt aus einer kleinen Grammatik mit wenigen hundert
+Satzmustern. An vielen Stellen gibt es darin genau eine mögliche Fortsetzung, nach „die hauptstadt“ folgt immer „von“.
+Dort ist das Modell zu Recht sicher. Wo die Daten echte Auswahl bieten, soll es diese Auswahl wiedergeben: Nach
+„die hauptstadt von frankreich ist“ folgt in den Trainingsdaten in <Fact m="toy" k="leit_soll_paris_p" format="pct" />
+der Fälle „paris“, und das Modell gibt „paris“ <Fact m="toy" k="leit_paris_p" format="pct" />.
+
+Ein kleines, gleichförmiges Übungskorpus verführt ein Modell außerdem dazu, die Trainingssätze auswendig zu lernen.
+Es wird übersicher und lässt seltenen Fortsetzungen kaum noch eine Chance. Diese **Überanpassung** (Overfitting)
+bremst man, indem man auf zurückgehaltenen Validierungsdaten misst und das Training rechtzeitig stoppt; mehr dazu in
+[Kapitel 9](#/kapitel/training). Große Modelle sehen Billionen Tokens mit echter Vielfalt, ihre Verteilungen sind
+deshalb an vielen Stellen breiter.
+
 Mit „1000× würfeln“ siehst du, dass die gezogenen Häufigkeiten der Verteilung sehr nahe kommen. Genau deshalb antwortet
 dasselbe Modell auf denselben Prompt manchmal unterschiedlich: Es wird neu gewürfelt.
 

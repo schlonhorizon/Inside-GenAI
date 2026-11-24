@@ -15,7 +15,7 @@
     "LABEL_1": 1
   },
   "problem_type": null,
-  "vocab_size": 76,
+  "vocab_size": 94,
   "hidden_size": 32,
   "intermediate_size": 64,
   "num_hidden_layers": 2,
@@ -36,12 +36,134 @@
     "rope_type": "default"
   },
   "attention_bias": false,
-  "attention_dropout": 0.0,
+  "attention_dropout": 0.1,
   "mlp_bias": false,
   "head_dim": 16,
   "_name_or_path": "",
   "model_type": "llama",
   "output_attentions": false,
   "rope": false,
-  "final_loss": 0.4313
+  "corpus_version": 2,
+  "training": {
+    "best_step": 1800,
+    "best_val_loss": 0.6633,
+    "stopped_at": 2300,
+    "history": [
+      {
+        "step": 100,
+        "train": 0.981,
+        "val": 0.9462
+      },
+      {
+        "step": 200,
+        "train": 0.7982,
+        "val": 0.7746
+      },
+      {
+        "step": 300,
+        "train": 0.7181,
+        "val": 0.7305
+      },
+      {
+        "step": 400,
+        "train": 0.7306,
+        "val": 0.7229
+      },
+      {
+        "step": 500,
+        "train": 0.6828,
+        "val": 0.7085
+      },
+      {
+        "step": 600,
+        "train": 0.7457,
+        "val": 0.7133
+      },
+      {
+        "step": 700,
+        "train": 0.7171,
+        "val": 0.7002
+      },
+      {
+        "step": 800,
+        "train": 0.7062,
+        "val": 0.6829
+      },
+      {
+        "step": 900,
+        "train": 0.6487,
+        "val": 0.6749
+      },
+      {
+        "step": 1000,
+        "train": 0.6731,
+        "val": 0.6761
+      },
+      {
+        "step": 1100,
+        "train": 0.6987,
+        "val": 0.6719
+      },
+      {
+        "step": 1200,
+        "train": 0.6631,
+        "val": 0.6751
+      },
+      {
+        "step": 1300,
+        "train": 0.7075,
+        "val": 0.6712
+      },
+      {
+        "step": 1400,
+        "train": 0.6853,
+        "val": 0.6667
+      },
+      {
+        "step": 1500,
+        "train": 0.679,
+        "val": 0.6699
+      },
+      {
+        "step": 1600,
+        "train": 0.6513,
+        "val": 0.6663
+      },
+      {
+        "step": 1700,
+        "train": 0.6501,
+        "val": 0.6669
+      },
+      {
+        "step": 1800,
+        "train": 0.6659,
+        "val": 0.6633
+      },
+      {
+        "step": 1900,
+        "train": 0.6593,
+        "val": 0.6634
+      },
+      {
+        "step": 2000,
+        "train": 0.6783,
+        "val": 0.6652
+      },
+      {
+        "step": 2100,
+        "train": 0.6473,
+        "val": 0.6662
+      },
+      {
+        "step": 2200,
+        "train": 0.6576,
+        "val": 0.6677
+      },
+      {
+        "step": 2300,
+        "train": 0.6622,
+        "val": 0.6667
+      }
+    ]
+  }
 }

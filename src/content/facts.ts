@@ -18,10 +18,12 @@ export function getFact(model: string, key: string): number | string | undefined
   return m?.available ? m.values[key] : undefined;
 }
 
-export type FactFormat = 'de' | 'compact' | 'raw';
+export type FactFormat = 'de' | 'compact' | 'raw' | 'pct' | 'bits';
 
 export function formatFact(v: number | string, format: FactFormat = 'de'): string {
   if (typeof v === 'string' || format === 'raw') return String(v);
+  if (format === 'pct') return `${(v * 100).toLocaleString('de-DE', { maximumFractionDigits: 0 })} %`;
+  if (format === 'bits') return `${v.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bit`;
   if (format === 'compact') {
     if (v >= 1e9) return `${(v / 1e9).toLocaleString('de-DE', { maximumFractionDigits: 1 })} Mrd.`;
     if (v >= 1e6) return `${(v / 1e6).toLocaleString('de-DE', { maximumFractionDigits: 1 })} Mio.`;

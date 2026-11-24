@@ -33,6 +33,26 @@ for (const m of MODELS) {
   const config = JSON.parse(readFileSync(found, 'utf8'));
   facts[m.id] = { available: true, label: m.label, source: found.replace(root + '/', ''), values: llamaFacts(config) };
 }
+// Toy-Kennzahlen aus der Auswertung (public/data/toy/eval.json) – für <Fact m="toy" k="…" />
+const evalPath = join(root, 'public/data/toy/eval.json');
+if (facts.toy.available && existsSync(evalPath)) {
+  const ev = JSON.parse(readFileSync(evalPath, 'utf8'));
+  const top = Object.fromEntries(ev.leitbeispiel.ist.top5);
+  const soll = Object.fromEntries(ev.leitbeispiel.soll.top5);
+  Object.assign(facts.toy.values, {
+    leit_paris_p: top.paris ?? 0,
+    leit_schoen_p: top['schön'] ?? 0,
+    leit_soll_paris_p: soll.paris ?? 0,
+    eval_positions: ev.after.model.positions,
+    eval_below80_share: ev.after.model.below80_share,
+    eval_entropy_bits: ev.after.model.entropy_bits,
+    eval_kl_bits: ev.after.kl_bits,
+    soll_below80_share: ev.after.soll.below80_share,
+    soll_entropy_bits: ev.after.soll.entropy_bits,
+    before_below80_share: ev.before?.model.below80_share ?? 0,
+    before_entropy_bits: ev.before?.model.entropy_bits ?? 0,
+  });
+}
 writeFileSync(join(out, 'model-facts.json'), JSON.stringify(facts, null, 2) + '\n');
 
 // npm-Lizenzen der direkten Abhängigkeiten

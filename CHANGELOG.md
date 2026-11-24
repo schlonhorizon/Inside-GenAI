@@ -1,5 +1,12 @@
 # Changelog
 
+## Toy-Modell v2 (2026-11-24)
+
+- Korpus als gewichtete Grammatik mit Weggabelungen an vielen Stellen; Training per Sampling, Early Stopping auf Validierungsdaten, kein Label Smoothing
+- Exakte Soll-Verteilung je Präfix; Auswertung in `eval.json` (Soll vs. Modell, KL) und `docs/toy-model.md`
+- Top-1 < 80 % jetzt an 63 % statt 38 % der Prüfpositionen, mittlere Entropie 1,05 statt 0,64 bit, KL(Soll ‖ Modell) 0,025 bit
+- Kapitel 7: Abschnitt „Warum ist das Spielzeugmodell an manchen Stellen so sicher?“ mit Werten aus den Daten statt fester Zahlen
+
 ## P1b: MVP (2026-11-23)
 
 - **Kapitel 0 (Karte):** klickbare Pipeline mit Fortschrittsmarken und Datenfluss-Puls
